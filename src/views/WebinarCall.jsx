@@ -41,22 +41,25 @@ const Home = () => {
     },
   };
 
-  useLayoutEffect(() => {
-    let timeout = null;
-    function updateSize() {
-      if (videoRef.current) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-          setHeight(videoRef.current.clientWidth * 0.75);
-        }, 100);
-      }
+  let timeout = null;
+  const updateSize = () => {
+    if (videoRef.current) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        setHeight(videoRef.current.clientWidth * 0.75);
+      }, 100);
     }
+  };
+
+  useLayoutEffect(() => {
     window.addEventListener("resize", updateSize);
     updateSize();
     return () => window.removeEventListener("resize", updateSize);
   }, []);
 
   useEffect(() => {
+    if (!username) return;
+    if (!videoRef || !videoRef.current) return;
     if (videoRef.current) {
       console.log("in");
       if (roomURL && !callFrame) {
@@ -69,9 +72,12 @@ const Home = () => {
         newCallFrame
           .join({ userName: username })
           .then(() => {
+            updateSize();
+            console.log("set call");
             setCurrentView("call");
           })
           .catch((err) => {
+            console.log(err);
             if (
               !!err &&
               err === "This room is not available yet, please try later"
@@ -83,7 +89,11 @@ const Home = () => {
           });
       }
     }
-  }, [username]);
+    return () => {
+      console.log("destroy");
+      callFrame.destroy();
+    };
+  }, [username, videoRef]);
 
   useEffect(() => {
     if (!roomURL) return;
@@ -94,6 +104,7 @@ const Home = () => {
     e.preventDefault();
     console.log(inputRef.current.value);
     if (inputRef.current && inputRef.current.value?.trim()) {
+      console.log("set username");
       setUsername(inputRef.current.value?.trim());
     }
   };
@@ -125,7 +136,7 @@ const Home = () => {
       <Container height={height}>
         <CallFrame ref={videoRef} hidden={currentView !== "call"} />
       </Container>
-      {currentView === "call" && (
+      {currentView === "call" && username && (
         <Chat callFrame={callFrame} accountType={accountType} />
       )}
     </FlexContainer>
@@ -136,7 +147,6 @@ const FlexContainer = styled.div`
   display: flex;
   align-items: stretch;
   flex-wrap: wrap;
-  flex-direction: column;
 `;
 
 const WaitingRoom = styled.div`
@@ -148,14 +158,14 @@ const Container = styled.div`
   margin-right: 0.5rem;
   margin-left: 0.5rem;
   flex-basis: 600px;
-  height: ${(props) => props.height || 100}px;
+  height: ${(props) => props.height || 400}px;
   margin-bottom: 2rem;
 `;
 
 const CallFrame = styled.div`
   height: 100%;
   width: 100%;
-  visible: ${(props) => (props.hidden ? "hidden" : "visible")};
+  visibility: ${(props) => (props.hidden ? "hidden" : "visible")};
 `;
 
 export default Home;
