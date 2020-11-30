@@ -6,32 +6,58 @@ import ErrorMessage from "../components/ErrorMessage";
 import Loading from "../components/Loading";
 import SubHeader from "../components/text/SubHeader";
 import BodyText from "../components/text/BodyText";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 
 const WebinarCall = () => {
   const videoRef = useRef(null);
   const [currentView, setCurrentView] = useState("loading"); // loading | call | waiting | error | needsUsername
   const [username, setUsername] = useState(null);
+  const [token, setToken] = useState(null);
   const [callFrame, setCallFrame] = useState(null);
   const [accountType, setAccountType] = useState(null);
   const [height, setHeight] = useState(null);
   const [roomURL, setRoomUrl] = useState();
-  const defaultRoom = process.env.REACT_APP_BASE_URL;
+  const baseUrl = process.env.REACT_APP_BASE_URL;
   const { roomName } = useParams();
+  const { search } = useLocation();
   const inputRef = useRef();
-
+  // ?t=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvIjp0cnVlLCJ1IjoiamVzcyIsInNzIjp0cnVlLCJ2byI6ZmFsc2UsImFvIjpmYWxzZSwiciI6IndlYmluYXIiLCJkIjoiNDNkNWVhYjgtZjRiNy00ZjUxLTlkNjUtOTY4N2UyOGJkYjRlIiwiaWF0IjoxNjA2NDA4MDI5fQ.SSLKfjRtGN_ikqiy1ykxJwHMlXar19ZpBe61svkubKs
   const makeAdmin = () => {
     setAccountType("admin");
-    const room = `${defaultRoom}/${roomURL}?t=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvIjp0cnVlLCJ1IjoiamVzcyIsInNzIjp0cnVlLCJ2byI6ZmFsc2UsImFvIjpmYWxzZSwiciI6IndlYmluYXIiLCJkIjoiNDNkNWVhYjgtZjRiNy00ZjUxLTlkNjUtOTY4N2UyOGJkYjRlIiwiaWF0IjoxNjA2NDA4MDI5fQ.SSLKfjRtGN_ikqiy1ykxJwHMlXar19ZpBe61svkubKs`;
+    const room = `${baseUrl}/${roomURL}?t=${token}`;
     console.log(room);
     setRoomUrl(room);
   };
 
   const makeMember = () => {
     setAccountType("member");
-    const room = `${defaultRoom}${roomName}`;
+    const room = `${baseUrl}${roomName}`;
     console.log("here", room);
     setRoomUrl(room);
+  };
+  console.log(useLocation());
+  useEffect(() => {
+    if (currentView === "loading") {
+      if (search && search.match(/^[?t=]/)) {
+        console.log("validate");
+      } else {
+        makeMember();
+      }
+    }
+  }, [currentView]);
+
+  useEffect(() => {
+    if (!roomURL) return;
+    setCurrentView("waiting");
+  }, [roomURL]);
+
+  const submitName = (e) => {
+    e.preventDefault();
+    console.log(inputRef.current.value);
+    if (inputRef.current && inputRef.current.value?.trim()) {
+      console.log("set username");
+      setUsername(inputRef.current.value?.trim());
+    }
   };
 
   const CALL_OPTIONS = {
@@ -94,20 +120,6 @@ const WebinarCall = () => {
       callFrame.destroy();
     };
   }, [username, videoRef]);
-
-  useEffect(() => {
-    if (!roomURL) return;
-    setCurrentView("waiting");
-  }, [roomURL]);
-
-  const submitName = (e) => {
-    e.preventDefault();
-    console.log(inputRef.current.value);
-    if (inputRef.current && inputRef.current.value?.trim()) {
-      console.log("set username");
-      setUsername(inputRef.current.value?.trim());
-    }
-  };
 
   return (
     <FlexContainer>

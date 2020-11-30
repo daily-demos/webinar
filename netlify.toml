@@ -20,4 +20,7 @@
   force = true
   headers = {Authorization = "Bearer DAILY_API_KEY_PLACEHOLDER"}  
 
-
+[[redirects]]
+  from = "/*"
+  to = "/"
+  status = 200
