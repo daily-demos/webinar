@@ -1,0 +1,29 @@
+[build]
+  # If you prefer to use a Netlify function to make the API calls
+  # uncomment the line below, and change the endpoint in index.js
+  # functions = "functions/"
+  command = "sed -i s/DAILY_API_KEY_PLACEHOLDER/${DAILY_API_KEY}/g netlify.toml"
+
+[template.environment]
+  DAILY_API_KEY = "Replace with API key"
+
+[[redirects]]
+  # Proxies the Daily /rooms endpoint, POST will create a room and a GET will return a list 
+  # The placeholder below gets replaced when the build command above runs
+  # as suggested here: https://docs.netlify.com/configure-builds/file-based-configuration/#inject-environment-variable-values
+  # IF YOU RUN THIS COMMAND LOCALLY DO NOT COMMIT THIS FILE WITH THE API KEY IN IT
+  # MAKE SURE THE PLACEHOLDER TEXT IS THERE WHENEVER YOU ARE DONE TESTING LOCALLY
+  from = "/api/rooms/:name"
+  to = "https://api.daily.co/v1/rooms/:name"
+  status = 200
+  force = true
+  headers = {Authorization = "Bearer DAILY_API_KEY_PLACEHOLDER"}
+
+[[redirects]]
+  from = "/api/meeting-tokens/:token"
+  to = "https://api.daily.co/v1/meeting-tokens/:token"
+  status = 200
+  force = true
+  headers = {Authorization = "Bearer DAILY_API_KEY_PLACEHOLDER"}  
+
+
