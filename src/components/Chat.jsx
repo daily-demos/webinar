@@ -60,7 +60,7 @@ const Chat = ({ callFrame, accountType }) => {
   return (
     <FlexContainer>
       <SubHeader>
-        {accountType !== "admin"
+        {accountType === "admin"
           ? "Hey, you're now hosting a Daily webinar"
           : "Have a question about Daily?"}
       </SubHeader>

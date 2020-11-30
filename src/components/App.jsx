@@ -5,9 +5,9 @@ import theme from "../theme";
 import WebinarCall from "../views/WebinarCall";
 import Home from "../views/Home";
 import Header from "./Header";
-import slash1 from "./images/slash1.svg";
-import slash2 from "./images/slash2.svg";
-import slash3 from "./images/slash3.svg";
+import decorativeSlash1 from "./images/slash1.svg";
+import decorativeSlash2 from "./images/slash2.svg";
+import decorativeSlash3 from "./images/slash3.svg";
 import WelcomeMessage from "./WelcomeMessage";
 import Footer from "./Footer";
 
@@ -16,15 +16,15 @@ function App() {
     <Router>
       <Container>
         <ImageContainer>
-          <BackgroundImg1 src={slash1} alt=" " />
-          <BackgroundImg2 src={slash2} alt=" " />
-          <BackgroundImg3 src={slash3} alt=" " />
+          <BackgroundImg1 src={decorativeSlash1} alt=" " />
+          <BackgroundImg2 src={decorativeSlash2} alt=" " />
+          <BackgroundImg3 src={decorativeSlash3} alt=" " />
         </ImageContainer>
         <Body>
           <Header />
           <WelcomeMessage />
           <Switch>
-            <Route path="/:roomUrl">
+            <Route path="/:roomName">
               <WebinarCall />
             </Route>
             <Route path="/">

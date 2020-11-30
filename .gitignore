@@ -24,3 +24,5 @@ yarn-error.log*
 .vscode
 notes.md
 .eslintcache
+
+.env

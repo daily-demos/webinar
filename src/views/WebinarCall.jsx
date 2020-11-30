@@ -6,6 +6,7 @@ import ErrorMessage from "../components/ErrorMessage";
 import Loading from "../components/Loading";
 import SubHeader from "../components/text/SubHeader";
 import BodyText from "../components/text/BodyText";
+import { useParams } from "react-router-dom";
 
 const Home = () => {
   const videoRef = useRef(null);
@@ -15,19 +16,22 @@ const Home = () => {
   const [accountType, setAccountType] = useState(null);
   const [height, setHeight] = useState(null);
   const [roomURL, setRoomUrl] = useState();
-  const defaultRoom = "https://jessmitch.staging.daily.co/webinar";
+  const defaultRoom = process.env.REACT_APP_BASE_URL;
+  const { roomName } = useParams();
+  const inputRef = useRef();
 
   const makeAdmin = () => {
     setAccountType("admin");
-    setRoomUrl(
-      `${defaultRoom}?t=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvIjp0cnVlLCJ1IjoiamVzcyIsInNzIjp0cnVlLCJ2byI6ZmFsc2UsImFvIjpmYWxzZSwiciI6IndlYmluYXIiLCJkIjoiNDNkNWVhYjgtZjRiNy00ZjUxLTlkNjUtOTY4N2UyOGJkYjRlIiwiaWF0IjoxNjA2NDA4MDI5fQ.SSLKfjRtGN_ikqiy1ykxJwHMlXar19ZpBe61svkubKs`
-    );
+    const room = `${defaultRoom}/${roomURL}?t=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvIjp0cnVlLCJ1IjoiamVzcyIsInNzIjp0cnVlLCJ2byI6ZmFsc2UsImFvIjpmYWxzZSwiciI6IndlYmluYXIiLCJkIjoiNDNkNWVhYjgtZjRiNy00ZjUxLTlkNjUtOTY4N2UyOGJkYjRlIiwiaWF0IjoxNjA2NDA4MDI5fQ.SSLKfjRtGN_ikqiy1ykxJwHMlXar19ZpBe61svkubKs`;
+    console.log(room);
+    setRoomUrl(room);
   };
 
   const makeMember = () => {
     setAccountType("member");
-
-    setRoomUrl(`${defaultRoom}`);
+    const room = `${defaultRoom}${roomName}`;
+    console.log("here", room);
+    setRoomUrl(room);
   };
 
   const CALL_OPTIONS = {
@@ -63,9 +67,9 @@ const Home = () => {
         );
         setCallFrame(newCallFrame);
         newCallFrame
-          .join()
+          .join({ userName: username })
           .then(() => {
-            setCurrentView("needsUsername");
+            setCurrentView("call");
           })
           .catch((err) => {
             if (
@@ -79,7 +83,20 @@ const Home = () => {
           });
       }
     }
-  }, [videoRef, roomURL]);
+  }, [username]);
+
+  useEffect(() => {
+    if (!roomURL) return;
+    setCurrentView("waiting");
+  }, [roomURL]);
+
+  const submitName = (e) => {
+    e.preventDefault();
+    console.log(inputRef.current.value);
+    if (inputRef.current && inputRef.current.value?.trim()) {
+      setUsername(inputRef.current.value?.trim());
+    }
+  };
 
   return (
     <FlexContainer>
@@ -93,26 +110,20 @@ const Home = () => {
       {currentView === "error" && <ErrorMessage />}
       {currentView === "waiting" && (
         <WaitingRoom>
-          <SubHeader>Welcome to our Daily Webinar!</SubHeader>
-          <BodyText>
-            We'll be going live shortly and answering any questions you may have
-            about the Daily video call APIs.
-          </BodyText>
-        </WaitingRoom>
-      )}
-      {currentView === "needsUsername" && (
-        <WaitingRoom>
-          <SubHeader>Welcome to our Daily Webinar!</SubHeader>
+          <SubHeader>Welcome to Daily!</SubHeader>
           <BodyText>
             Before joining, please share your name with us so we know who you
             are!
           </BodyText>
-          <label htmlFor="username">Name</label>
-          <input id="username" type="text" />
+          <form onSubmit={submitName}>
+            <label htmlFor="username">Name</label>
+            <input ref={inputRef} id="username" type="text" />
+            <input type="submit" />
+          </form>
         </WaitingRoom>
       )}
       <Container height={height}>
-        <CallFrame ref={videoRef} visible={currentView === "call"} />
+        <CallFrame ref={videoRef} hidden={currentView !== "call"} />
       </Container>
       {currentView === "call" && (
         <Chat callFrame={callFrame} accountType={accountType} />
@@ -144,7 +155,7 @@ const Container = styled.div`
 const CallFrame = styled.div`
   height: 100%;
   width: 100%;
-  visible: ${(props) => (props.visible ? "visible" : "hidden")}px;
+  visible: ${(props) => (props.hidden ? "hidden" : "visible")};
 `;
 
 export default Home;
