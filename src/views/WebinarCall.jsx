@@ -8,7 +8,7 @@ import SubHeader from "../components/text/SubHeader";
 import BodyText from "../components/text/BodyText";
 import { useParams } from "react-router-dom";
 
-const Home = () => {
+const WebinarCall = () => {
   const videoRef = useRef(null);
   const [currentView, setCurrentView] = useState("loading"); // loading | call | waiting | error | needsUsername
   const [username, setUsername] = useState(null);
@@ -168,4 +168,4 @@ const CallFrame = styled.div`
   visibility: ${(props) => (props.hidden ? "hidden" : "visible")};
 `;
 
-export default Home;
+export default WebinarCall;
