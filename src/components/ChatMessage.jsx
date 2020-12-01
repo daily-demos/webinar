@@ -4,7 +4,7 @@ import theme from "../theme";
 
 const ChatMessage = ({ chat }) => {
   // type = broadcast | toAdmin | toMember
-  console.log(chat);
+  //   console.log(chat);
   return (
     <Container type={chat.type}>
       <Username>

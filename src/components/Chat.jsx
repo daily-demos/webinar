@@ -6,11 +6,17 @@ import BodyText from "./text/BodyText";
 import ChatMessage from "./ChatMessage";
 
 const Chat = ({ callFrame, accountType }) => {
-  const [chatHistory, setChatHistory] = useState([]);
+  const [chatHistory, _setChatHistory] = useState([]);
+  const chatHistoryRef = useRef(chatHistory);
   const inputRef = useRef();
 
+  const setChatHistory = (history) => {
+    // use ref to chat history so state values in event handlers are current
+    chatHistoryRef.current = history;
+    _setChatHistory(history);
+  };
+
   const submitMessage = (e) => {
-    console.log("submitting");
     e.preventDefault();
     if (callFrame && inputRef.current) {
       const { session_id } = callFrame._participants.local;
@@ -20,29 +26,25 @@ const Chat = ({ callFrame, accountType }) => {
         message: inputRef.current.value,
         to,
       });
-
       setChatHistory([
-        ...chatHistory,
+        ...chatHistoryRef.current,
         {
           message: inputRef.current.value,
           username: "Me",
           type: accountType === "admin" ? "broadcast" : "toAdmin",
         },
       ]);
-      console.log(chatHistory);
 
       inputRef.current.value = "";
     }
   };
 
   const updateChat = (e) => {
-    console.log("updating");
-    console.log(chatHistory);
     const participants = callFrame.participants();
     const username = participants[e.fromId].user_name;
     const { message } = e.data;
     setChatHistory([
-      ...chatHistory,
+      ...chatHistoryRef.current,
       {
         message,
         username,
@@ -55,6 +57,9 @@ const Chat = ({ callFrame, accountType }) => {
     if (callFrame) {
       callFrame.on("app-message", updateChat);
     }
+    return () => {
+      callFrame.on("app-message", updateChat);
+    };
   }, [callFrame]);
 
   return (
@@ -89,8 +94,8 @@ const Chat = ({ callFrame, accountType }) => {
       )}
       <Container>
         <ChatBox>
-          {chatHistory.map((chat) => (
-            <ChatMessage chat={chat} />
+          {chatHistory.map((chat, i) => (
+            <ChatMessage key={`chat-message-${i}`} chat={chat} />
           ))}
         </ChatBox>
         <Form onSubmit={submitMessage}>
