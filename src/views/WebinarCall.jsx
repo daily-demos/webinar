@@ -86,25 +86,34 @@ const WebinarCall = () => {
   // http://localhost:3000/webinar?t=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvIjp0cnVlLCJ1IjoiamVzcyIsInNzIjp0cnVlLCJ2byI6ZmFsc2UsImFvIjpmYWxzZSwiciI6IndlYmluYXIiLCJkIjoiNDNkNWVhYjgtZjRiNy00ZjUxLTlkNjUtOTY4N2UyOGJkYjRlIiwiaWF0IjoxNjA2NDA4MDI5fQ.SSLKfjRtGN_ikqiy1ykxJwHMlXar19ZpBe61svkubKs
 
   useEffect(() => {
-    if (!videoRef || !videoRef.current || !roomInfo) return;
-    if (!roomInfo.username) {
+    if (!videoRef || !videoRef?.current || !roomInfo) return;
+    if (!roomInfo?.username) {
       setCurrentView("waiting");
       return;
     } // needs to be entered by participant
     console.log(roomInfo);
     if (!callFrame) {
-      CALL_OPTIONS.url = roomInfo.url;
+      CALL_OPTIONS.url = roomInfo?.url;
       const newCallFrame = DailyIframe.createFrame(
         videoRef.current,
         CALL_OPTIONS
       );
       setCallFrame(newCallFrame);
       newCallFrame
-        .join({ userName: roomInfo.username })
+        .join({ userName: roomInfo?.username })
         .then(() => {
           updateSize();
           console.log("set call");
           setCurrentView("call");
+          // const showEvent = (e) => console.log(e);
+          // newCallFrame;
+          // .on("loading", showEvent)
+          // .on("loaded", showEvent)
+          // .on("joining-meeting", showEvent)
+          // .on("joined-meeting", showEvent)
+          // .on("participant-joined", showEvent)
+          // .on("participant-updated", showEvent)
+          // .on("participant-left", showEvent);
         })
         .catch((err) => {
           console.log(err);
@@ -128,10 +137,10 @@ const WebinarCall = () => {
 
   let timeout = null;
   const updateSize = () => {
-    if (videoRef.current) {
+    if (videoRef?.current) {
       clearTimeout(timeout);
       timeout = setTimeout(() => {
-        setHeight(videoRef.current.clientWidth * 0.75);
+        setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
       }, 100);
     }
   };
@@ -173,7 +182,7 @@ const WebinarCall = () => {
         <CallFrame ref={videoRef} hidden={currentView !== "call"} />
       </Container>
       {currentView === "call" && roomInfo.username && (
-        <Chat callFrame={callFrame} accountType={roomInfo.accountType} />
+        <Chat callFrame={callFrame} accountType={roomInfo?.accountType} />
       )}
     </FlexContainer>
   );

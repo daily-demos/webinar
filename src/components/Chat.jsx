@@ -7,8 +7,32 @@ import ChatMessage from "./ChatMessage";
 
 const Chat = ({ callFrame, accountType }) => {
   const [chatHistory, _setChatHistory] = useState([]);
+  const [appMessageHandlerAdded, setAppMessageHandlerAdded] = useState(false);
   const chatHistoryRef = useRef(chatHistory);
   const inputRef = useRef();
+
+  const updateChat = (e) => {
+    console.log(e);
+    const participants = callFrame.participants();
+    const username = participants[e.fromId].user_name;
+    const { message, to } = e.data;
+    setChatHistory([
+      ...chatHistoryRef.current,
+      {
+        message,
+        username,
+        type: to === "*" ? "broadcast" : "toMember",
+      },
+    ]);
+  };
+
+  useEffect(() => {
+    if (callFrame && !appMessageHandlerAdded) {
+      console.log(callFrame);
+      callFrame.on("app-message", updateChat);
+      setAppMessageHandlerAdded(true);
+    }
+  }, [callFrame]);
 
   const setChatHistory = (history) => {
     // use ref to chat history so state values in event handlers are current
@@ -19,9 +43,22 @@ const Chat = ({ callFrame, accountType }) => {
   const submitMessage = (e) => {
     e.preventDefault();
     if (callFrame && inputRef.current) {
-      const { session_id } = callFrame._participants.local;
-
-      const to = accountType === "admin" ? "*" : session_id;
+      console.log(callFrame.participants());
+      let to = null;
+      console.log(accountType);
+      if (accountType === "admin") {
+        to = "*";
+      } else {
+        const participants = callFrame.participants();
+        const ids = Object.keys(participants);
+        ids.forEach((id) => {
+          if (participants[id]?.owner) {
+            console.log("in");
+            to = participants[id].session_id;
+          }
+        });
+      }
+      console.log(to);
       callFrame.sendAppMessage({
         message: inputRef.current.value,
         to,
@@ -31,36 +68,13 @@ const Chat = ({ callFrame, accountType }) => {
         {
           message: inputRef.current.value,
           username: "Me",
-          type: accountType === "admin" ? "broadcast" : "toAdmin",
+          type: accountType === "admin" ? "toMember" : "toAdmin",
         },
       ]);
 
       inputRef.current.value = "";
     }
   };
-
-  const updateChat = (e) => {
-    const participants = callFrame.participants();
-    const username = participants[e.fromId].user_name;
-    const { message } = e.data;
-    setChatHistory([
-      ...chatHistoryRef.current,
-      {
-        message,
-        username,
-        type: accountType === "admin" ? "toAdmin" : "broadcast",
-      },
-    ]);
-  };
-
-  useEffect(() => {
-    if (callFrame) {
-      callFrame.on("app-message", updateChat);
-    }
-    return () => {
-      callFrame.on("app-message", updateChat);
-    };
-  }, [callFrame]);
 
   return (
     <FlexContainer>
@@ -105,6 +119,14 @@ const Chat = ({ callFrame, accountType }) => {
           <ChatInputContainer>
             <Input ref={inputRef} rows="2" id="messageInput" type="text" />
             <ButtonContainer>
+              {/* {accountType === "admin" && (
+                <select name="" id="">
+                  {participants.map((p) => (
+                    <option value={p.username}>{p.username}</option>
+                  ))}
+                </select>
+              )} */}
+
               <SubmitButton value="Send" type="submit" />
             </ButtonContainer>
           </ChatInputContainer>
@@ -146,7 +168,7 @@ const Label = styled.label`
 const ChatInputContainer = styled.div`
   display: flex;
 `;
-const Input = styled.textarea`
+const Input = styled.input`
   width: 100%;
   box-sizing: border-box;
   line-height: 22px;

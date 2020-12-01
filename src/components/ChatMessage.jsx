@@ -4,12 +4,14 @@ import theme from "../theme";
 
 const ChatMessage = ({ chat }) => {
   // type = broadcast | toAdmin | toMember
-  //   console.log(chat);
+  console.log(chat);
   return (
     <Container type={chat.type}>
       <Username>
         {chat.username}
-        {chat.type !== "toAdmin" ? " (Admin)" : ""}
+        {chat.type === "toMember" || chat.type === "broadcast"
+          ? " (Admin)"
+          : ""}
       </Username>
       <Message>{chat.message}</Message>
     </Container>
