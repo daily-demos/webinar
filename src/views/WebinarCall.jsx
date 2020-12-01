@@ -10,53 +10,70 @@ import { useParams, useLocation } from "react-router-dom";
 
 const WebinarCall = () => {
   const videoRef = useRef(null);
-  const [currentView, setCurrentView] = useState("loading"); // loading | call | waiting | error | needsUsername
-  const [username, setUsername] = useState(null);
-  const [token, setToken] = useState(null);
+  const inputRef = useRef();
+
+  const [currentView, setCurrentView] = useState("loading"); // loading | call | waiting | error
   const [callFrame, setCallFrame] = useState(null);
-  const [accountType, setAccountType] = useState(null);
   const [height, setHeight] = useState(null);
-  const [roomURL, setRoomUrl] = useState();
+  const [roomInfo, setRoomInfo] = useState(null); // {token?: string, accountType: 'participant' | 'admin', username: string, url: string }
+  const [startTime, setStartTime] = useState(null);
+
   const baseUrl = process.env.REACT_APP_BASE_URL;
+  // ?t=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvIjp0cnVlLCJ1IjoiamVzcyIsInNzIjp0cnVlLCJ2byI6ZmFsc2UsImFvIjpmYWxzZSwiciI6IndlYmluYXIiLCJkIjoiNDNkNWVhYjgtZjRiNy00ZjUxLTlkNjUtOTY4N2UyOGJkYjRlIiwiaWF0IjoxNjA2NDA4MDI5fQ.SSLKfjRtGN_ikqiy1ykxJwHMlXar19ZpBe61svkubKs
   const { roomName } = useParams();
   const { search } = useLocation();
-  const inputRef = useRef();
-  // ?t=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvIjp0cnVlLCJ1IjoiamVzcyIsInNzIjp0cnVlLCJ2byI6ZmFsc2UsImFvIjpmYWxzZSwiciI6IndlYmluYXIiLCJkIjoiNDNkNWVhYjgtZjRiNy00ZjUxLTlkNjUtOTY4N2UyOGJkYjRlIiwiaWF0IjoxNjA2NDA4MDI5fQ.SSLKfjRtGN_ikqiy1ykxJwHMlXar19ZpBe61svkubKs
-  const makeAdmin = () => {
-    setAccountType("admin");
-    const room = `${baseUrl}/${roomURL}?t=${token}`;
-    console.log(room);
-    setRoomUrl(room);
-  };
 
-  const makeMember = () => {
-    setAccountType("member");
-    const room = `${baseUrl}${roomName}`;
-    console.log("here", room);
-    setRoomUrl(room);
-  };
-  console.log(useLocation());
   useEffect(() => {
+    if (roomInfo) return;
     if (currentView === "loading") {
-      if (search && search.match(/^[?t=]/)) {
-        console.log("validate");
+      console.log(roomName);
+      fetch(`https://daily-webinar.netlify.app/api/rooms/${roomName}`, {})
+        .then((res) => res.json())
+        .then((res) => setStartTime(new Date(res.config.nbf).toUTCString()))
+        .catch((err) => console.log(err));
+      console.log(search);
+      if (search && search.match(/^[?t=*+]/)) {
+        console.log("matches admin");
+        const token = search.replace("?t=", "");
+        fetch(`https://daily-webinar.netlify.app/api/meeting-tokens/${token}`)
+          .then((res) => res.json())
+          .then((res) => {
+            if (res.is_owner && res.room_name === roomName) {
+              console.log("set admin");
+              // add admin setting
+              setRoomInfo({
+                token,
+                username: res.user_name,
+                url: `${baseUrl}${roomName}?t=${token}`,
+                accountType: "admin",
+              });
+            } else {
+              console("admin error");
+              setCurrentView("error");
+            }
+          })
+          .catch((err) => console.log(err));
       } else {
-        makeMember();
+        console.log("set participant");
+        setRoomInfo({
+          token: null,
+          username: null,
+          url: `${baseUrl}${roomName}`,
+          accountType: "participant",
+        });
       }
     }
   }, [currentView]);
-
-  useEffect(() => {
-    if (!roomURL) return;
-    setCurrentView("waiting");
-  }, [roomURL]);
 
   const submitName = (e) => {
     e.preventDefault();
     console.log(inputRef.current.value);
     if (inputRef.current && inputRef.current.value?.trim()) {
       console.log("set username");
-      setUsername(inputRef.current.value?.trim());
+      setRoomInfo({
+        ...roomInfo,
+        username: inputRef.current.value?.trim(),
+      });
     }
   };
 
@@ -66,6 +83,48 @@ const WebinarCall = () => {
       height: "100%",
     },
   };
+  // http://localhost:3000/webinar?t=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvIjp0cnVlLCJ1IjoiamVzcyIsInNzIjp0cnVlLCJ2byI6ZmFsc2UsImFvIjpmYWxzZSwiciI6IndlYmluYXIiLCJkIjoiNDNkNWVhYjgtZjRiNy00ZjUxLTlkNjUtOTY4N2UyOGJkYjRlIiwiaWF0IjoxNjA2NDA4MDI5fQ.SSLKfjRtGN_ikqiy1ykxJwHMlXar19ZpBe61svkubKs
+
+  useEffect(() => {
+    if (!videoRef || !videoRef.current || !roomInfo) return;
+    if (!roomInfo.username) {
+      setCurrentView("waiting");
+      return;
+    } // needs to be entered by participant
+    console.log(roomInfo);
+    if (!callFrame) {
+      CALL_OPTIONS.url = roomInfo.url;
+      const newCallFrame = DailyIframe.createFrame(
+        videoRef.current,
+        CALL_OPTIONS
+      );
+      setCallFrame(newCallFrame);
+      newCallFrame
+        .join({ userName: roomInfo.username })
+        .then(() => {
+          updateSize();
+          console.log("set call");
+          setCurrentView("call");
+        })
+        .catch((err) => {
+          console.log(err);
+          if (
+            !!err &&
+            err === "This room is not available yet, please try later"
+          ) {
+            setCurrentView("waiting");
+          } else {
+            setCurrentView("error");
+          }
+        });
+    }
+    return () => {
+      console.log("destroy");
+      if (callFrame) {
+        callFrame.destroy();
+      }
+    };
+  }, [roomInfo, videoRef]);
 
   let timeout = null;
   const updateSize = () => {
@@ -81,59 +140,24 @@ const WebinarCall = () => {
     window.addEventListener("resize", updateSize);
     updateSize();
     return () => window.removeEventListener("resize", updateSize);
-  }, []);
-
-  useEffect(() => {
-    if (!username) return;
-    if (!videoRef || !videoRef.current) return;
-    if (videoRef.current) {
-      console.log("in");
-      if (roomURL && !callFrame) {
-        CALL_OPTIONS.url = roomURL;
-        const newCallFrame = DailyIframe.createFrame(
-          videoRef.current,
-          CALL_OPTIONS
-        );
-        setCallFrame(newCallFrame);
-        newCallFrame
-          .join({ userName: username })
-          .then(() => {
-            updateSize();
-            console.log("set call");
-            setCurrentView("call");
-          })
-          .catch((err) => {
-            console.log(err);
-            if (
-              !!err &&
-              err === "This room is not available yet, please try later"
-            ) {
-              setCurrentView("waiting");
-            } else {
-              setCurrentView("error");
-            }
-          });
-      }
-    }
-    return () => {
-      console.log("destroy");
-      callFrame.destroy();
-    };
-  }, [username, videoRef]);
+  }, [callFrame]);
 
   return (
     <FlexContainer>
-      {!accountType && (
-        <div>
-          <button onClick={makeAdmin}>make admin</button>
-          <button onClick={makeMember}>make member</button>
-        </div>
-      )}
       {currentView === "loading" && <Loading />}
       {currentView === "error" && <ErrorMessage />}
       {currentView === "waiting" && (
         <WaitingRoom>
           <SubHeader>Welcome to Daily!</SubHeader>
+          {startTime && (
+            <BodyText>This call will start at: ${startTime}</BodyText>
+          )}
+          <BodyText>
+            Your camera and mic will be off by default for the entire duration
+            of the call. The call will have a chat next to it to communicate
+            with the presenter and ask questions about Daily. We encourage you
+            to use this call to clarify any questions you may have!
+          </BodyText>
           <BodyText>
             Before joining, please share your name with us so we know who you
             are!
@@ -148,8 +172,8 @@ const WebinarCall = () => {
       <Container height={height}>
         <CallFrame ref={videoRef} hidden={currentView !== "call"} />
       </Container>
-      {currentView === "call" && username && (
-        <Chat callFrame={callFrame} accountType={accountType} />
+      {currentView === "call" && roomInfo.username && (
+        <Chat callFrame={callFrame} accountType={roomInfo.accountType} />
       )}
     </FlexContainer>
   );
