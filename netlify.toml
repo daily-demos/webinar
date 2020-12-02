@@ -21,8 +21,8 @@
   headers = {Authorization = "Bearer DAILY_API_KEY_PLACEHOLDER"}  
 
 [[redirects]]
-  from = "/api/typeform/:response_id"
-  to = "https://api.typeform.com/forms/REACT_APP_TYPEFORM_ID_PLACEHOLDER/responses?included_response_ids=:response_id"
+  from = "/api/typeform"
+  to = "https://api.typeform.com/forms/REACT_APP_TYPEFORM_ID_PLACEHOLDER/responses"
   status = 200
   force = true
   headers = {Authorization = "Bearer REACT_APP_TYPEFORM_TOKEN_PLACEHOLDER"}  

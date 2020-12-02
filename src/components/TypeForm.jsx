@@ -10,7 +10,7 @@ const TypeForm = () => {
     // fetch(
     //   `https://api.typeform.com/forms/${process.env.REACT_APP_TYPEFORM_ID}/responses`,
     //   `https://api.typeform.com/forms/${process.env.REACT_APP_TYPEFORM_ID}/responses?included_response_ids=${e.response_id}`,
-    fetch(`https://daily-webinar.netlify.app/api/typeform/${e.response_id}`, {
+    fetch(`https://daily-webinar.netlify.app/api/typeform`, {
       method: "GET",
       headers: {
         Authorization: bearer,
