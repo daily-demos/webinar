@@ -32,5 +32,3 @@
   from = "/*"
   to = "/index.html"
   status = 200
-
-  https://api.typeform.com/forms/${process.env.REACT_APP_TYPEFORM_ID}/responses?included_response_ids=${e.response_id}
