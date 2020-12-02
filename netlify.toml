@@ -20,8 +20,17 @@
   force = true
   headers = {Authorization = "Bearer DAILY_API_KEY_PLACEHOLDER"}  
 
+[[redirects]]
+  from = "/api/typeform/:response_id"
+  to = "https://api.typeform.com/forms/REACT_APP_TYPEFORM_ID_PLACEHOLDER/responses?included_response_ids=:response_id"
+  status = 200
+  force = true
+  headers = {Authorization = "Bearer REACT_APP_TYPEFORM_TOKEN_PLACEHOLDER"}  
+
 # The following redirect is intended for use with most SPAs that handle routing internally.
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+  https://api.typeform.com/forms/${process.env.REACT_APP_TYPEFORM_ID}/responses?included_response_ids=${e.response_id}

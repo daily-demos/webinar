@@ -7,17 +7,16 @@ const TypeForm = () => {
   const onSubmit = function (e) {
     console.log(e, process.env.REACT_APP_TYPEFORM_TOKEN);
     const bearer = `Bearer ${process.env.REACT_APP_TYPEFORM_TOKEN}`;
-    fetch(
-      `https://api.typeform.com/forms/${process.env.REACT_APP_TYPEFORM_ID}/responses`,
-      //   `https://api.typeform.com/forms/${process.env.REACT_APP_TYPEFORM_ID}/responses?included_response_ids=${e.response_id}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: bearer,
-        },
-        mode: "no-cors",
-      }
-    )
+    // fetch(
+    //   `https://api.typeform.com/forms/${process.env.REACT_APP_TYPEFORM_ID}/responses`,
+    //   `https://api.typeform.com/forms/${process.env.REACT_APP_TYPEFORM_ID}/responses?included_response_ids=${e.response_id}`,
+    fetch(`https://daily-webinar.netlify.app/api/typeform/${e.response_id}`, {
+      method: "GET",
+      headers: {
+        Authorization: bearer,
+      },
+      mode: "no-cors",
+    })
       .then((res) => res.json())
       .then((res) => console.log(res))
       .catch((err) => {
@@ -35,6 +34,7 @@ const TypeForm = () => {
         hideHeaders: true,
         opacity: 0,
         onSubmit,
+        onScreenChanged: onSubmit,
       }
     );
   }, [typeformRef]);
