@@ -6,7 +6,15 @@ import BodyText from "./text/BodyText";
 import ChatMessage from "./ChatMessage";
 
 const Chat = ({ callFrame, accountType }) => {
-  const [chatHistory, _setChatHistory] = useState([]);
+  const welcomeMessage = {
+    message:
+      "Welcome! Please let us know if you have any questions through this chat. (Messages you send can only be seen by the host.)",
+    type: "info",
+    username: null,
+  };
+  const [chatHistory, _setChatHistory] = useState(
+    accountType === "admin" ? [] : [welcomeMessage]
+  );
   const [adminSendToType, _setAdminSendToType] = useState("*");
   const [appMessageHandlerAdded, setAppMessageHandlerAdded] = useState(false);
   const chatHistoryRef = useRef(chatHistory);
@@ -17,6 +25,7 @@ const Chat = ({ callFrame, accountType }) => {
     const participants = callFrame.participants();
     const username = participants[e.fromId].user_name;
     const { message, to } = e.data;
+    console.log(to);
     setChatHistory([
       ...chatHistoryRef.current,
       {
@@ -105,10 +114,6 @@ const Chat = ({ callFrame, accountType }) => {
             Message us here during the webinar and we'll answer during the Q&A
             period!
           </BodyText>
-          <BodyText>
-            Only admins can see your messages. Admins can respond directly to
-            you or to everyone attending.
-          </BodyText>
         </>
       ) : (
         <>
@@ -133,14 +138,14 @@ const Chat = ({ callFrame, accountType }) => {
             Message {accountType !== "admin" ? "Daily admin" : ""}
           </Label>
           <ChatInputContainer>
-            <Input ref={inputRef} rows="2" id="messageInput" type="text" />
+            <Input ref={inputRef} id="messageInput" type="text" />
             <ButtonContainer>
               {accountType === "admin" && callFrame?.participants() && (
                 <select onChange={adminMessageSelectOnChange}>
                   <option value="*">Everyone</option>
                   {Object.values(callFrame.participants()).map((p) => {
-                    console.log(p);
                     if (!p.owner) {
+                      // only show participants for direct messages
                       return (
                         <option value={p.session_id}>{p.user_name}</option>
                       );
@@ -164,14 +169,20 @@ const FlexContainer = styled.div`
   margin-right: 0.5rem;
   margin-left: 0.5rem;
   flex: 1;
+
+  @media (min-width: 996px) {
+    height: 100%;
+  }
 `;
 
 const ChatBox = styled.div`
   flex: 1;
   padding: 1rem;
-  box-shadow: inset 0 0 8px 4px ${theme.colors.greyLightest};
-  border: 1px solid ${theme.colors.greyLight};
+  border: 2px solid ${theme.colors.greyLight};
+  border-bottom: none;
   border-radius: 6px 6px 0 0;
+  background-color: ${theme.colors.white};
+  overflow: scroll;
 `;
 
 const Form = styled.form`
@@ -185,6 +196,7 @@ const Label = styled.label`
   font-size: ${theme.fontSize.small};
   padding: 0.2rem;
   color: ${theme.colors.greyDark};
+  visibility: hidden;
 `;
 
 const ChatInputContainer = styled.div`
@@ -194,11 +206,14 @@ const Input = styled.input`
   width: 100%;
   box-sizing: border-box;
   line-height: 22px;
-  padding-top: 1rem;
   padding-left: 0.25rem;
   padding-right: 0.25rem;
   border: none;
   resize: none;
+  &:focus {
+    outline: none;
+    border: 2px solid ${theme.colors.greenLight};
+  }
 `;
 const ButtonContainer = styled.div`
   padding: 5px;
@@ -223,9 +238,11 @@ const Container = styled.div`
   min-width: 300px;
   min-height: 300px;
   height: 100%;
-  padding-bottom: 2rem;
   background-color: ${theme.colors.white};
   border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.06),
+    0 4px 8px rgba(0, 0, 0, 0.06), 0 8px 16px rgba(0, 0, 0, 0.06),
+    0 16px 32px rgba(0, 0, 0, 0.06);
 `;
 
 export default Chat;

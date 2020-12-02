@@ -7,6 +7,8 @@ import Loading from "../components/Loading";
 import SubHeader from "../components/text/SubHeader";
 import BodyText from "../components/text/BodyText";
 import { useParams, useLocation } from "react-router-dom";
+import theme from "../theme";
+import TypeForm from "../components/TypeForm";
 
 const WebinarCall = () => {
   const videoRef = useRef(null);
@@ -26,20 +28,17 @@ const WebinarCall = () => {
   useEffect(() => {
     if (roomInfo) return;
     if (currentView === "loading") {
-      console.log(roomName);
       fetch(`https://daily-webinar.netlify.app/api/rooms/${roomName}`, {})
         .then((res) => res.json())
         .then((res) => setStartTime(new Date(res.config.nbf).toUTCString()))
         .catch((err) => console.log(err));
-      console.log(search);
+
       if (search && search.match(/^[?t=*+]/)) {
-        console.log("matches admin");
         const token = search.replace("?t=", "");
         fetch(`https://daily-webinar.netlify.app/api/meeting-tokens/${token}`)
           .then((res) => res.json())
           .then((res) => {
             if (res.is_owner && res.room_name === roomName) {
-              console.log("set admin");
               // add admin setting
               setRoomInfo({
                 token,
@@ -48,13 +47,11 @@ const WebinarCall = () => {
                 accountType: "admin",
               });
             } else {
-              console("admin error");
               setCurrentView("error");
             }
           })
           .catch((err) => console.log(err));
       } else {
-        console.log("set participant");
         setRoomInfo({
           token: null,
           username: null,
@@ -81,6 +78,11 @@ const WebinarCall = () => {
     iframeStyle: {
       width: "100%",
       height: "100%",
+      border: "1px solid #e6eaef",
+      borderRadius: "6px 6px 0 0",
+      boxShadow: `0 1px 2px rgba(0, 0, 0, 0.02), 0 2px 4px rgba(0, 0, 0, 0.02),
+      0 4px 8px rgba(0, 0, 0, 0.02), 0 8px 16px rgba(0, 0, 0, 0.02),
+      0 16px 32px rgba(0, 0, 0, 0.02)`,
     },
   };
   // http://localhost:3000/webinar?t=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvIjp0cnVlLCJ1IjoiamVzcyIsInNzIjp0cnVlLCJ2byI6ZmFsc2UsImFvIjpmYWxzZSwiciI6IndlYmluYXIiLCJkIjoiNDNkNWVhYjgtZjRiNy00ZjUxLTlkNjUtOTY4N2UyOGJkYjRlIiwiaWF0IjoxNjA2NDA4MDI5fQ.SSLKfjRtGN_ikqiy1ykxJwHMlXar19ZpBe61svkubKs
@@ -91,7 +93,7 @@ const WebinarCall = () => {
       setCurrentView("waiting");
       return;
     } // needs to be entered by participant
-    console.log(roomInfo);
+
     if (!callFrame) {
       CALL_OPTIONS.url = roomInfo?.url;
       const newCallFrame = DailyIframe.createFrame(
@@ -103,7 +105,6 @@ const WebinarCall = () => {
         .join({ userName: roomInfo?.username })
         .then(() => {
           updateSize();
-          console.log("set call");
           setCurrentView("call");
           // const showEvent = (e) => console.log(e);
           // newCallFrame;
@@ -152,7 +153,7 @@ const WebinarCall = () => {
   }, [callFrame]);
 
   return (
-    <FlexContainer>
+    <FlexContainer height={height}>
       {currentView === "loading" && <Loading />}
       {currentView === "error" && <ErrorMessage />}
       {currentView === "waiting" && (
@@ -171,11 +172,12 @@ const WebinarCall = () => {
             Before joining, please share your name with us so we know who you
             are!
           </BodyText>
-          <form onSubmit={submitName}>
+          <TypeForm />
+          {/* <form onSubmit={submitName}>
             <label htmlFor="username">Name</label>
             <input ref={inputRef} id="username" type="text" />
             <input type="submit" />
-          </form>
+          </form> */}
         </WaitingRoom>
       )}
       <Container height={height}>
@@ -192,6 +194,7 @@ const FlexContainer = styled.div`
   display: flex;
   align-items: stretch;
   flex-wrap: wrap;
+  height: ${(props) => props.height || 400}px;
 `;
 
 const WaitingRoom = styled.div`
