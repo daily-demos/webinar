@@ -7,12 +7,13 @@ import ChatMessage from "./ChatMessage";
 
 const Chat = ({ callFrame, accountType }) => {
   const [chatHistory, _setChatHistory] = useState([]);
+  const [adminSendToType, _setAdminSendToType] = useState("*");
   const [appMessageHandlerAdded, setAppMessageHandlerAdded] = useState(false);
   const chatHistoryRef = useRef(chatHistory);
+  const adminSendToTypeRef = useRef(adminSendToType);
   const inputRef = useRef();
 
-  const updateChat = (e) => {
-    console.log(e);
+  const updateChatHistory = (e) => {
     const participants = callFrame.participants();
     const username = participants[e.fromId].user_name;
     const { message, to } = e.data;
@@ -21,15 +22,19 @@ const Chat = ({ callFrame, accountType }) => {
       {
         message,
         username,
-        type: to === "*" ? "broadcast" : "toMember",
+        type:
+          accountType === "admin"
+            ? "toAdmin"
+            : to === "*"
+            ? "broadcast"
+            : "toMember",
       },
     ]);
   };
 
   useEffect(() => {
     if (callFrame && !appMessageHandlerAdded) {
-      console.log(callFrame);
-      callFrame.on("app-message", updateChat);
+      callFrame.on("app-message", updateChatHistory);
       setAppMessageHandlerAdded(true);
     }
   }, [callFrame]);
@@ -39,15 +44,17 @@ const Chat = ({ callFrame, accountType }) => {
     chatHistoryRef.current = history;
     _setChatHistory(history);
   };
+  const setAdminSendToType = (type) => {
+    adminSendToTypeRef.current = type;
+    _setAdminSendToType(type);
+  };
 
   const submitMessage = (e) => {
     e.preventDefault();
     if (callFrame && inputRef.current) {
-      console.log(callFrame.participants());
       let to = null;
-      console.log(accountType);
       if (accountType === "admin") {
-        to = "*";
+        to = accountType === "admin" ? adminSendToType : "toAdmin";
       } else {
         const participants = callFrame.participants();
         const ids = Object.keys(participants);
@@ -58,22 +65,31 @@ const Chat = ({ callFrame, accountType }) => {
           }
         });
       }
-      console.log(to);
-      callFrame.sendAppMessage({
-        message: inputRef.current.value,
-        to,
-      });
+      callFrame.sendAppMessage(
+        {
+          message: inputRef.current.value,
+        },
+        to
+      );
       setChatHistory([
         ...chatHistoryRef.current,
         {
           message: inputRef.current.value,
           username: "Me",
-          type: accountType === "admin" ? "toMember" : "toAdmin",
+          type:
+            accountType === "admin"
+              ? adminSendToType === "*"
+                ? "broadcast"
+                : "toMember"
+              : "toAdmin",
         },
       ]);
-
       inputRef.current.value = "";
     }
+  };
+
+  const adminMessageSelectOnChange = (e) => {
+    setAdminSendToType(e.target.value);
   };
 
   return (
@@ -119,13 +135,19 @@ const Chat = ({ callFrame, accountType }) => {
           <ChatInputContainer>
             <Input ref={inputRef} rows="2" id="messageInput" type="text" />
             <ButtonContainer>
-              {/* {accountType === "admin" && (
-                <select name="" id="">
-                  {participants.map((p) => (
-                    <option value={p.username}>{p.username}</option>
-                  ))}
+              {accountType === "admin" && callFrame?.participants() && (
+                <select onChange={adminMessageSelectOnChange}>
+                  <option value="*">Everyone</option>
+                  {Object.values(callFrame.participants()).map((p) => {
+                    console.log(p);
+                    if (!p.owner) {
+                      return (
+                        <option value={p.session_id}>{p.user_name}</option>
+                      );
+                    }
+                  })}
                 </select>
-              )} */}
+              )}
 
               <SubmitButton value="Send" type="submit" />
             </ButtonContainer>
