@@ -18,7 +18,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "netlify-build": "sed -i -e 's/DAILY_API_KEY_PLACEHOLDER/${DAILY_API_KEY}/g; s/REACT_APP_TYPEFORM_TOKEN_PLACEHOLDER/${REACT_APP_TYPEFORM_TOKEN}/g; s/REACT_APP_TYPEFORM_ID_PLACEHOLDER/${REACT_APP_TYPEFORM_ID}/g' netlify.toml && yarn build",
+    "netlify-build": "sed -i 's/DAILY_API_KEY_PLACEHOLDER/${DAILY_API_KEY}/g' netlify.toml && yarn build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
