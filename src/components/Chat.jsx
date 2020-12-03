@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import theme from "../theme";
-import SubHeader from "./text/SubHeader";
+import HeaderText from "./text/HeaderText";
 import BodyText from "./text/BodyText";
 import ChatMessage from "./ChatMessage";
 
@@ -103,17 +103,17 @@ const Chat = ({ callFrame, accountType }) => {
 
   return (
     <FlexContainer>
-      <SubHeader>
+      <SubHeaderText>
         {accountType === "admin"
           ? "Hey, you're now hosting a Daily webinar"
           : "Have a question about Daily?"}
-      </SubHeader>
+      </SubHeaderText>
       {accountType !== "admin" ? (
         <>
-          <BodyText>
+          <SubText>
             Message us here during the webinar and we'll answer during the Q&A
             period!
-          </BodyText>
+          </SubText>
         </>
       ) : (
         <>
@@ -166,8 +166,7 @@ const Chat = ({ callFrame, accountType }) => {
 const FlexContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-right: 0.5rem;
-  margin-left: 0.5rem;
+  margin-left: 2rem;
   flex: 1;
 
   @media (min-width: 996px) {
@@ -185,6 +184,13 @@ const ChatBox = styled.div`
   overflow: scroll;
 `;
 
+const SubHeaderText = styled(HeaderText)`
+  font-size: ${theme.fontSize.xlarge};
+`;
+const SubText = styled(BodyText)`
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+`;
 const Form = styled.form`
   position: relative;
   border-radius: 0 0 6px 6px;
@@ -210,6 +216,7 @@ const Input = styled.input`
   padding-right: 0.25rem;
   border: none;
   resize: none;
+
   &:focus {
     outline: none;
     border: 2px solid ${theme.colors.greenLight};
@@ -227,6 +234,7 @@ const SubmitButton = styled.input`
   font-weight: 600;
   border: 1px solid transparent;
   cursor: pointer;
+
   &:hover {
     border: 1px solid ${theme.colors.teal};
   }

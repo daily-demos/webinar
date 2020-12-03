@@ -28,7 +28,8 @@ const theme = {
     small: "10px",
     base: "12px",
     large: "16px",
-    xlarge: "32px",
+    xlarge: "28px",
+    xxlarge: "32px",
   },
   fontFamily: {
     body: "Helvetica Neue, san-serif",

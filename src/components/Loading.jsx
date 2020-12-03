@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import theme from "../theme";
-import SubHeader from "./text/SubHeader";
+import HeaderText from "./text/HeaderText";
 
 const Loading = () => {
   return (
@@ -54,7 +54,7 @@ const Loading = () => {
           </circle>
         </g>
       </Svg>
-      <SubHeader>Please wait...</SubHeader>
+      <HeaderText>Please wait...</HeaderText>
     </Container>
   );
 };

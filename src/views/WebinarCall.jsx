@@ -4,7 +4,7 @@ import styled from "styled-components";
 import Chat from "../components/Chat";
 import ErrorMessage from "../components/ErrorMessage";
 import Loading from "../components/Loading";
-import SubHeader from "../components/text/SubHeader";
+import HeaderText from "../components/text/HeaderText";
 import BodyText from "../components/text/BodyText";
 import { useParams, useLocation } from "react-router-dom";
 import checkmark from "../components/images/checkmark.svg";
@@ -82,10 +82,10 @@ const WebinarCall = () => {
         }
       )
         .then(() => {
-          // setRoomInfo({
-          //     ...roomInfo,
-          //     username: inputRef.current.value?.trim(),
-          //   });
+          setRoomInfo({
+            ...roomInfo,
+            username: inputRef.current.value?.trim(),
+          });
         })
         .catch((err) => {
           // todo handle error
@@ -179,9 +179,9 @@ const WebinarCall = () => {
       {currentView === "waiting" && (
         <WaitingRoom>
           <SubContainer>
-            <SubHeader>Welcome to Daily!</SubHeader>
+            <HeaderText>Welcome to Daily!</HeaderText>
             {startTime && (
-              <BodyText>This call will start at: ${startTime}</BodyText>
+              <BodyText>This call will start at: {startTime}</BodyText>
             )}
             <InstructionText>
               Here are some things to know before we get started:
