@@ -8,9 +8,7 @@ import HeaderText from "../components/text/HeaderText";
 import BodyText from "../components/text/BodyText";
 import { useParams, useLocation } from "react-router-dom";
 import checkmark from "../components/images/checkmark.svg";
-
 import theme from "../theme";
-import OrangeHeader from "../components/text/OrangeHeader";
 
 const WebinarCall = () => {
   const videoRef = useRef(null);
@@ -21,6 +19,7 @@ const WebinarCall = () => {
   const [currentView, setCurrentView] = useState("loading"); // loading | call | waiting | error
   const [callFrame, setCallFrame] = useState(null);
   const [height, setHeight] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
   const [roomInfo, setRoomInfo] = useState(null); // {token?: string, accountType: 'participant' | 'admin', username: string, url: string }
   const [startTime, setStartTime] = useState(null);
 
@@ -34,11 +33,12 @@ const WebinarCall = () => {
     if (currentView === "loading") {
       fetch(`https://daily-webinar.netlify.app/api/rooms/${roomName}`, {})
         .then((res) => res.json())
-        .then((res) => setStartTime(new Date(res.config.nbf).toUTCString()))
+        .then((res) => setStartTime(new Date(res.config?.nbf).toUTCString()))
         .catch((err) => console.log(err));
 
       if (search && search.match(/^[?t=*+]/)) {
         const token = search.replace("?t=", "");
+        console.log(token);
         fetch(`https://daily-webinar.netlify.app/api/meeting-tokens/${token}`)
           .then((res) => res.json())
           .then((res) => {
@@ -74,6 +74,7 @@ const WebinarCall = () => {
         "entry.2075101699": emailRef.current.value,
         "entry.1964318055": companyRef.current.value,
       };
+      setSubmitting(true);
       fetch(
         `https://docs.google.com/forms/u/0/d/e/1FAIpQLSddqD1Q5W4Fatf0Px38ysFrC3COgS-PqAfjIXf6qnCgKfzZKg/formResponse?entry.1667022758=${inputRef.current.value}&entry.2075101699=${emailRef.current.value}&entry.1964318055=${companyRef.current.value}&submit=Submit`,
         {
@@ -86,10 +87,12 @@ const WebinarCall = () => {
             ...roomInfo,
             username: inputRef.current.value?.trim(),
           });
+          setSubmitting(false);
         })
         .catch((err) => {
           // todo handle error
           console.log(err);
+          setSubmitting(false);
         });
     }
   };
@@ -218,7 +221,7 @@ const WebinarCall = () => {
             <Input ref={emailRef} id="email" type="text" required />
             <Label htmlFor="company">Company</Label>
             <Input ref={companyRef} id="company" type="text" required />
-            <SubmitButton type="submit" value="Join call!" />
+            <SubmitButton type="submit" disabled={submitting} />
           </Form>
         </WaitingRoom>
       )}
@@ -313,13 +316,15 @@ const SubmitButton = styled.input`
   color: ${theme.colors.blueDark};
   font-weight: 600;
   margin-top: 2rem;
-  width: 250px;
+  width: 175px;
   margin-left: auto;
-  margin-right: auto;
   cursor: pointer;
 
   &:hover {
     border: 1px solid ${theme.colors.teal};
+  }
+  &:disabled {
+    opacity: 0.5;
   }
 `;
 
