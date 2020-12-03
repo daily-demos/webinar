@@ -105,7 +105,7 @@ const Chat = ({ callFrame, accountType }) => {
     <FlexContainer>
       <SubHeaderText>
         {accountType === "admin"
-          ? "Hey, you're now hosting a Daily webinar"
+          ? "Hey, you're now hosting a Daily call"
           : "Have a question about Daily?"}
       </SubHeaderText>
       {accountType !== "admin" ? (
@@ -121,10 +121,7 @@ const Chat = ({ callFrame, accountType }) => {
             Remember, participants can message you directly but they can't see
             each other's messages.
           </BodyText>
-          <BodyText>
-            Use the dropdown below to choose to broadcast or directly message a
-            participant. (Broadcast is the default!)
-          </BodyText>
+          <BodyText>Use the dropdown below to choose who to message.</BodyText>
         </>
       )}
       <Container>
@@ -141,7 +138,7 @@ const Chat = ({ callFrame, accountType }) => {
             <Input ref={inputRef} id="messageInput" type="text" />
             <ButtonContainer>
               {accountType === "admin" && callFrame?.participants() && (
-                <select onChange={adminMessageSelectOnChange}>
+                <Select onChange={adminMessageSelectOnChange}>
                   <option value="*">Everyone</option>
                   {Object.values(callFrame.participants()).map((p) => {
                     if (!p.owner) {
@@ -151,7 +148,7 @@ const Chat = ({ callFrame, accountType }) => {
                       );
                     }
                   })}
-                </select>
+                </Select>
               )}
 
               <SubmitButton value="Send" type="submit" />
@@ -208,6 +205,16 @@ const Label = styled.label`
 const ChatInputContainer = styled.div`
   display: flex;
 `;
+
+const Select = styled.select`
+  font-size: ${theme.fontSize.base};
+  padding: 0.3rem 0.8rem;
+  color: ${theme.colors.blueDark};
+  background-color: #feaa2b;
+  border-radius: 6px;
+  border: none;
+  margin-bottom: 0.5rem;
+`;
 const Input = styled.input`
   width: 100%;
   box-sizing: border-box;
@@ -224,6 +231,9 @@ const Input = styled.input`
 `;
 const ButtonContainer = styled.div`
   padding: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 `;
 const SubmitButton = styled.input`
   font-size: ${theme.fontSize.base};
@@ -234,6 +244,7 @@ const SubmitButton = styled.input`
   font-weight: 600;
   border: 1px solid transparent;
   cursor: pointer;
+  margin-left: auto;
 
   &:hover {
     border: 1px solid ${theme.colors.teal};

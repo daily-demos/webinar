@@ -33,12 +33,16 @@ const WebinarCall = () => {
     if (currentView === "loading") {
       fetch(`https://daily-webinar.netlify.app/api/rooms/${roomName}`, {})
         .then((res) => res.json())
-        .then((res) => setStartTime(new Date(res.config?.nbf).toUTCString()))
+        .then((res) => {
+          if (res.config?.nbf) {
+            console.log(res.config?.nbf);
+            setStartTime(new Date(res.config?.nbf * 1000).toUTCString());
+          }
+        })
         .catch((err) => console.log(err));
 
       if (search && search.match(/^[?t=*+]/)) {
         const token = search.replace("?t=", "");
-        console.log(token);
         fetch(`https://daily-webinar.netlify.app/api/meeting-tokens/${token}`)
           .then((res) => res.json())
           .then((res) => {
@@ -183,13 +187,19 @@ const WebinarCall = () => {
         <WaitingRoom>
           <SubContainer>
             <HeaderText>Welcome to Daily!</HeaderText>
-            {startTime && (
-              <BodyText>This call will start at: {startTime}</BodyText>
-            )}
             <InstructionText>
               Here are some things to know before we get started:
             </InstructionText>
             <HintList>
+              {startTime && (
+                <HintListItem>
+                  <Icon src={checkmark} alt="checkmark" />
+                  <BodyText>
+                    This call will start at:{" "}
+                    <StartTimeText>{startTime}</StartTimeText>
+                  </BodyText>
+                </HintListItem>
+              )}
               <HintListItem>
                 <Icon src={checkmark} alt="checkmark" />
                 <BodyText>
@@ -215,11 +225,11 @@ const WebinarCall = () => {
           </SubContainer>
           <Form onSubmit={submitName}>
             <FormHeader>Before joining, please introduce yourself:</FormHeader>
-            <Label htmlFor="username">Name</Label>
+            <Label htmlFor="username">Your name</Label>
             <Input ref={inputRef} id="username" type="text" required />
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Your email</Label>
             <Input ref={emailRef} id="email" type="text" required />
-            <Label htmlFor="company">Company</Label>
+            <Label htmlFor="company">Your company (or LinkedIn)</Label>
             <Input ref={companyRef} id="company" type="text" required />
             <SubmitButton type="submit" disabled={submitting} />
           </Form>
@@ -271,7 +281,10 @@ const Icon = styled.img`
   width: 1.8rem;
   margin-right: 1rem;
 `;
-
+const StartTimeText = styled.span`
+  color: ${theme.colors.orange};
+  font-weight: 600;
+`;
 const Form = styled.form`
   margin-top: 4rem;
   flex: 1;
