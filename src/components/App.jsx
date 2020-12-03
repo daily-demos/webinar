@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import theme from "../theme";
 import WebinarCall from "../views/WebinarCall";
@@ -15,6 +15,7 @@ function App() {
   return (
     <Router>
       <Container>
+        <GlobalStyle />
         <ImageContainer>
           <BackgroundImg1 src={decorativeSlash1} alt=" " />
           <BackgroundImg2 src={decorativeSlash2} alt=" " />
@@ -38,11 +39,28 @@ function App() {
   );
 }
 
+const GlobalStyle = createGlobalStyle`
+  @font-face {
+    font-family: 'Graphik Web';
+    src: url('../fonts/Graphik-Regular-Web.eot');
+    src: url('../fonts/Graphik-Regular-Web.eot?#iefix') format('embedded-opentype'),
+        url('../fonts/Graphik-Regular-Web.woff2') format('woff2'),
+        url('../fonts/Graphik-Regular-Web.woff') format('woff');
+    font-weight:  400;
+    font-style:   normal;
+    font-stretch: normal;
+  }
+
+  body {
+    font-family: "Graphik Web", Helvetica, Arial, sans-serif;
+  }
+`;
+
 const Container = styled.div`
   background: ${theme.colors.white};
   min-height: 100vh;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
 `;
 
 const Image = styled.img`
@@ -71,8 +89,8 @@ const Body = styled.div`
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 2rem;
-  padding-right: 2rem;
+  padding-left: 3rem;
+  padding-right: 3rem;
   height: 100%;
   position: relative;
   display: flex;

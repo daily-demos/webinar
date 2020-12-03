@@ -7,7 +7,10 @@ import Loading from "../components/Loading";
 import SubHeader from "../components/text/SubHeader";
 import BodyText from "../components/text/BodyText";
 import { useParams, useLocation } from "react-router-dom";
+import checkmark from "../components/images/checkmark.svg";
+
 import theme from "../theme";
+import OrangeHeader from "../components/text/OrangeHeader";
 
 const WebinarCall = () => {
   const videoRef = useRef(null);
@@ -65,14 +68,6 @@ const WebinarCall = () => {
 
   const submitName = (e) => {
     e.preventDefault();
-    console.log(inputRef.current.value);
-    // if (inputRef.current && inputRef.current.value?.trim()) {
-    //   console.log("set username");
-    //   setRoomInfo({
-    //     ...roomInfo,
-    //     username: inputRef.current.value?.trim(),
-    //   });
-    // }
     if (inputRef?.current && emailRef?.current && companyRef?.current) {
       const data = {
         "entry.1667022758": inputRef.current.value,
@@ -83,10 +78,19 @@ const WebinarCall = () => {
         `https://docs.google.com/forms/u/0/d/e/1FAIpQLSddqD1Q5W4Fatf0Px38ysFrC3COgS-PqAfjIXf6qnCgKfzZKg/formResponse?entry.1667022758=${inputRef.current.value}&entry.2075101699=${emailRef.current.value}&entry.1964318055=${companyRef.current.value}&submit=Submit`,
         {
           method: "GET",
-          // body: JSON.stringify(data),
           mode: "no-cors",
         }
-      );
+      )
+        .then(() => {
+          // setRoomInfo({
+          //     ...roomInfo,
+          //     username: inputRef.current.value?.trim(),
+          //   });
+        })
+        .catch((err) => {
+          // todo handle error
+          console.log(err);
+        });
     }
   };
 
@@ -179,24 +183,37 @@ const WebinarCall = () => {
             {startTime && (
               <BodyText>This call will start at: ${startTime}</BodyText>
             )}
-            <BodyText>
+            <InstructionText>
               Here are some things to know before we get started:
-            </BodyText>
-            <BodyText>
-              Your camera and mic will be off by default for the entire duration
-              of the call. The call will have a chat next to it to communicate
-              with the presenter so you can ask questions about Daily.
-            </BodyText>
-            <BodyText>
-              We encourage you to use this call to clarify any questions you may
-              have!
-            </BodyText>
+            </InstructionText>
+            <HintList>
+              <HintListItem>
+                <Icon src={checkmark} alt="checkmark" />
+                <BodyText>
+                  Your camera and mic will be off by default for the entire
+                  duration of the call.
+                </BodyText>
+              </HintListItem>
+              <HintListItem>
+                <Icon src={checkmark} alt="checkmark" />
+                <BodyText>
+                  The call will have a chat next to it to communicate with the
+                  presenter so you can ask questions about Daily.
+                </BodyText>
+              </HintListItem>
+              <HintListItem>
+                <Icon src={checkmark} alt="checkmark" />
+                <BodyText>
+                  We encourage you to use this call to clarify any questions you
+                  may have!
+                </BodyText>
+              </HintListItem>
+            </HintList>
           </SubContainer>
           <Form onSubmit={submitName}>
-            <BodyText>
-              Before joining, please share your name with us so we know who you
-              are!
-            </BodyText>
+            <InstructionText>
+              Before joining, please introduce yourself:
+            </InstructionText>
             <label htmlFor="username">Name</label>
             <input ref={inputRef} id="username" type="text" required />
             <label htmlFor="email">Email</label>
@@ -227,10 +244,34 @@ const FlexContainer = styled.div`
 const WaitingRoom = styled.div`
   margin-top: 3rem;
   display: flex;
+  width: 100%;
+  @media (max-width: 996px) {
+    flex-direction: column;
+  }
 `;
 
 const SubContainer = styled.div`
   flex: 1;
+  margin-right: 3rem;
+
+  @media (max-width: 996px) {
+    margin-right: 0rem;
+  }
+`;
+
+const InstructionText = styled(OrangeHeader)`
+  margin-top: 1rem;
+`;
+const HintList = styled.ul`
+  list-style: none;
+  padding-left: 0;
+`;
+const HintListItem = styled.li`
+  display: flex;
+`;
+const Icon = styled.img`
+  width: 1.8rem;
+  margin-right: 1rem;
 `;
 
 const Form = styled.form`
@@ -238,6 +279,11 @@ const Form = styled.form`
   flex: 1;
   display: flex;
   flex-direction: column;
+  margin-left: 3rem;
+
+  @media (max-width: 996px) {
+    margin-left: 0rem;
+  }
 `;
 
 const Container = styled.div`
