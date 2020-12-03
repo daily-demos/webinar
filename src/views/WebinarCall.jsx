@@ -211,16 +211,14 @@ const WebinarCall = () => {
             </HintList>
           </SubContainer>
           <Form onSubmit={submitName}>
-            <InstructionText>
-              Before joining, please introduce yourself:
-            </InstructionText>
-            <label htmlFor="username">Name</label>
-            <input ref={inputRef} id="username" type="text" required />
-            <label htmlFor="email">Email</label>
-            <input ref={emailRef} id="email" type="text" required />
-            <label htmlFor="company">Company</label>
-            <input ref={companyRef} id="company" type="text" required />
-            <input type="submit" />
+            <FormHeader>Before joining, please introduce yourself:</FormHeader>
+            <Label htmlFor="username">Name</Label>
+            <Input ref={inputRef} id="username" type="text" required />
+            <Label htmlFor="email">Email</Label>
+            <Input ref={emailRef} id="email" type="text" required />
+            <Label htmlFor="company">Company</Label>
+            <Input ref={companyRef} id="company" type="text" required />
+            <SubmitButton type="submit" value="Join call!" />
           </Form>
         </WaitingRoom>
       )}
@@ -259,9 +257,6 @@ const SubContainer = styled.div`
   }
 `;
 
-const InstructionText = styled(OrangeHeader)`
-  margin-top: 1rem;
-`;
 const HintList = styled.ul`
   list-style: none;
   padding-left: 0;
@@ -275,14 +270,56 @@ const Icon = styled.img`
 `;
 
 const Form = styled.form`
-  margin-top: 3rem;
+  margin-top: 4rem;
   flex: 1;
   display: flex;
   flex-direction: column;
   margin-left: 3rem;
+  background-color: ${theme.colors.white};
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.06),
+    0 4px 8px rgba(0, 0, 0, 0.06), 0 8px 16px rgba(0, 0, 0, 0.06),
+    0 16px 32px rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
 
   @media (max-width: 996px) {
     margin-left: 0rem;
+  }
+`;
+
+const FormHeader = styled(BodyText)`
+  font-weight: 600;
+  color: ${theme.colors.greyDark};
+`;
+const InstructionText = styled(FormHeader)`
+  margin-top: 1rem;
+`;
+const Label = styled.label`
+  font-size: ${theme.fontSize.base};
+  color: ${theme.colors.greyDark};
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+`;
+const Input = styled.input`
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid ${theme.colors.grey};
+`;
+const SubmitButton = styled.input`
+  padding: 0.5rem;
+  border-radius: 6px;
+  background-color: ${theme.colors.turquoise};
+  border: 1px solid ${theme.colors.turquoise};
+  color: ${theme.colors.blueDark};
+  font-weight: 600;
+  margin-top: 2rem;
+  width: 250px;
+  margin-left: auto;
+  margin-right: auto;
+  cursor: pointer;
+
+  &:hover {
+    border: 1px solid ${theme.colors.teal};
   }
 `;
 
