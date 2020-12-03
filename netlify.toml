@@ -18,7 +18,7 @@
   to = "https://api.staging.daily.co/v1/meeting-tokens/:token"
   status = 200
   force = true
-  headers = {Authorization = "Bearer DAILY_API_KEY_PLACEHOLDER"}
+  headers = {Authorization = "Bearer DAILY_API_KEY_PLACEHOLDER"}  
 
 # The following redirect is intended for use with most SPAs that handle routing internally.
 [[redirects]]
