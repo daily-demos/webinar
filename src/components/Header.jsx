@@ -11,7 +11,7 @@ const Header = () => {
         <div>
           <Logo src={logo} />
         </div>
-        <Title>Webinars</Title>
+        {/* <Title>Webinars</Title> */}
       </LogoContainer>
       <Anchor underline={false} href="https://dashboard.daily.co/signup">
         <TextStyledLikeButton>Sign up for free</TextStyledLikeButton>
@@ -33,7 +33,7 @@ const LogoContainer = styled.div`
 `;
 
 const Logo = styled.img`
-  width: 4rem;
+  width: 5rem;
 `;
 const Title = styled.h1`
   text-transform: lowercase;

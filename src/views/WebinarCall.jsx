@@ -8,11 +8,12 @@ import SubHeader from "../components/text/SubHeader";
 import BodyText from "../components/text/BodyText";
 import { useParams, useLocation } from "react-router-dom";
 import theme from "../theme";
-import TypeForm from "../components/TypeForm";
 
 const WebinarCall = () => {
   const videoRef = useRef(null);
   const inputRef = useRef();
+  const emailRef = useRef();
+  const companyRef = useRef();
 
   const [currentView, setCurrentView] = useState("loading"); // loading | call | waiting | error
   const [callFrame, setCallFrame] = useState(null);
@@ -65,12 +66,27 @@ const WebinarCall = () => {
   const submitName = (e) => {
     e.preventDefault();
     console.log(inputRef.current.value);
-    if (inputRef.current && inputRef.current.value?.trim()) {
-      console.log("set username");
-      setRoomInfo({
-        ...roomInfo,
-        username: inputRef.current.value?.trim(),
-      });
+    // if (inputRef.current && inputRef.current.value?.trim()) {
+    //   console.log("set username");
+    //   setRoomInfo({
+    //     ...roomInfo,
+    //     username: inputRef.current.value?.trim(),
+    //   });
+    // }
+    if (inputRef?.current && emailRef?.current && companyRef?.current) {
+      const data = {
+        "entry.1667022758": inputRef.current.value,
+        "entry.2075101699": emailRef.current.value,
+        "entry.1964318055": companyRef.current.value,
+      };
+      fetch(
+        `https://docs.google.com/forms/u/0/d/e/1FAIpQLSddqD1Q5W4Fatf0Px38ysFrC3COgS-PqAfjIXf6qnCgKfzZKg/formResponse?entry.1667022758=${inputRef.current.value}&entry.2075101699=${emailRef.current.value}&entry.1964318055=${companyRef.current.value}&submit=Submit`,
+        {
+          method: "GET",
+          // body: JSON.stringify(data),
+          mode: "no-cors",
+        }
+      );
     }
   };
 
@@ -158,26 +174,37 @@ const WebinarCall = () => {
       {currentView === "error" && <ErrorMessage />}
       {currentView === "waiting" && (
         <WaitingRoom>
-          <SubHeader>Welcome to Daily!</SubHeader>
-          {startTime && (
-            <BodyText>This call will start at: ${startTime}</BodyText>
-          )}
-          <BodyText>
-            Your camera and mic will be off by default for the entire duration
-            of the call. The call will have a chat next to it to communicate
-            with the presenter and ask questions about Daily. We encourage you
-            to use this call to clarify any questions you may have!
-          </BodyText>
-          <BodyText>
-            Before joining, please share your name with us so we know who you
-            are!
-          </BodyText>
-          <TypeForm />
-          {/* <form onSubmit={submitName}>
+          <SubContainer>
+            <SubHeader>Welcome to Daily!</SubHeader>
+            {startTime && (
+              <BodyText>This call will start at: ${startTime}</BodyText>
+            )}
+            <BodyText>
+              Here are some things to know before we get started:
+            </BodyText>
+            <BodyText>
+              Your camera and mic will be off by default for the entire duration
+              of the call. The call will have a chat next to it to communicate
+              with the presenter so you can ask questions about Daily.
+            </BodyText>
+            <BodyText>
+              We encourage you to use this call to clarify any questions you may
+              have!
+            </BodyText>
+          </SubContainer>
+          <Form onSubmit={submitName}>
+            <BodyText>
+              Before joining, please share your name with us so we know who you
+              are!
+            </BodyText>
             <label htmlFor="username">Name</label>
-            <input ref={inputRef} id="username" type="text" />
+            <input ref={inputRef} id="username" type="text" required />
+            <label htmlFor="email">Email</label>
+            <input ref={emailRef} id="email" type="text" required />
+            <label htmlFor="company">Company</label>
+            <input ref={companyRef} id="company" type="text" required />
             <input type="submit" />
-          </form> */}
+          </Form>
         </WaitingRoom>
       )}
       <Container height={height}>
@@ -199,6 +226,18 @@ const FlexContainer = styled.div`
 
 const WaitingRoom = styled.div`
   margin-top: 3rem;
+  display: flex;
+`;
+
+const SubContainer = styled.div`
+  flex: 1;
+`;
+
+const Form = styled.form`
+  margin-top: 3rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Container = styled.div`
