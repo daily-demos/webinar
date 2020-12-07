@@ -31,9 +31,6 @@ const theme = {
     xlarge: "28px",
     xxlarge: "32px",
   },
-  fontFamily: {
-    body: "Helvetica Neue, san-serif",
-  },
 };
 
 export default theme;

@@ -8,9 +8,11 @@ import ChatMessage from "./ChatMessage";
 const Chat = ({ callFrame, accountType }) => {
   const welcomeMessage = {
     message:
-      "Welcome! Please let us know if you have any questions through this chat. (Messages you send can only be seen by the host.)",
+      "Welcome! Please let us know if there's anything specific you'd like to learn about Daily video APIs",
     type: "info",
     username: null,
+    to: null,
+    from: null,
   };
   const [chatHistory, _setChatHistory] = useState(
     accountType === "admin" ? [] : [welcomeMessage]
@@ -19,24 +21,22 @@ const Chat = ({ callFrame, accountType }) => {
   const [appMessageHandlerAdded, setAppMessageHandlerAdded] = useState(false);
   const chatHistoryRef = useRef(chatHistory);
   const adminSendToTypeRef = useRef(adminSendToType);
-  const inputRef = useRef();
+  const inputRef = useRef(null);
+  const forceScrollRef = useRef(null);
 
   const updateChatHistory = (e) => {
     const participants = callFrame.participants();
     const username = participants[e.fromId].user_name;
-    const { message, to } = e.data;
-    console.log(to);
+    const { message, to, type, from } = e.data;
+    console.log(e.data);
     setChatHistory([
       ...chatHistoryRef.current,
       {
         message,
         username,
-        type:
-          accountType === "admin"
-            ? "toAdmin"
-            : to === "*"
-            ? "broadcast"
-            : "toMember",
+        type,
+        to,
+        from,
       },
     ]);
   };
@@ -61,36 +61,59 @@ const Chat = ({ callFrame, accountType }) => {
   const submitMessage = (e) => {
     e.preventDefault();
     if (callFrame && inputRef.current) {
-      let to = null;
+      let toId = null;
+      let toUsername = null;
+      let toText = null;
+      let type = null;
+
+      const participants = callFrame.participants();
+      console.log(adminSendToType);
       if (accountType === "admin") {
-        to = accountType === "admin" ? adminSendToType : "toAdmin";
+        toId = adminSendToType;
+        toUsername =
+          adminSendToType === "*" ? "everyone" : participants[toId].user_name;
       } else {
-        const participants = callFrame.participants();
         const ids = Object.keys(participants);
         ids.forEach((id) => {
           if (participants[id]?.owner) {
-            console.log("in");
-            to = participants[id].session_id;
+            toId = participants[id].session_id;
+            console.log(participants[id]);
+            toUsername = participants[id].user_name;
           }
         });
       }
+
+      if (accountType === "admin") {
+        type = adminSendToType === "*" ? "broadcast" : "toMember";
+
+        toText = adminSendToType === "*" ? "everyone" : toUsername;
+      } else {
+        type = "toAdmin";
+        toText = "host(s)";
+      }
+
+      const from = participants?.local?.user_name;
+
+      // send the message to others
       callFrame.sendAppMessage(
         {
           message: inputRef.current.value,
+          from,
+          to: toText,
+          type,
         },
-        to
+        toId
       );
+
+      // add message to your local chat since messages don't get triggered when you're the sender
       setChatHistory([
         ...chatHistoryRef.current,
         {
           message: inputRef.current.value,
           username: "Me",
-          type:
-            accountType === "admin"
-              ? adminSendToType === "*"
-                ? "broadcast"
-                : "toMember"
-              : "toAdmin",
+          type,
+          to: toText,
+          from,
         },
       ]);
       inputRef.current.value = "";
@@ -100,6 +123,15 @@ const Chat = ({ callFrame, accountType }) => {
   const adminMessageSelectOnChange = (e) => {
     setAdminSendToType(e.target.value);
   };
+
+  const scrollToBottom = () => {
+    if (forceScrollRef?.current) {
+      console.log("scrolling");
+      forceScrollRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  useEffect(scrollToBottom, [chatHistory]);
 
   return (
     <FlexContainer>
@@ -129,6 +161,7 @@ const Chat = ({ callFrame, accountType }) => {
           {chatHistory.map((chat, i) => (
             <ChatMessage key={`chat-message-${i}`} chat={chat} />
           ))}
+          <HiddenElForcesScroll ref={forceScrollRef} />
         </ChatBox>
         <Form onSubmit={submitMessage}>
           <Label htmlFor="messageInput">
@@ -140,18 +173,29 @@ const Chat = ({ callFrame, accountType }) => {
               {accountType === "admin" && callFrame?.participants() && (
                 <Select onChange={adminMessageSelectOnChange}>
                   <option value="*">Everyone</option>
-                  {Object.values(callFrame.participants()).map((p) => {
+                  {Object.values(callFrame.participants()).map((p, i) => {
                     if (!p.owner) {
                       // only show participants for direct messages
                       return (
-                        <option value={p.session_id}>{p.user_name}</option>
+                        <option key={`participant-${i}`} value={p.session_id}>
+                          {p.user_name}
+                        </option>
                       );
                     }
                   })}
                 </Select>
               )}
 
-              <SubmitButton value="Send" type="submit" />
+              <SubmitButton
+                value={`Send ${
+                  accountType !== "admin"
+                    ? "to host"
+                    : adminSendToType === "*"
+                    ? "broadcast"
+                    : "DM"
+                }`}
+                type="submit"
+              />
             </ButtonContainer>
           </ChatInputContainer>
         </Form>
@@ -159,6 +203,11 @@ const Chat = ({ callFrame, accountType }) => {
     </FlexContainer>
   );
 };
+
+const HiddenElForcesScroll = styled.div`
+  font-size: 0;
+  color: white;
+`;
 
 const FlexContainer = styled.div`
   display: flex;
