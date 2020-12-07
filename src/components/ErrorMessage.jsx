@@ -16,7 +16,7 @@ const ErrorMessage = ({ isAdmin }) => {
       <BodyText>
         In the meantime, here is a{" "}
         <Anchor href="mailto:help@daily.co">help center article</Anchor> that
-        has some common issues that come up.
+        has some solutions to issues related to joining that might come up.
       </BodyText>
       {isAdmin && (
         <BodyText>
