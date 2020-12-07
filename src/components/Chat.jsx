@@ -5,7 +5,7 @@ import HeaderText from "./text/HeaderText";
 import BodyText from "./text/BodyText";
 import ChatMessage from "./ChatMessage";
 
-const Chat = ({ callFrame, accountType }) => {
+const Chat = ({ callFrame, accountType, height }) => {
   const welcomeMessage = {
     message:
       "Welcome! Please let us know if there's anything specific you'd like to learn about Daily video APIs",
@@ -17,10 +17,12 @@ const Chat = ({ callFrame, accountType }) => {
   const [chatHistory, _setChatHistory] = useState(
     accountType === "admin" ? [] : [welcomeMessage]
   );
+  const [participants, _setParticipants] = useState(null);
   const [adminSendToType, _setAdminSendToType] = useState("*");
   const [appMessageHandlerAdded, setAppMessageHandlerAdded] = useState(false);
   const chatHistoryRef = useRef(chatHistory);
   const adminSendToTypeRef = useRef(adminSendToType);
+  const participantsRef = useRef(participants);
   const inputRef = useRef(null);
   const forceScrollRef = useRef(null);
 
@@ -44,6 +46,8 @@ const Chat = ({ callFrame, accountType }) => {
   useEffect(() => {
     if (callFrame && !appMessageHandlerAdded) {
       callFrame.on("app-message", updateChatHistory);
+      callFrame.on("participant-joined", setParticipants);
+      callFrame.on("participant-left", setParticipants);
       setAppMessageHandlerAdded(true);
     }
   }, [callFrame]);
@@ -56,6 +60,10 @@ const Chat = ({ callFrame, accountType }) => {
   const setAdminSendToType = (type) => {
     adminSendToTypeRef.current = type;
     _setAdminSendToType(type);
+  };
+  const setParticipants = (participants) => {
+    participantsRef.current = participants;
+    _setParticipants(participants);
   };
 
   const submitMessage = (e) => {
@@ -212,8 +220,10 @@ const HiddenElForcesScroll = styled.div`
 const FlexContainer = styled.div`
   display: flex;
   flex-direction: column;
-  flex: 1;
-  margin: 1rem;
+  height: 100%;
+  @media (max-width: 1075px) {
+    height: 250px;
+  }
 `;
 
 const ChatBox = styled.div`
@@ -299,7 +309,7 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: space-between;
   min-width: 300px;
-  min-height: 300px;
+  min-height: 200px;
   height: 100%;
   background-color: ${theme.colors.white};
   border-radius: 6px;

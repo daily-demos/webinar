@@ -24,7 +24,6 @@ const WebinarCall = () => {
   const [startTime, setStartTime] = useState(null);
 
   const baseUrl = process.env.REACT_APP_BASE_URL;
-  // ?t=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvIjp0cnVlLCJ1IjoiamVzcyIsInNzIjp0cnVlLCJ2byI6ZmFsc2UsImFvIjpmYWxzZSwiciI6IndlYmluYXIiLCJkIjoiNDNkNWVhYjgtZjRiNy00ZjUxLTlkNjUtOTY4N2UyOGJkYjRlIiwiaWF0IjoxNjA2NDA4MDI5fQ.SSLKfjRtGN_ikqiy1ykxJwHMlXar19ZpBe61svkubKs
   const { roomName } = useParams();
   const { search } = useLocation();
 
@@ -51,6 +50,7 @@ const WebinarCall = () => {
         fetch(`https://daily-webinar.netlify.app/api/meeting-tokens/${token}`)
           .then((res) => res.json())
           .then((res) => {
+            console.log(res);
             if (res.is_owner && res.room_name === roomName) {
               // add admin setting
               setRoomInfo({
@@ -139,13 +139,6 @@ const WebinarCall = () => {
         .then(() => {
           updateSize();
           setCurrentView("call");
-          // const showEvent = (e) => console.log(e);
-          // newCallFrame
-          // .on("loading", setCurrentView("loading"))
-          // .on("loaded", setCurrentView("loading"))
-          // .on("participant-joined", showEvent)
-          // .on("participant-updated", showEvent)
-          // .on("participant-left", showEvent);
         })
         .catch((err) => {
           console.log(err);
@@ -182,9 +175,9 @@ const WebinarCall = () => {
     updateSize();
     return () => window.removeEventListener("resize", updateSize);
   }, [callFrame]);
-
+  console.log(height);
   return (
-    <FlexContainer height={height}>
+    <FlexContainer>
       {currentView === "loading" && <Loading />}
       {currentView === "error" && (
         <ErrorMessage isAdmin={search.match(/^[?t=*+]/)} />
@@ -249,7 +242,9 @@ const WebinarCall = () => {
         <CallFrame ref={videoRef} hidden={currentView !== "call"} />
       </Container>
       {currentView === "call" && roomInfo.username && (
-        <Chat callFrame={callFrame} accountType={roomInfo?.accountType} />
+        <ChatContainer height={height}>
+          <Chat callFrame={callFrame} accountType={roomInfo?.accountType} />
+        </ChatContainer>
       )}
     </FlexContainer>
   );
@@ -353,6 +348,12 @@ const Container = styled.div`
   flex: 2;
   margin: 1rem;
   flex-basis: 600px;
+  height: ${(props) => props.height || 400}px;
+`;
+
+const ChatContainer = styled.div`
+  flex: 1;
+  margin: 1rem;
   height: ${(props) => props.height || 400}px;
 `;
 
