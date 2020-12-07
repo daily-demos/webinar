@@ -34,12 +34,17 @@ const WebinarCall = () => {
       fetch(`https://daily-webinar.netlify.app/api/rooms/${roomName}`, {})
         .then((res) => res.json())
         .then((res) => {
+          console.log(res);
+          if (res.error) {
+            setCurrentView("error");
+            return;
+          }
           if (res.config?.nbf) {
             console.log(res.config?.nbf);
             setStartTime(new Date(res.config?.nbf * 1000).toUTCString());
           }
         })
-        .catch((err) => console.log(err));
+        .catch((err) => setCurrentView("error"));
 
       if (search && search.match(/^[?t=*+]/)) {
         const token = search.replace("?t=", "");
@@ -114,7 +119,6 @@ const WebinarCall = () => {
       0 16px 32px rgba(0, 0, 0, 0.02)`,
     },
   };
-  // http://localhost:3000/webinar?t=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvIjp0cnVlLCJ1IjoiamVzcyIsInNzIjp0cnVlLCJ2byI6ZmFsc2UsImFvIjpmYWxzZSwiciI6IndlYmluYXIiLCJkIjoiNDNkNWVhYjgtZjRiNy00ZjUxLTlkNjUtOTY4N2UyOGJkYjRlIiwiaWF0IjoxNjA2NDA4MDI5fQ.SSLKfjRtGN_ikqiy1ykxJwHMlXar19ZpBe61svkubKs
 
   useEffect(() => {
     if (!videoRef || !videoRef?.current || !roomInfo) return;
@@ -136,11 +140,9 @@ const WebinarCall = () => {
           updateSize();
           setCurrentView("call");
           // const showEvent = (e) => console.log(e);
-          // newCallFrame;
-          // .on("loading", showEvent)
-          // .on("loaded", showEvent)
-          // .on("joining-meeting", showEvent)
-          // .on("joined-meeting", showEvent)
+          // newCallFrame
+          // .on("loading", setCurrentView("loading"))
+          // .on("loaded", setCurrentView("loading"))
           // .on("participant-joined", showEvent)
           // .on("participant-updated", showEvent)
           // .on("participant-left", showEvent);
@@ -184,7 +186,9 @@ const WebinarCall = () => {
   return (
     <FlexContainer height={height}>
       {currentView === "loading" && <Loading />}
-      {currentView === "error" && <ErrorMessage />}
+      {currentView === "error" && (
+        <ErrorMessage isAdmin={search.match(/^[?t=*+]/)} />
+      )}
       {currentView === "waiting" && (
         <WaitingRoom>
           <SubContainer>

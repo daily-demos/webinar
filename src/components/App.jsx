@@ -8,7 +8,6 @@ import Header from "./Header";
 import decorativeSlash1 from "./images/slash1.svg";
 import decorativeSlash2 from "./images/slash2.svg";
 import decorativeSlash3 from "./images/slash3.svg";
-import WelcomeMessage from "./WelcomeMessage";
 import Footer from "./Footer";
 
 function App() {
@@ -22,7 +21,6 @@ function App() {
         </ImageContainer>
         <Body>
           <Header />
-          <WelcomeMessage />
           <Switch>
             <Route path="/:roomName">
               <WebinarCall />

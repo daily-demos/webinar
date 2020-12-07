@@ -2,7 +2,7 @@ import styled from "styled-components";
 import theme from "../../theme";
 
 const BodyText = styled.p`
-  font-size: ${theme.fontSize.large};
+  font-size: ${theme.fontSize.med};
   color: ${theme.colors.greyDark};
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
