@@ -212,12 +212,8 @@ const HiddenElForcesScroll = styled.div`
 const FlexContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-left: 2rem;
   flex: 1;
-
-  @media (min-width: 996px) {
-    height: 100%;
-  }
+  margin: 1rem;
 `;
 
 const ChatBox = styled.div`
@@ -245,9 +241,8 @@ const Form = styled.form`
 
 const Label = styled.label`
   position: absolute;
-  font-size: ${theme.fontSize.small};
-  padding: 0.2rem;
-  color: ${theme.colors.greyDark};
+  font-size: 0;
+  color: ${theme.colors.white};
   visibility: hidden;
 `;
 

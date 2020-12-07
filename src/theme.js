@@ -27,6 +27,7 @@ const theme = {
     xsmall: "9px",
     small: "10px",
     base: "12px",
+    med: "14px",
     large: "16px",
     xlarge: "28px",
     xxlarge: "32px",

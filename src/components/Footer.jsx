@@ -55,14 +55,17 @@ const Footer = () => {
           </Anchor>
         </Column>
       </LinksContainer>
-      <IconContainer>
-        <Anchor href="https://www.facebook.com/dailydotco/">
-          <Icon src={fbIcon} alt="Daily's Facebook" />
-        </Anchor>
-        <Anchor href="https://twitter.com/trydaily">
-          <Icon src={twitterIcon} alt="Daily's Twitter" />
-        </Anchor>
-      </IconContainer>
+      <FlexContainerIcons>
+        <MediumText>Built worldwide</MediumText>
+        <IconContainer>
+          <Anchor href="https://twitter.com/trydaily">
+            <Icon src={twitterIcon} alt="Daily's Twitter" />
+          </Anchor>
+          <Anchor href="https://www.facebook.com/dailydotco/">
+            <Icon src={fbIcon} alt="Daily's Facebook" />
+          </Anchor>
+        </IconContainer>
+      </FlexContainerIcons>
     </Container>
   );
 };
@@ -91,16 +94,29 @@ const Column = styled.div`
   flex: 1;
 `;
 const Category = styled.h4`
-  font-size: ${theme.fontSize.base};
-  font-weight: 600;
+  font-size: ${theme.fontSize.med};
   color: ${theme.colors.blueDark};
+  font-family: Graphik Medium, Arial, sans-serif;
+  line-height: 24px;
 `;
 const LinkText = styled.span`
-  font-size: ${theme.fontSize.base};
-  font-weight: 500;
+  font-size: ${theme.fontSize.med};
+  color: ${theme.colors.blue};
+  line-height: 24px;
+  font-family: Graphik Web, Arial, sans-serif;
+  margin-bottom: 8px;
   text-decoration: none;
-  padding: 0.25rem 0 0.25rem 0;
   display: block;
+`;
+const FlexContainerIcons = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+const MediumText = styled.p`
+  margin: 0;
+  font-size: ${theme.fontSize.med};
+  color: ${theme.colors.greyDark};
 `;
 const IconContainer = styled.div`
   display: flex;

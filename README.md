@@ -1,6 +1,15 @@
 # Daily webinar app
 
-To run:
+To use:
+
+Make sure you have a `.gitignore` file that includes `.env` and add a `.env` file with the following keys:
+
+```
+REACT_APP_BASE_URL=<-your Daily URL->
+DAILY_API_KEY=<-your Daily API key->
+```
+
+Then run:
 
 ```
 yarn

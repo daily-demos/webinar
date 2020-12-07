@@ -11,7 +11,6 @@ const Header = () => {
         <div>
           <Logo src={logo} />
         </div>
-        {/* <Title>Webinars</Title> */}
       </LogoContainer>
       <Anchor underline={false} href="https://dashboard.daily.co/signup">
         <TextStyledLikeButton>Sign up for free</TextStyledLikeButton>
@@ -35,23 +34,19 @@ const LogoContainer = styled.div`
 const Logo = styled.img`
   width: 5rem;
 `;
-const Title = styled.h1`
-  text-transform: lowercase;
-  font-size: 1.2rem;
-  margin: 0;
-  padding-left: 0.75rem;
-  color: ${theme.colors.blueDark};
-`;
 const TextStyledLikeButton = styled.span`
   display: block;
   padding: 0.4rem 1rem 0.5rem;
-  background-color: ${theme.colors.turquoise};
+  background-color: ${theme.colors.white};
+  color: ${theme.colors.blueDark};
   font-size: ${theme.fontSize.base};
   border-radius: 6px;
   font-weight: 600;
-  border: 1px solid transparent;
+  border: 1px solid #c8d1dc;
+  font-family: Graphik Medium, Arial, sans-serif;
+
   &:hover {
-    border: 1px solid ${theme.colors.teal};
+    border: 1px solid ${theme.colors.greyDark};
   }
 `;
 

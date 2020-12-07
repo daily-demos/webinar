@@ -47,6 +47,9 @@ const Container = styled.div`
 
 const Image = styled.img`
   position: absolute;
+  @media (max-width: 740px) {
+    display: none;
+  }
 `;
 
 const ImageContainer = styled.div`

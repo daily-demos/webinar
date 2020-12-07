@@ -73,11 +73,13 @@ const WebinarCall = () => {
   const submitName = (e) => {
     e.preventDefault();
     if (inputRef?.current && emailRef?.current && companyRef?.current) {
-      const data = {
+      /* 
+        Google form values
         "entry.1667022758": inputRef.current.value,
         "entry.2075101699": emailRef.current.value,
         "entry.1964318055": companyRef.current.value,
-      };
+      */
+
       setSubmitting(true);
       fetch(
         `https://docs.google.com/forms/u/0/d/e/1FAIpQLSddqD1Q5W4Fatf0Px38ysFrC3COgS-PqAfjIXf6qnCgKfzZKg/formResponse?entry.1667022758=${inputRef.current.value}&entry.2075101699=${emailRef.current.value}&entry.1964318055=${companyRef.current.value}&submit=Submit`,
@@ -228,10 +230,14 @@ const WebinarCall = () => {
             <Label htmlFor="username">Your name</Label>
             <Input ref={inputRef} id="username" type="text" required />
             <Label htmlFor="email">Your email</Label>
-            <Input ref={emailRef} id="email" type="text" required />
+            <Input ref={emailRef} id="email" type="email" required />
             <Label htmlFor="company">Your company (or LinkedIn)</Label>
             <Input ref={companyRef} id="company" type="text" required />
-            <SubmitButton type="submit" disabled={submitting} />
+            <SubmitButton
+              type="submit"
+              value="Join our call"
+              disabled={submitting}
+            />
           </Form>
         </WaitingRoom>
       )}
@@ -249,7 +255,6 @@ const FlexContainer = styled.div`
   display: flex;
   align-items: stretch;
   flex-wrap: wrap;
-  height: ${(props) => props.height || 400}px;
 `;
 
 const WaitingRoom = styled.div`
@@ -278,8 +283,8 @@ const HintListItem = styled.li`
   display: flex;
 `;
 const Icon = styled.img`
-  width: 1.8rem;
-  margin-right: 1rem;
+  width: 1.5rem;
+  margin-right: 0.5rem;
 `;
 const StartTimeText = styled.span`
   color: ${theme.colors.orange};
@@ -305,7 +310,7 @@ const Form = styled.form`
 
 const FormHeader = styled(BodyText)`
   font-weight: 600;
-  color: ${theme.colors.greyDark};
+  color: ${theme.colors.blueDark};
 `;
 const InstructionText = styled(FormHeader)`
   margin-top: 1rem;
@@ -322,14 +327,13 @@ const Input = styled.input`
   border: 1px solid ${theme.colors.grey};
 `;
 const SubmitButton = styled.input`
-  padding: 0.5rem;
+  padding: 0.4rem 1rem 0.5rem;
   border-radius: 6px;
   background-color: ${theme.colors.turquoise};
   border: 1px solid ${theme.colors.turquoise};
   color: ${theme.colors.blueDark};
   font-weight: 600;
   margin-top: 2rem;
-  width: 175px;
   margin-left: auto;
   cursor: pointer;
 
@@ -343,11 +347,9 @@ const SubmitButton = styled.input`
 
 const Container = styled.div`
   flex: 2;
-  margin-right: 0.5rem;
-  margin-left: 0.5rem;
+  margin: 1rem;
   flex-basis: 600px;
   height: ${(props) => props.height || 400}px;
-  margin-bottom: 2rem;
 `;
 
 const CallFrame = styled.div`
