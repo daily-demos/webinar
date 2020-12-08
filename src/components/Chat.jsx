@@ -135,7 +135,7 @@ const Chat = ({ callFrame, accountType, height }) => {
   const scrollToBottom = () => {
     if (forceScrollRef?.current) {
       console.log("scrolling");
-      forceScrollRef.current.scrollIntoView({ behavior: "smooth" });
+      // forceScrollRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
 
