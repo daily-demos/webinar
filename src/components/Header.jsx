@@ -23,7 +23,7 @@ const Container = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 2rem;
+  margin: 0 1rem 2rem 1rem;
 `;
 const LogoContainer = styled.div`
   display: flex;

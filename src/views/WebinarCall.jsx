@@ -47,6 +47,7 @@ const WebinarCall = () => {
 
       if (search && search.match(/^[?t=*+]/)) {
         const token = search.replace("?t=", "");
+        console.log("setting admin");
         fetch(`https://daily-webinar.netlify.app/api/meeting-tokens/${token}`)
           .then((res) => res.json())
           .then((res) => {
@@ -65,6 +66,7 @@ const WebinarCall = () => {
           })
           .catch((err) => console.log(err));
       } else {
+        console.log("setting participant");
         setRoomInfo({
           token: null,
           username: null,
@@ -94,6 +96,7 @@ const WebinarCall = () => {
         }
       )
         .then(() => {
+          console.log("setting room info");
           setRoomInfo({
             ...roomInfo,
             username: inputRef.current.value?.trim(),
@@ -126,7 +129,7 @@ const WebinarCall = () => {
       setCurrentView("waiting");
       return;
     } // needs to be entered by participant
-
+    console.log(callFrame);
     if (!callFrame) {
       CALL_OPTIONS.url = roomInfo?.url;
       const newCallFrame = DailyIframe.createFrame(
@@ -139,6 +142,10 @@ const WebinarCall = () => {
         .then(() => {
           updateSize();
           setCurrentView("call");
+          console.log("joined meeting");
+          // newCallFrame
+          // .showParticipantsBar(false) todo add back when they're available
+          // .showLocalVideo(false);
         })
         .catch((err) => {
           console.log(err);
@@ -175,7 +182,7 @@ const WebinarCall = () => {
     updateSize();
     return () => window.removeEventListener("resize", updateSize);
   }, [callFrame]);
-  console.log(height);
+
   return (
     <FlexContainer>
       {currentView === "loading" && <Loading />}

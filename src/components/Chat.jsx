@@ -8,7 +8,7 @@ import ChatMessage from "./ChatMessage";
 const Chat = ({ callFrame, accountType, height }) => {
   const welcomeMessage = {
     message:
-      "Welcome! Please let us know if there's anything specific you'd like to learn about Daily video APIs",
+      "Message us here during the webinar and we'll answer during the Q&A period!",
     type: "info",
     username: null,
     to: null,
@@ -101,7 +101,7 @@ const Chat = ({ callFrame, accountType, height }) => {
       }
 
       const from = participants?.local?.user_name;
-
+      callFrame.showLocalVideo(false);
       // send the message to others
       callFrame.sendAppMessage(
         {
@@ -151,8 +151,8 @@ const Chat = ({ callFrame, accountType, height }) => {
       {accountType !== "admin" ? (
         <>
           <SubText>
-            Message us here during the webinar and we'll answer during the Q&A
-            period!
+            Welcome! Please let us know if there's anything specific you'd like
+            to learn about Daily video APIs
           </SubText>
         </>
       ) : (
