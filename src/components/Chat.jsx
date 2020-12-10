@@ -6,10 +6,10 @@ import BodyText from "./text/BodyText";
 import ChatMessage from "./ChatMessage";
 import Anchor from "./Anchor";
 
-const Chat = ({ callFrame, accountType, height }) => {
+const Chat = ({ callFrame, accountType }) => {
   const welcomeMessage = {
     message:
-      "Message us here during the webinar and we'll answer during the Q&A period!",
+      "Message us here during the webinar and we'll answer during the Q&A period! Only Daily admin can see your messages.",
     type: "info",
     username: null,
     to: null,
