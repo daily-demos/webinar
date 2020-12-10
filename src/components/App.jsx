@@ -15,8 +15,8 @@ function App() {
     <Router>
       <Container>
         <ImageContainer>
-          <BackgroundImg1 src={decorativeSlash1} alt=" " />
-          <BackgroundImg2 src={decorativeSlash2} alt=" " />
+          <BackgroundImg1 src={decorativeSlash2} alt=" " />
+          <BackgroundImg2 src={decorativeSlash1} alt=" " />
           <BackgroundImg3 src={decorativeSlash3} alt=" " />
         </ImageContainer>
         <Body>
