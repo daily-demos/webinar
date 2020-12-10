@@ -1,19 +1,27 @@
 import React from "react";
 import styled from "styled-components";
 import theme from "../theme";
+import spyIcon from "./images/user-secret-solid.svg";
 
 const ChatMessage = ({ chat }) => {
-  // chat.type = broadcast | toAdmin | toMember | info
+  // chat.type = broadcast | toAdmin | toMember | info | spy
   console.log(chat);
   return (
     <Container type={chat.type} from={chat.username}>
       {chat.type !== "info" && (
-        <Username>{`${chat.username} to ${chat.to}`}</Username>
+        <FlexRow>
+          {chat.type === "spy" && <Icon src={spyIcon} />}
+          <Username>{`${chat.username} to ${chat.to}`}</Username>
+        </FlexRow>
       )}
       <Message type={chat.type}>{chat.message}</Message>
     </Container>
   );
 };
+
+const FlexRow = styled.div`
+  display: flex;
+`;
 
 const Container = styled.div`
   background-color: ${(props) =>
@@ -36,14 +44,20 @@ const Username = styled.p`
   color: ${theme.colors.blueDark};
   font-size: ${theme.fontSize.small};
   font-weight: 900;
-  margin: 0.2rem;
+  margin: 0.2rem 0;
+  font-family: Graphik Medium, Arial, sans-serif;
+`;
+
+const Icon = styled.img`
+  width: 0.5rem;
+  margin-right: 0.2rem;
 `;
 
 const Message = styled.p`
   color: ${(props) =>
     props.type === "info" ? theme.colors.greyDark : theme.colors.blueDark};
   font-size: ${theme.fontSize.base};
-  margin: 0.2rem;
+  margin: 0.2rem 0;
   word-break: break-word;
 `;
 

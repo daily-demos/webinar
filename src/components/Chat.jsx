@@ -71,26 +71,42 @@ const Chat = ({ callFrame, accountType, height }) => {
     e.preventDefault();
     if (callFrame && inputRef.current) {
       let sendToList = [];
-      let type = null;
 
       const participants = callFrame.participants();
       console.log(adminSendToType);
-      // if you're an admin you're either sending a direct message to one person or a broadcast message, so there is only ever one message sent
-      if (accountType === "admin") {
+      // if you're an admin you're either sending a direct message to one person or a broadcast message
+      if (accountType === "admin" && adminSendToType === "*") {
+        // a broadcast message is sent once to everyone in the call (except the sender)
         sendToList = [
           {
             id: adminSendToType,
-            username:
-              adminSendToType === "*"
-                ? ["everyone"]
-                : participants[adminSendToType].user_name,
-            type: adminSendToType === "*" ? "broadcast" : "toMember",
-            toText:
-              adminSendToType === "*"
-                ? "everyone"
-                : participants[adminSendToType].user_name,
+            username: "Everyone",
+            type: "broadcast",
+            toText: "Everyone",
           },
         ];
+      } else if (accountType === "admin" && adminSendToType !== "*") {
+        // a direct message is sent once to the receiver
+        sendToList = [
+          {
+            id: adminSendToType,
+            username: participants[adminSendToType].user_name,
+            type: "toMember",
+            toText: participants[adminSendToType].user_name,
+          },
+        ];
+        // we also cc the other admins on direct messages to participants so they can follow the convo and take over if needed
+        const ids = Object.keys(participants);
+        ids.forEach((id) => {
+          if (participants[id]?.owner) {
+            sendToList.push({
+              id: participants[id].session_id,
+              username: participants[adminSendToType].user_name,
+              type: "spy",
+              toText: participants[adminSendToType].user_name,
+            });
+          }
+        });
       } else {
         // if you're a participant, your messages are sent to the host(s), which could vary in number
         const ids = Object.keys(participants);
@@ -100,13 +116,15 @@ const Chat = ({ callFrame, accountType, height }) => {
               id: participants[id].session_id,
               username: participants[id].user_name,
               type: "toAdmin",
-              toText: "host(s)",
+              toText: "Host(s)",
             });
           }
         });
       }
 
-      const from = participants?.local?.user_name;
+      const from = `${participants?.local?.user_name}${
+        accountType === "admin" ? " (Admin)" : ""
+      }`;
 
       sendToList.forEach((p) => {
         // send the message to others
@@ -155,19 +173,13 @@ const Chat = ({ callFrame, accountType, height }) => {
     <FlexContainer>
       <SubHeaderText>
         {accountType === "admin"
-          ? "Hey, you're now hosting a Daily call"
+          ? "Hey, you're hosting a Daily call"
           : "Have a question about Daily video APIs?"}
       </SubHeaderText>
       {accountType !== "admin" ? (
         <SubText>Let us know in the chat below!</SubText>
       ) : (
-        <>
-          <BodyText>
-            Remember, participants can message you directly but they can't see
-            each other's messages.
-          </BodyText>
-          <BodyText>Use the dropdown below to choose who to message.</BodyText>
-        </>
+        <BodyText>Participants can only see messages from admins.</BodyText>
       )}
       <Container>
         <ChatBox>
