@@ -7,6 +7,7 @@ const BodyText = styled.p`
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   margin: 0;
+  line-height: 20px;
 `;
 
 export default BodyText;

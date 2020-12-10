@@ -9,6 +9,14 @@ import BodyText from "../components/text/BodyText";
 import { useParams, useLocation } from "react-router-dom";
 import checkmark from "../components/images/checkmark.svg";
 import theme from "../theme";
+import {
+  Icon,
+  HintList,
+  HintListItem,
+  SubContainer,
+  InstructionText,
+  FormHeader,
+} from "../components/List";
 
 const WebinarCall = () => {
   const videoRef = useRef(null);
@@ -272,30 +280,11 @@ const WaitingRoom = styled.div`
   }
 `;
 
-const SubContainer = styled.div`
-  flex: 1;
-  margin-right: 3rem;
-
-  @media (max-width: 996px) {
-    margin-right: 0rem;
-  }
-`;
-
-const HintList = styled.ul`
-  list-style: none;
-  padding-left: 0;
-`;
-const HintListItem = styled.li`
-  display: flex;
-`;
-const Icon = styled.img`
-  width: 1.5rem;
-  margin-right: 0.5rem;
-`;
 const StartTimeText = styled.span`
   color: ${theme.colors.orange};
   font-weight: 600;
 `;
+
 const Form = styled.form`
   margin-top: 4rem;
   flex: 1;
@@ -314,13 +303,6 @@ const Form = styled.form`
   }
 `;
 
-const FormHeader = styled(BodyText)`
-  font-weight: 600;
-  color: ${theme.colors.blueDark};
-`;
-const InstructionText = styled(FormHeader)`
-  margin-top: 1rem;
-`;
 const Label = styled.label`
   font-size: ${theme.fontSize.base};
   color: ${theme.colors.greyDark};
