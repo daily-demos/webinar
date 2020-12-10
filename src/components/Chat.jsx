@@ -70,63 +70,72 @@ const Chat = ({ callFrame, accountType, height }) => {
   const submitMessage = (e) => {
     e.preventDefault();
     if (callFrame && inputRef.current) {
-      let toId = null;
-      let toUsername = null;
-      let toText = null;
+      let sendToList = [];
       let type = null;
 
       const participants = callFrame.participants();
       console.log(adminSendToType);
+      // if you're an admin you're either sending a direct message to one person or a broadcast message, so there is only ever one message sent
       if (accountType === "admin") {
-        toId = adminSendToType;
-        toUsername =
-          adminSendToType === "*" ? "everyone" : participants[toId].user_name;
+        sendToList = [
+          {
+            id: adminSendToType,
+            username:
+              adminSendToType === "*"
+                ? ["everyone"]
+                : participants[adminSendToType].user_name,
+            type: adminSendToType === "*" ? "broadcast" : "toMember",
+            toText:
+              adminSendToType === "*"
+                ? "everyone"
+                : participants[adminSendToType].user_name,
+          },
+        ];
       } else {
+        // if you're a participant, your messages are sent to the host(s), which could vary in number
         const ids = Object.keys(participants);
         ids.forEach((id) => {
           if (participants[id]?.owner) {
-            toId = participants[id].session_id;
-            console.log(participants[id]);
-            toUsername = participants[id].user_name;
+            sendToList.push({
+              id: participants[id].session_id,
+              username: participants[id].user_name,
+              type: "toAdmin",
+              toText: "host(s)",
+            });
           }
         });
       }
 
-      if (accountType === "admin") {
-        type = adminSendToType === "*" ? "broadcast" : "toMember";
-
-        toText = adminSendToType === "*" ? "everyone" : toUsername;
-      } else {
-        type = "toAdmin";
-        toText = "host(s)";
-      }
-
       const from = participants?.local?.user_name;
-      callFrame.showLocalVideo(false);
-      // send the message to others
-      callFrame.sendAppMessage(
-        {
-          message: inputRef.current.value,
-          from,
-          to: toText,
-          type,
-        },
-        toId
-      );
+
+      sendToList.forEach((p) => {
+        // send the message to others
+        callFrame.sendAppMessage(
+          {
+            message: inputRef.current.value,
+            from,
+            to: p.toText,
+            type: p.type,
+            username: p.username,
+          },
+          p.id
+        );
+      });
 
       // add message to your local chat since messages don't get triggered when you're the sender
+      // only one message need to get added locally regardless of how many were sent out
       setChatHistory([
         ...chatHistoryRef.current,
         {
           message: inputRef.current.value,
           username: "Me",
-          type,
-          to: toText,
+          type: sendToList[0].type,
+          to: sendToList[0].toText,
           from,
         },
       ]);
-      inputRef.current.value = "";
     }
+    inputRef.current.value = "";
   };
 
   const adminMessageSelectOnChange = (e) => {

@@ -152,9 +152,6 @@ const WebinarCall = () => {
           updateSize();
           setCurrentView("call");
           console.log("joined meeting");
-          // newCallFrame
-          // .showParticipantsBar(false) todo add back when they're available
-          // .showLocalVideo(false);
         })
         .catch((err) => {
           console.log(err);
