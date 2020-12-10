@@ -163,7 +163,9 @@ const Chat = ({ callFrame, accountType, height }) => {
   const scrollToBottom = () => {
     if (forceScrollRef?.current) {
       console.log("scrolling");
-      // forceScrollRef.current.scrollIntoView({ behavior: "smooth" });
+      forceScrollRef.current.scrollTop =
+        forceScrollRef.current.scrollHeight -
+        forceScrollRef.current.clientHeight;
     }
   };
 
@@ -182,11 +184,10 @@ const Chat = ({ callFrame, accountType, height }) => {
         <BodyText>Participants can only see messages from admins.</BodyText>
       )}
       <Container>
-        <ChatBox>
+        <ChatBox ref={forceScrollRef}>
           {chatHistory.map((chat, i) => (
             <ChatMessage key={`chat-message-${i}`} chat={chat} />
           ))}
-          <HiddenElForcesScroll ref={forceScrollRef} />
         </ChatBox>
         <Form onSubmit={submitMessage}>
           <Label htmlFor="messageInput">
@@ -229,11 +230,6 @@ const Chat = ({ callFrame, accountType, height }) => {
   );
 };
 
-const HiddenElForcesScroll = styled.div`
-  font-size: 0;
-  color: white;
-`;
-
 const FlexContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -250,7 +246,7 @@ const ChatBox = styled.div`
   border-bottom: none;
   border-radius: 6px 6px 0 0;
   background-color: ${theme.colors.white};
-  overflow: scroll;
+  overflow-y: scroll;
 `;
 
 const SubHeaderText = styled(HeaderText)`
@@ -278,6 +274,7 @@ const ChatInputContainer = styled.div`
 `;
 
 const Select = styled.select`
+  max-width: 120px;
   font-size: ${theme.fontSize.base};
   padding: 0.3rem 0.8rem;
   color: ${theme.colors.blueDark};
