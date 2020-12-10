@@ -34,7 +34,7 @@ const ErrorMessage = ({ isAdmin }) => {
           <HintListItem>
             <Icon src={xIcon} alt="x icon" />
             <BodyText>
-              The was a problem connecting to the call. Please check your
+              There was a problem connecting to the call. Please check your
               internet connection or refresh the page to try again.
             </BodyText>
           </HintListItem>
