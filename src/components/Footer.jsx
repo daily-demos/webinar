@@ -77,8 +77,8 @@ const Container = styled.div`
   margin-left: auto;
   margin-right: auto;
   padding-top: 6rem;
-  padding-right: 0.5rem;
-  padding-left: 0.5rem;
+  padding-right: 1rem;
+  padding-left: 1rem;
   margin-top: auto;
   margin-bottom: 1rem;
   width: 100%;

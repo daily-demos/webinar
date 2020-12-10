@@ -42,7 +42,10 @@ const ErrorMessage = ({ isAdmin }) => {
             <Icon src={xIcon} alt="x icon" />
             <BodyText>
               Additional issues that may have occured. Please consult our{" "}
-              <Anchor href="mailto:help@daily.co" color={theme.colors.orange}>
+              <Anchor
+                href="https://help.daily.co/en/articles/2303117-top-troubleshooting-5-tips-that-solve-99-of-issues"
+                color={theme.colors.orange}
+              >
                 help center article
               </Anchor>{" "}
               for more details.

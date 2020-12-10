@@ -4,6 +4,7 @@ import theme from "../theme";
 import HeaderText from "./text/HeaderText";
 import BodyText from "./text/BodyText";
 import ChatMessage from "./ChatMessage";
+import Anchor from "./Anchor";
 
 const Chat = ({ callFrame, accountType, height }) => {
   const welcomeMessage = {
@@ -146,15 +147,10 @@ const Chat = ({ callFrame, accountType, height }) => {
       <SubHeaderText>
         {accountType === "admin"
           ? "Hey, you're now hosting a Daily call"
-          : "Have a question about Daily?"}
+          : "Have a question about Daily video APIs?"}
       </SubHeaderText>
       {accountType !== "admin" ? (
-        <>
-          <SubText>
-            Welcome! Please let us know if there's anything specific you'd like
-            to learn about Daily video APIs
-          </SubText>
-        </>
+        <SubText>Let us know in the chat below!</SubText>
       ) : (
         <>
           <BodyText>

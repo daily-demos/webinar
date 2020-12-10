@@ -17,6 +17,7 @@ import {
   InstructionText,
   FormHeader,
 } from "../components/List";
+import Anchor from "../components/Anchor";
 
 const WebinarCall = () => {
   const videoRef = useRef(null);
@@ -192,76 +193,99 @@ const WebinarCall = () => {
   }, [callFrame]);
 
   return (
-    <FlexContainer>
-      {currentView === "loading" && <Loading />}
-      {currentView === "error" && (
-        <ErrorMessage isAdmin={search.match(/^[?t=*+]/)} />
-      )}
-      {currentView === "waiting" && (
-        <WaitingRoom>
-          <SubContainer>
-            <HeaderText>Welcome to Daily!</HeaderText>
-            <InstructionText>
-              Here are some things to know before we get started:
-            </InstructionText>
-            <HintList>
-              {startTime && (
+    <FlexContainerColumn>
+      <FlexContainer>
+        {currentView === "loading" && <Loading />}
+        {currentView === "error" && (
+          <ErrorMessage isAdmin={search.match(/^[?t=*+]/)} />
+        )}
+        {currentView === "waiting" && (
+          <WaitingRoom>
+            <SubContainer>
+              <HeaderText>Welcome to Daily!</HeaderText>
+              <InstructionText>
+                Here are some things to know before we get started:
+              </InstructionText>
+              <HintList>
+                {startTime && (
+                  <HintListItem>
+                    <Icon src={checkmark} alt="checkmark" />
+                    <BodyText>
+                      This call will start at:{" "}
+                      <StartTimeText>{startTime}</StartTimeText>
+                    </BodyText>
+                  </HintListItem>
+                )}
                 <HintListItem>
                   <Icon src={checkmark} alt="checkmark" />
                   <BodyText>
-                    This call will start at:{" "}
-                    <StartTimeText>{startTime}</StartTimeText>
+                    Your camera and mic will be off by default for the entire
+                    duration of the call.
                   </BodyText>
                 </HintListItem>
-              )}
-              <HintListItem>
-                <Icon src={checkmark} alt="checkmark" />
-                <BodyText>
-                  Your camera and mic will be off by default for the entire
-                  duration of the call.
-                </BodyText>
-              </HintListItem>
-              <HintListItem>
-                <Icon src={checkmark} alt="checkmark" />
-                <BodyText>
-                  The call will have a chat next to it to communicate with the
-                  presenter so you can ask questions about Daily.
-                </BodyText>
-              </HintListItem>
-              <HintListItem>
-                <Icon src={checkmark} alt="checkmark" />
-                <BodyText>
-                  We encourage you to use this call to clarify any questions you
-                  may have!
-                </BodyText>
-              </HintListItem>
-            </HintList>
-          </SubContainer>
-          <Form onSubmit={submitName}>
-            <FormHeader>Before joining, please introduce yourself:</FormHeader>
-            <Label htmlFor="username">Your name</Label>
-            <Input ref={inputRef} id="username" type="text" required />
-            <Label htmlFor="email">Your email</Label>
-            <Input ref={emailRef} id="email" type="email" required />
-            <Label htmlFor="company">Your company (or LinkedIn)</Label>
-            <Input ref={companyRef} id="company" type="text" required />
-            <SubmitButton
-              type="submit"
-              value="Join our call"
-              disabled={submitting}
-            />
-          </Form>
-        </WaitingRoom>
+                <HintListItem>
+                  <Icon src={checkmark} alt="checkmark" />
+                  <BodyText>
+                    The call will have a chat next to it to communicate with the
+                    presenter so you can ask questions about Daily.
+                  </BodyText>
+                </HintListItem>
+                <HintListItem>
+                  <Icon src={checkmark} alt="checkmark" />
+                  <BodyText>
+                    We encourage you to use this call to clarify any questions
+                    you may have!
+                  </BodyText>
+                </HintListItem>
+              </HintList>
+            </SubContainer>
+            <Form onSubmit={submitName}>
+              <FormHeader>
+                Before joining, please introduce yourself:
+              </FormHeader>
+              <Label htmlFor="username">Your name</Label>
+              <Input ref={inputRef} id="username" type="text" required />
+              <Label htmlFor="email">Your email</Label>
+              <Input ref={emailRef} id="email" type="email" required />
+              <Label htmlFor="company">Your company (or LinkedIn)</Label>
+              <Input ref={companyRef} id="company" type="text" required />
+              <SubmitButton
+                type="submit"
+                value="Join our call"
+                disabled={submitting}
+              />
+            </Form>
+          </WaitingRoom>
+        )}
+        <Container height={height}>
+          <CallFrame ref={videoRef} hidden={currentView !== "call"} />
+        </Container>
+        {currentView === "call" && roomInfo.username && (
+          <ChatContainer height={height}>
+            <Chat callFrame={callFrame} accountType={roomInfo?.accountType} />
+          </ChatContainer>
+        )}
+      </FlexContainer>
+      {currentView === "call" && (
+        <FlexRow>
+          <HelpText>
+            If you're having any trouble connecting, message us in the chat,
+            check our{" "}
+            <Anchor
+              href="https://help.daily.co/en/articles/2303117-top-troubleshooting-5-tips-that-solve-99-of-issues"
+              color={theme.colors.orange}
+            >
+              help center article
+            </Anchor>
+            , or email support directly{" "}
+            <Anchor href="mailto:help@daily.co" color={theme.colors.orange}>
+              help@daily.co
+            </Anchor>
+          </HelpText>
+          <Flex1>_</Flex1>
+        </FlexRow>
       )}
-      <Container height={height}>
-        <CallFrame ref={videoRef} hidden={currentView !== "call"} />
-      </Container>
-      {currentView === "call" && roomInfo.username && (
-        <ChatContainer height={height}>
-          <Chat callFrame={callFrame} accountType={roomInfo?.accountType} />
-        </ChatContainer>
-      )}
-    </FlexContainer>
+    </FlexContainerColumn>
   );
 };
 
@@ -269,6 +293,30 @@ const FlexContainer = styled.div`
   display: flex;
   align-items: stretch;
   flex-wrap: wrap;
+`;
+const FlexContainerColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  @media (max-width: 1075px) {
+    flex-direction: column-reverse;
+  }
+`;
+const FlexRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  @media (max-width: 996px) {
+    flex-direction: column;
+  }
+`;
+
+const HelpText = styled(BodyText)`
+  flex: 2;
+  margin: 1rem;
+`;
+const Flex1 = styled.div`
+  flex: 1;
+  font-size: 0;
+  color: transparent;
 `;
 
 const WaitingRoom = styled.div`

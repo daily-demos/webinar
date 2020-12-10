@@ -54,7 +54,7 @@ const Loading = () => {
           </circle>
         </g>
       </Svg>
-      <HeaderText>Please wait...</HeaderText>
+      <WaitText>Please wait...</WaitText>
     </Container>
   );
 };
@@ -72,6 +72,10 @@ const Svg = styled.svg`
   stroke: ${theme.colors.blueDark};
   width: 32px;
   margin-bottom: 1rem;
+`;
+
+const WaitText = styled(HeaderText)`
+  font-size: ${theme.fontSize.large};
 `;
 
 export default Loading;
