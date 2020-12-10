@@ -130,6 +130,8 @@ const WebinarCall = () => {
       0 4px 8px rgba(0, 0, 0, 0.02), 0 8px 16px rgba(0, 0, 0, 0.02),
       0 16px 32px rgba(0, 0, 0, 0.02)`,
     },
+    showLeaveButton: true,
+    showFullscreenButton: true,
   };
 
   useEffect(() => {
