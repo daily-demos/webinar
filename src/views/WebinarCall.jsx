@@ -181,6 +181,7 @@ const WebinarCall = () => {
       clearTimeout(timeout);
       timeout = setTimeout(() => {
         setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
+        setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
       }, 100);
     }
   };
@@ -256,9 +257,9 @@ const WebinarCall = () => {
             </Form>
           </WaitingRoom>
         )}
-        <Container height={height}>
+        <VideoContainer height={height}>
           <CallFrame ref={videoRef} hidden={currentView !== "call"} />
-        </Container>
+        </VideoContainer>
         {currentView === "call" && roomInfo.username && (
           <ChatContainer height={height}>
             <Chat callFrame={callFrame} accountType={roomInfo?.accountType} />
@@ -292,6 +293,9 @@ const FlexContainer = styled.div`
   display: flex;
   align-items: stretch;
   flex-wrap: wrap;
+  @media (max-width: 1075px) {
+    flex-direction: column;
+  }
 `;
 const FlexContainerColumn = styled.div`
   display: flex;
@@ -303,13 +307,14 @@ const FlexContainerColumn = styled.div`
 const FlexRow = styled.div`
   display: flex;
   flex-direction: row;
+
   @media (max-width: 996px) {
     flex-direction: column;
   }
 `;
 
 const HelpText = styled(BodyText)`
-  flex: 2;
+  flex: 1.7;
   margin: 1rem;
 `;
 const Flex1 = styled.div`
@@ -319,9 +324,10 @@ const Flex1 = styled.div`
 `;
 
 const WaitingRoom = styled.div`
-  margin-top: 3rem;
+  margin: 3rem 1rem 0;
   display: flex;
   width: 100%;
+
   @media (max-width: 996px) {
     flex-direction: column;
   }
@@ -380,10 +386,10 @@ const SubmitButton = styled.input`
   }
 `;
 
-const Container = styled.div`
-  flex: 2;
+const VideoContainer = styled.div`
+  flex: 1.2;
   margin: 1rem;
-  flex-basis: 600px;
+  flex-basis: 400px;
   height: ${(props) => props.height || 400}px;
 `;
 

@@ -9,15 +9,15 @@ import Anchor from "./Anchor";
 const Chat = ({ callFrame, accountType }) => {
   const welcomeMessage = {
     message:
-      "Message us here during the webinar and we'll answer during the Q&A period! Only Daily admin can see your messages.",
+      accountType === "admin"
+        ? "Chat messages will display here."
+        : "Message us here during the webinar and we'll answer during the Q&A period! Only Daily admin can see your messages.",
     type: "info",
     username: null,
     to: null,
     from: null,
   };
-  const [chatHistory, _setChatHistory] = useState(
-    accountType === "admin" ? [] : [welcomeMessage]
-  );
+  const [chatHistory, _setChatHistory] = useState([welcomeMessage]);
   const [participants, _setParticipants] = useState(null);
   const [adminSendToType, _setAdminSendToType] = useState("*");
   const [appMessageHandlerAdded, setAppMessageHandlerAdded] = useState(false);
@@ -171,6 +171,13 @@ const Chat = ({ callFrame, accountType }) => {
 
   useEffect(scrollToBottom, [chatHistory]);
 
+  const onTextAreaEnterPress = (e) => {
+    if (e.keyCode == 13 && e.shiftKey == false) {
+      e.preventDefault();
+      submitMessage(e);
+    }
+  };
+
   return (
     <FlexContainer>
       <SubHeaderText>
@@ -194,7 +201,13 @@ const Chat = ({ callFrame, accountType }) => {
             Message {accountType !== "admin" ? "Daily admin" : ""}
           </Label>
           <ChatInputContainer>
-            <Input ref={inputRef} id="messageInput" type="text" />
+            <Input
+              ref={inputRef}
+              id="messageInput"
+              type="text"
+              placeholder="Enter your message..."
+              onKeyDown={onTextAreaEnterPress}
+            />
             <ButtonContainer>
               {accountType === "admin" && callFrame?.participants() && (
                 <Select onChange={adminMessageSelectOnChange}>
@@ -283,7 +296,7 @@ const Select = styled.select`
   border: none;
   margin-bottom: 0.5rem;
 `;
-const Input = styled.input`
+const Input = styled.textarea`
   width: 100%;
   box-sizing: border-box;
   line-height: 22px;
@@ -291,6 +304,7 @@ const Input = styled.input`
   padding-right: 0.25rem;
   border: none;
   resize: none;
+  font-family: "Graphik Web", Helvetica, Arial, sans-serif;
 
   &:focus {
     outline: none;

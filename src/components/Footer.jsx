@@ -82,6 +82,7 @@ const Container = styled.div`
   margin-top: auto;
   margin-bottom: 1rem;
   width: 100%;
+  box-sizing: border-box;
 `;
 const LinksContainer = styled.div`
   display: flex;
