@@ -64,7 +64,13 @@ const WebinarCall = () => {
           }
           if (res.config?.nbf) {
             console.log(res.config?.nbf);
-            setStartTime(new Date(res.config?.nbf * 1000).toUTCString());
+            const timeUnformatted = new Date(res.config?.nbf * 1000);
+            const time = new Intl.DateTimeFormat("en-US", {
+              dateStyle: "full",
+              timeStyle: "long",
+              timeZone: "America/Los_Angeles",
+            }).format(timeUnformatted);
+            setStartTime(time);
           }
         })
         .catch((err) => setCurrentView("error"));
@@ -221,7 +227,7 @@ const WebinarCall = () => {
                   <HintListItem>
                     <Icon src={checkmark} alt="checkmark" />
                     <BodyText>
-                      This call will start at:{" "}
+                      This call starts at:{" "}
                       <StartTimeText>{startTime}</StartTimeText>
                     </BodyText>
                   </HintListItem>
