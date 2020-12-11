@@ -3,6 +3,7 @@ import DailyIframe from "@daily-co/daily-js";
 import styled from "styled-components";
 import Chat from "../components/Chat";
 import ErrorMessage from "../components/ErrorMessage";
+import AuRevoir from "../components/AuRevoir";
 import Loading from "../components/Loading";
 import HeaderText from "../components/text/HeaderText";
 import BodyText from "../components/text/BodyText";
@@ -25,7 +26,7 @@ const WebinarCall = () => {
   const emailRef = useRef();
   const companyRef = useRef();
 
-  const [currentView, setCurrentView] = useState("loading"); // loading | call | waiting | error
+  const [currentView, setCurrentView] = useState("left-call"); // loading | call | waiting | error | left-call
   const [callFrame, setCallFrame] = useState(null);
   const [height, setHeight] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -38,7 +39,7 @@ const WebinarCall = () => {
 
   useEffect(() => {
     if (roomInfo) return;
-    if (currentView === "loading") {
+    if (currentView === "loading" && !callFrame) {
       fetch(`https://daily-webinar.netlify.app/api/rooms/${roomName}`, {})
         .then((res) => res.json())
         .then((res) => {
@@ -84,7 +85,7 @@ const WebinarCall = () => {
         });
       }
     }
-  }, [currentView]);
+  }, [currentView, callFrame]);
 
   const submitName = (e) => {
     e.preventDefault();
@@ -136,23 +137,29 @@ const WebinarCall = () => {
 
   useEffect(() => {
     if (!videoRef || !videoRef?.current || !roomInfo) return;
+    // if you're not an admin, you can't join without filling out the sign in form
     if (!roomInfo?.username) {
       setCurrentView("waiting");
       return;
-    } // needs to be entered by participant
-    console.log(callFrame);
+    }
+
     if (!callFrame) {
+      // set room url; callFrame properties are otherwise already set above
       CALL_OPTIONS.url = roomInfo?.url;
       const newCallFrame = DailyIframe.createFrame(
         videoRef.current,
         CALL_OPTIONS
       );
+
       setCallFrame(newCallFrame);
+
       newCallFrame
+        .setShowNamesMode("always")
+        .on("joined-meeting", () => setCurrentView("call"))
+        .on("left-meeting", () => setCurrentView("left-call"))
         .join({ userName: roomInfo?.username })
         .then(() => {
           updateSize();
-          setCurrentView("call");
           console.log("joined meeting");
         })
         .catch((err) => {
@@ -196,6 +203,7 @@ const WebinarCall = () => {
     <FlexContainerColumn>
       <FlexContainer>
         {currentView === "loading" && <Loading />}
+        {currentView === "left-call" && <AuRevoir />}
         {currentView === "error" && (
           <ErrorMessage isAdmin={search.match(/^[?t=*+]/)} />
         )}

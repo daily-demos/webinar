@@ -300,7 +300,7 @@ const Input = styled.textarea`
   width: 100%;
   box-sizing: border-box;
   line-height: 22px;
-  padding-left: 0.25rem;
+  padding-left: 0.5rem;
   padding-right: 0.25rem;
   border: none;
   resize: none;
