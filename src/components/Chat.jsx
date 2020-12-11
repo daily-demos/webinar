@@ -4,11 +4,12 @@ import theme from "../theme";
 import HeaderText from "./text/HeaderText";
 import BodyText from "./text/BodyText";
 import ChatMessage from "./ChatMessage";
+import { ADMIN } from "../constants";
 
 const Chat = ({ callFrame, accountType }) => {
   const welcomeMessage = {
     message:
-      accountType === "admin"
+      accountType === ADMIN
         ? "Chat messages will display here."
         : "Message us here during the webinar and we'll answer during the Q&A period! Only Daily admin can see your messages.",
     type: "info",
@@ -30,7 +31,6 @@ const Chat = ({ callFrame, accountType }) => {
     const participants = callFrame.participants();
     const username = participants[e.fromId].user_name;
     const { message, to, type, from } = e.data;
-    console.log(e.data);
     setChatHistory([
       ...chatHistoryRef.current,
       {
@@ -72,9 +72,9 @@ const Chat = ({ callFrame, accountType }) => {
       let sendToList = [];
 
       const participants = callFrame.participants();
-      console.log(participants);
+
       // if you're an admin you're either sending a direct message to one person or a broadcast message
-      if (accountType === "admin" && adminSendToType === "*") {
+      if (accountType === ADMIN && adminSendToType === "*") {
         // a broadcast message is sent once to everyone in the call (except the sender)
         sendToList = [
           {
@@ -84,7 +84,7 @@ const Chat = ({ callFrame, accountType }) => {
             toText: "Everyone",
           },
         ];
-      } else if (accountType === "admin" && adminSendToType !== "*") {
+      } else if (accountType === ADMIN && adminSendToType !== "*") {
         // a direct message is sent once to the receiver
         sendToList = [
           {
@@ -122,7 +122,7 @@ const Chat = ({ callFrame, accountType }) => {
       }
 
       const from = participants?.local?.user_id;
-      console.log(from);
+
       // If a participant sends a message and there's not host, there's one for to receive it. Show an error message in the chat instead
       if (!sendToList.length) {
         setChatHistory([
@@ -175,7 +175,6 @@ const Chat = ({ callFrame, accountType }) => {
 
   const scrollToBottom = () => {
     if (forceScrollRef?.current) {
-      console.log("scrolling");
       forceScrollRef.current.scrollTop =
         forceScrollRef.current.scrollHeight -
         forceScrollRef.current.clientHeight;
@@ -191,17 +190,44 @@ const Chat = ({ callFrame, accountType }) => {
     }
   };
 
+  function convertChatForCSV(arr) {
+    const array = [Object.keys(arr[0])].concat(arr);
+
+    return array
+      .map((it) => {
+        return Object.values(it).toString();
+      })
+      .join("\n");
+  }
+
+  const exportChat = () => {
+    const csvContent =
+      "data:text/csv;charset=utf-8," + convertChatForCSV(chatHistory);
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `webinar-chat_${new Date()}.csv`);
+    document.body.appendChild(link); // Required for FF
+
+    link.click();
+  };
+
   return (
     <FlexContainer>
       <SubHeaderText>
-        {accountType === "admin"
-          ? "Hey, you're hosting a Daily call"
+        {accountType === ADMIN
+          ? "You're hosting a call"
           : "Have a question about Daily video APIs?"}
       </SubHeaderText>
-      {accountType !== "admin" ? (
+      {accountType !== ADMIN ? (
         <SubText>Let us know in the chat below!</SubText>
       ) : (
-        <BodyText>Participants can only see messages from admins.</BodyText>
+        <BodyText>Broadcast messages and DMs are available.</BodyText>
+      )}
+      {accountType === ADMIN && (
+        <ExportButtonContainer>
+          <ExportButton onClick={exportChat}>Export Chat</ExportButton>
+        </ExportButtonContainer>
       )}
       <Container>
         <ChatBox ref={forceScrollRef}>
@@ -215,7 +241,7 @@ const Chat = ({ callFrame, accountType }) => {
         </ChatBox>
         <Form onSubmit={submitMessage}>
           <Label htmlFor="messageInput">
-            Message {accountType !== "admin" ? "Daily admin" : ""}
+            Message {accountType !== ADMIN ? "Daily admin" : ""}
           </Label>
           <ChatInputContainer>
             <Input
@@ -226,7 +252,7 @@ const Chat = ({ callFrame, accountType }) => {
               onKeyDown={onTextAreaEnterPress}
             />
             <ButtonContainer>
-              {accountType === "admin" && callFrame?.participants() && (
+              {accountType === ADMIN && callFrame?.participants() && (
                 <Select onChange={adminMessageSelectOnChange}>
                   <option value="*">Everyone</option>
                   {Object.values(callFrame.participants()).map((p, i) => {
@@ -244,7 +270,7 @@ const Chat = ({ callFrame, accountType }) => {
 
               <SubmitButton
                 value={`Send ${
-                  accountType !== "admin"
+                  accountType !== ADMIN
                     ? "to host"
                     : adminSendToType === "*"
                     ? "broadcast"
@@ -285,6 +311,28 @@ const SubHeaderText = styled(HeaderText)`
 const SubText = styled(BodyText)`
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
+`;
+
+const ExportButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
+`;
+
+const ExportButton = styled.button`
+  display: block;
+  padding: 0.4rem 1rem 0.5rem;
+  background-color: ${theme.colors.white};
+  color: ${theme.colors.blueDark};
+  font-size: ${theme.fontSize.base};
+  border-radius: 6px;
+  font-weight: 600;
+  border: 1px solid #c8d1dc;
+  font-family: Graphik Medium, Arial, sans-serif;
+
+  &:hover {
+    border: 1px solid ${theme.colors.greyDark};
+  }
 `;
 const Form = styled.form`
   position: relative;

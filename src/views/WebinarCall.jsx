@@ -19,6 +19,7 @@ import {
   FormHeader,
 } from "../components/List";
 import Anchor from "../components/Anchor";
+import { ADMIN } from "../constants";
 
 const CALL_OPTIONS = {
   iframeStyle: {
@@ -57,13 +58,11 @@ const WebinarCall = () => {
       fetch(`https://daily-webinar.netlify.app/api/rooms/${roomName}`, {})
         .then((res) => res.json())
         .then((res) => {
-          console.log(res);
           if (res.error) {
             setCurrentView("error");
             return;
           }
           if (res.config?.nbf) {
-            console.log(res.config?.nbf);
             const timeUnformatted = new Date(res.config?.nbf * 1000);
             const time = new Intl.DateTimeFormat("en-US", {
               dateStyle: "full",
@@ -81,14 +80,13 @@ const WebinarCall = () => {
         fetch(`https://daily-webinar.netlify.app/api/meeting-tokens/${token}`)
           .then((res) => res.json())
           .then((res) => {
-            console.log(res);
             if (res.is_owner && res.room_name === roomName) {
               // add admin setting
               setRoomInfo({
                 token,
                 username: res.user_name,
                 url: `${baseUrl}${roomName}?t=${token}`,
-                accountType: "admin",
+                accountType: ADMIN,
               });
             } else {
               setCurrentView("error");
