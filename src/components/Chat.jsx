@@ -4,7 +4,6 @@ import theme from "../theme";
 import HeaderText from "./text/HeaderText";
 import BodyText from "./text/BodyText";
 import ChatMessage from "./ChatMessage";
-import Anchor from "./Anchor";
 
 const Chat = ({ callFrame, accountType }) => {
   const welcomeMessage = {
@@ -73,7 +72,7 @@ const Chat = ({ callFrame, accountType }) => {
       let sendToList = [];
 
       const participants = callFrame.participants();
-      console.log(adminSendToType);
+      console.log(participants);
       // if you're an admin you're either sending a direct message to one person or a broadcast message
       if (accountType === "admin" && adminSendToType === "*") {
         // a broadcast message is sent once to everyone in the call (except the sender)
@@ -122,9 +121,23 @@ const Chat = ({ callFrame, accountType }) => {
         });
       }
 
-      const from = `${participants?.local?.user_name}${
-        accountType === "admin" ? " (Admin)" : ""
-      }`;
+      const from = participants?.local?.user_id;
+      console.log(from);
+      // If a participant sends a message and there's not host, there's one for to receive it. Show an error message in the chat instead
+      if (!sendToList.length) {
+        setChatHistory([
+          ...chatHistoryRef.current,
+          {
+            message:
+              "Your message could not be sent. There must be one host present.",
+            username: participants?.local?.user_name || "Me",
+            type: "error",
+            to: null,
+            from,
+          },
+        ]);
+        return;
+      }
 
       sendToList.forEach((p) => {
         // send the message to others
@@ -146,7 +159,7 @@ const Chat = ({ callFrame, accountType }) => {
         ...chatHistoryRef.current,
         {
           message: inputRef.current.value,
-          username: "Me",
+          username: participants?.local?.user_name || "Me",
           type: sendToList[0].type,
           to: sendToList[0].toText,
           from,
@@ -193,7 +206,11 @@ const Chat = ({ callFrame, accountType }) => {
       <Container>
         <ChatBox ref={forceScrollRef}>
           {chatHistory.map((chat, i) => (
-            <ChatMessage key={`chat-message-${i}`} chat={chat} />
+            <ChatMessage
+              key={`chat-message-${i}`}
+              chat={chat}
+              localParticipant={callFrame.participants()?.local?.user_id}
+            />
           ))}
         </ChatBox>
         <Form onSubmit={submitMessage}>

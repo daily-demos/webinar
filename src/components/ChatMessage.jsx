@@ -3,12 +3,14 @@ import styled from "styled-components";
 import theme from "../theme";
 import spyIcon from "./images/user-secret-solid.svg";
 
-const ChatMessage = ({ chat }) => {
-  // chat.type = broadcast | toAdmin | toMember | info | spy
-  console.log(chat);
+const ChatMessage = ({ chat, localParticipant }) => {
+  // chat.type = broadcast | toAdmin | toMember | info | spy | error
   return (
-    <Container type={chat.type} from={chat.username}>
-      {chat.type !== "info" && (
+    <Container
+      type={chat.type}
+      isLocalParticipant={chat.from === localParticipant}
+    >
+      {chat.type !== "info" && chat.type !== "error" && (
         <FlexRow>
           {chat.type === "spy" && <Icon src={spyIcon} />}
           <Username>{`${chat.username} to ${chat.to}`}</Username>
@@ -25,19 +27,28 @@ const FlexRow = styled.div`
 
 const Container = styled.div`
   background-color: ${(props) =>
-    props.type === "info"
-      ? `${theme.colors.white}50`
-      : props.from === "Me"
+    props.type === "info" || props.type === "error"
+      ? `${theme.colors.white}`
+      : props.isLocalParticipant
       ? theme.colors.greyLight
       : theme.colors.cyanLight};
   border-radius: 6px;
-  padding: ${(props) => (props.type === "info" ? "0" : "0.5rem 1rem")};
+  padding: ${(props) =>
+    ["info", "error"].includes(props.type) ? "0" : "0.5rem 1rem"};
   margin: 0.5rem
     ${(props) =>
-      props.type === "info" ? "0" : props.from === "Me" ? "2rem" : "0"}
+      ["info", "error"].includes(props.type)
+        ? "0"
+        : props.isLocalParticipant
+        ? "2rem"
+        : "0"}
     0.5rem
     ${(props) =>
-      props.type === "info" ? "0" : props.from !== "Me" ? "2rem" : "0"};
+      ["info", "error"].includes(props.type)
+        ? "0"
+        : props.isLocalParticipant
+        ? "0"
+        : "2rem"};
 `;
 
 const Username = styled.p`
@@ -55,7 +66,11 @@ const Icon = styled.img`
 
 const Message = styled.p`
   color: ${(props) =>
-    props.type === "info" ? theme.colors.greyDark : theme.colors.blueDark};
+    props.type === "info"
+      ? theme.colors.greyDark
+      : props.type === "error"
+      ? theme.colors.redDark
+      : theme.colors.blueDark};
   font-size: ${theme.fontSize.base};
   margin: 0.2rem 0;
   word-break: break-word;
