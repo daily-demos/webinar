@@ -20,6 +20,20 @@ import {
 } from "../components/List";
 import Anchor from "../components/Anchor";
 
+const CALL_OPTIONS = {
+  iframeStyle: {
+    width: "100%",
+    height: "100%",
+    border: "1px solid #e6eaef",
+    borderRadius: "6px 6px 0 0",
+    boxShadow: `0 1px 2px rgba(0, 0, 0, 0.02), 0 2px 4px rgba(0, 0, 0, 0.02),
+    0 4px 8px rgba(0, 0, 0, 0.02), 0 8px 16px rgba(0, 0, 0, 0.02),
+    0 16px 32px rgba(0, 0, 0, 0.02)`,
+  },
+  showLeaveButton: true,
+  showFullscreenButton: true,
+};
+
 const WebinarCall = () => {
   const videoRef = useRef(null);
   const inputRef = useRef();
@@ -121,20 +135,6 @@ const WebinarCall = () => {
     }
   };
 
-  const CALL_OPTIONS = {
-    iframeStyle: {
-      width: "100%",
-      height: "100%",
-      border: "1px solid #e6eaef",
-      borderRadius: "6px 6px 0 0",
-      boxShadow: `0 1px 2px rgba(0, 0, 0, 0.02), 0 2px 4px rgba(0, 0, 0, 0.02),
-      0 4px 8px rgba(0, 0, 0, 0.02), 0 8px 16px rgba(0, 0, 0, 0.02),
-      0 16px 32px rgba(0, 0, 0, 0.02)`,
-    },
-    showLeaveButton: true,
-    showFullscreenButton: true,
-  };
-
   useEffect(() => {
     if (!videoRef || !videoRef?.current || !roomInfo) return;
     // if you're not an admin, you can't join without filling out the sign in form
@@ -153,6 +153,7 @@ const WebinarCall = () => {
 
       setCallFrame(newCallFrame);
 
+      // join call with additional event listeners added
       newCallFrame
         .setShowNamesMode("always")
         .on("joined-meeting", () => setCurrentView("call"))
@@ -183,11 +184,12 @@ const WebinarCall = () => {
   }, [roomInfo, videoRef]);
 
   let timeout = null;
+
+  // handles setting the iframe's height on resize to maintain aspect ratio
   const updateSize = () => {
     if (videoRef?.current) {
       clearTimeout(timeout);
       timeout = setTimeout(() => {
-        setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
         setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
       }, 100);
     }
