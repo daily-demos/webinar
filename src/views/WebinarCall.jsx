@@ -26,7 +26,7 @@ const WebinarCall = () => {
   const emailRef = useRef();
   const companyRef = useRef();
 
-  const [currentView, setCurrentView] = useState("left-call"); // loading | call | waiting | error | left-call
+  const [currentView, setCurrentView] = useState("loading"); // loading | call | waiting | error | left-call
   const [callFrame, setCallFrame] = useState(null);
   const [height, setHeight] = useState(null);
   const [submitting, setSubmitting] = useState(false);
