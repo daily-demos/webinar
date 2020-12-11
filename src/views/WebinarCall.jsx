@@ -342,7 +342,7 @@ const WaitingRoom = styled.div`
 `;
 
 const StartTimeText = styled.span`
-  color: ${theme.colors.orange};
+  color: ${theme.colors.green};
   font-weight: 600;
 `;
 
