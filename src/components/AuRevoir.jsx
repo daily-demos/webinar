@@ -12,7 +12,7 @@ const AuRevoir = () => {
       <HeaderText>Thanks for joining us! 👋</HeaderText>
       <CardReducedMarginTop>
         <BodyText>
-          For more information, please feel free to contact us{" "}
+          For more information, please contact us at{" "}
           <Anchor href="mailto:help@daily.co" color={theme.colors.orange}>
             help@daily.co
           </Anchor>
