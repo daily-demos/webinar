@@ -1,5 +1,5 @@
 @font-face {
-  font-family: "Graphik Web";
+  font-family: "Graphik Regular";
   src: url("./fonts/Graphik-Regular-Web.eot");
   src: url("./fonts/Graphik-Regular-Web.eot?#iefix") format("embedded-opentype"),
     url("./fonts/Graphik-Regular-Web.woff2") format("woff2"),
@@ -21,5 +21,5 @@
 }
 
 body {
-  font-family: "Graphik Web", Helvetica, Arial, sans-serif;
+  font-family: "Graphik Regular", Helvetica, Arial, sans-serif;
 }

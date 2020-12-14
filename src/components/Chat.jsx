@@ -127,7 +127,7 @@ const Chat = ({ callFrame, accountType }) => {
           ...chatHistoryRef.current,
           {
             message:
-              "Your message could not be sent. There must be one host present.",
+              "Your message could not be sent. To use the chat, you must join the call and have at least one admin present.",
             username: participants?.local?.user_name || "Me",
             type: "error",
             to: null,
@@ -359,7 +359,7 @@ const Input = styled.textarea`
   line-height: 22px;
   padding-left: 0.5rem;
   padding-right: 0.25rem;
-  border: none;
+  border: 2px solid transparent;
   resize: none;
   font-family: ${theme.fontFamily.regular};
 
