@@ -6,6 +6,7 @@ import {
   SubContainer,
   InstructionText,
   FormHeader,
+  HintListItemText,
 } from "../components/List";
 import { FlexContainer, RightPanel, Card } from "../components/Layout";
 import HeaderText from "../components/text/HeaderText";
@@ -26,21 +27,23 @@ const Home = () => {
         <HintList>
           <HintListItem>
             <Icon src={checkmark} alt="checkmark" />
-            <BodyText>
+            <HintListItemText>
               The multiple ways you can quickly integrate Daily's video call
               APIs into your app
-            </BodyText>
+            </HintListItemText>
           </HintListItem>
           <HintListItem>
             <Icon src={checkmark} alt="checkmark" />
-            <BodyText>
+            <HintListItemText>
               How to use our dashboard to understand your call metrics, interact
               with our APIs, and more!
-            </BodyText>
+            </HintListItemText>
           </HintListItem>
           <HintListItem>
             <Icon src={checkmark} alt="checkmark" />
-            <BodyText>Any other topics you might be curious about</BodyText>
+            <HintListItemText>
+              Any other topics you might be curious about
+            </HintListItemText>
           </HintListItem>
         </HintList>
       </SubContainer>

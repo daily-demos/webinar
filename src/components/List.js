@@ -18,15 +18,21 @@ export const HintList = styled.ul`
 
 export const HintListItem = styled.li`
   display: flex;
+  padding: 0.5rem 0;
+`;
+
+export const HintListItemText = styled(BodyText)`
+  padding: 0;
 `;
 
 export const Icon = styled.img`
-  width: 1.5rem;
+  width: 16px;
   margin-right: 0.5rem;
+  height: 20px;
 `;
 
 export const FormHeader = styled(BodyText)`
-  font-weight: 600;
+  font-family: ${theme.fontFamily.bold};
   color: ${theme.colors.blueDark};
 `;
 

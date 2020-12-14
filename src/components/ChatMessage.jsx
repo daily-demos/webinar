@@ -54,9 +54,8 @@ const Container = styled.div`
 const Username = styled.p`
   color: ${theme.colors.blueDark};
   font-size: ${theme.fontSize.small};
-  font-weight: 900;
   margin: 0.2rem 0;
-  font-family: Graphik Medium, Arial, sans-serif;
+  font-family: ${theme.fontFamily.bold};
 `;
 
 const Icon = styled.img`

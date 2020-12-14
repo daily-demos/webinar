@@ -41,9 +41,8 @@ const TextStyledLikeButton = styled.span`
   color: ${theme.colors.blueDark};
   font-size: ${theme.fontSize.base};
   border-radius: 6px;
-  font-weight: 600;
   border: 1px solid #c8d1dc;
-  font-family: Graphik Medium, Arial, sans-serif;
+  font-family: ${theme.fontFamily.bold};
 
   &:hover {
     border: 1px solid ${theme.colors.greyDark};

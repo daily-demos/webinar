@@ -293,7 +293,6 @@ const FlexContainer = styled.div`
 const ChatBox = styled.div`
   flex: 1;
   padding: 1rem;
-  border: 2px solid ${theme.colors.greyLight};
   border-bottom: none;
   border-radius: 6px 6px 0 0;
   background-color: ${theme.colors.white};
@@ -304,7 +303,6 @@ const SubHeaderText = styled(HeaderText)`
   font-size: ${theme.fontSize.xlarge};
 `;
 const SubText = styled(BodyText)`
-  margin-top: 0.5rem;
   margin-bottom: 0.5rem;
 `;
 
@@ -321,9 +319,8 @@ const ExportButton = styled.button`
   color: ${theme.colors.blueDark};
   font-size: ${theme.fontSize.base};
   border-radius: 6px;
-  font-weight: 600;
-  border: 1px solid #c8d1dc;
-  font-family: Graphik Medium, Arial, sans-serif;
+  border: 1px solid ${theme.colors.grey};
+  font-family: ${theme.fontFamily.bold};
 
   &:hover {
     border: 1px solid ${theme.colors.greyDark};
@@ -332,7 +329,7 @@ const ExportButton = styled.button`
 const Form = styled.form`
   position: relative;
   border-radius: 0 0 6px 6px;
-  border: 1px solid ${theme.colors.greyLight};
+  border-top: 1px solid ${theme.colors.greyLight};
 `;
 
 const Label = styled.label`
@@ -364,7 +361,7 @@ const Input = styled.textarea`
   padding-right: 0.25rem;
   border: none;
   resize: none;
-  font-family: "Graphik Web", Helvetica, Arial, sans-serif;
+  font-family: ${theme.fontFamily.regular};
 
   &:focus {
     outline: none;
@@ -383,7 +380,7 @@ const SubmitButton = styled.input`
   color: ${theme.colors.blueDark};
   background-color: ${theme.colors.turquoise};
   border-radius: 6px;
-  font-weight: 600;
+  font-family: ${theme.fontFamily.bold};
   border: 1px solid transparent;
   cursor: pointer;
   margin-left: auto;
