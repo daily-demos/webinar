@@ -57,7 +57,14 @@ const ErrorMessage = ({ isAdmin }) => {
           <BodyText>
             (Psst... It looks like you're an admin trying to join your webinar
             call. Make sure the room name is right and your meeting token is
-            valid, or generate a new meeting token.)
+            valid, or generate a new meeting token{" "}
+            <Anchor
+              href="https://admin-daily-webinar.netlify.app/"
+              color={theme.colors.orange}
+            >
+              here
+            </Anchor>
+            .)
           </BodyText>
         )}
       </SubContainer>

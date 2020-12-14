@@ -33,7 +33,7 @@ const theme = {
     xxlarge: "32px",
   },
   fontFamily: {
-    regular: "Graphik Web, Helvetica, Arial, sans-serif",
+    regular: "Graphik Regular, Helvetica, Arial, sans-serif",
     bold: "Graphik Medium, Helvetica, Arial, sans-serif",
   },
 };

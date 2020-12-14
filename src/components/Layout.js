@@ -2,9 +2,9 @@ import styled from "styled-components";
 import theme from "../theme";
 
 export const FlexContainer = styled.div`
-  margin-top: 3rem;
+  margin: 3rem 1rem 0;
   display: flex;
-  width: 100%;
+
   @media (max-width: 996px) {
     flex-direction: column;
   }
@@ -20,7 +20,7 @@ export const RightPanel = styled.div`
 `;
 
 export const Card = styled.div`
-  margin-top: 4rem;
+  margin-top: 5rem;
   flex: 1;
   display: flex;
   flex-direction: column;

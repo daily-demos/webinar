@@ -401,7 +401,7 @@ const SubmitButton = styled.input`
   margin-left: auto;
   cursor: pointer;
   font-family: ${theme.fontFamily.bold};
-  font-size: ${theme.fontSize.med};
+  font-size: ${theme.fontSize.base};
 
   &:hover {
     border: 1px solid ${theme.colors.teal};
