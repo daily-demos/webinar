@@ -97,14 +97,14 @@ const Column = styled.div`
 const Category = styled.h4`
   font-size: ${theme.fontSize.med};
   color: ${theme.colors.blueDark};
-  font-family: Graphik Medium, Arial, sans-serif;
+  font-family: ${theme.fontFamily.bold};
   line-height: 24px;
 `;
 const LinkText = styled.span`
   font-size: ${theme.fontSize.med};
   color: ${theme.colors.blue};
   line-height: 24px;
-  font-family: Graphik Web, Arial, sans-serif;
+  font-family: ${theme.fontFamily.regular};
   margin-bottom: 8px;
   text-decoration: none;
   display: block;

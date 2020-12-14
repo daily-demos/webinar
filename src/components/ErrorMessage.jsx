@@ -10,6 +10,7 @@ import {
   SubContainer,
   InstructionText,
   FormHeader,
+  HintListItemText,
 } from "../components/List";
 import xIcon from "../components/images/xIcon.svg";
 import theme from "../theme";
@@ -26,21 +27,21 @@ const ErrorMessage = ({ isAdmin }) => {
         <HintList>
           <HintListItem>
             <Icon src={xIcon} alt="x icon" />
-            <BodyText>
+            <HintListItemText>
               The room doesn't exist. Please double check the link you're trying
               to visit.
-            </BodyText>
+            </HintListItemText>
           </HintListItem>
           <HintListItem>
             <Icon src={xIcon} alt="x icon" />
-            <BodyText>
+            <HintListItemText>
               There was a problem connecting to the call. Please check your
               internet connection or refresh the page to try again.
-            </BodyText>
+            </HintListItemText>
           </HintListItem>
           <HintListItem>
             <Icon src={xIcon} alt="x icon" />
-            <BodyText>
+            <HintListItemText>
               Additional issues that may have occured. Please consult our{" "}
               <Anchor
                 href="https://help.daily.co/en/articles/2303117-top-troubleshooting-5-tips-that-solve-99-of-issues"
@@ -49,7 +50,7 @@ const ErrorMessage = ({ isAdmin }) => {
                 help center article
               </Anchor>{" "}
               for more details.
-            </BodyText>
+            </HintListItemText>
           </HintListItem>
         </HintList>
         {isAdmin && (

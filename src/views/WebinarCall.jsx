@@ -17,6 +17,7 @@ import {
   SubContainer,
   InstructionText,
   FormHeader,
+  HintListItemText,
 } from "../components/List";
 import Anchor from "../components/Anchor";
 import { ADMIN } from "../constants";
@@ -232,32 +233,32 @@ const WebinarCall = () => {
                 {startTime && (
                   <HintListItem>
                     <Icon src={checkmark} alt="checkmark" />
-                    <BodyText>
+                    <HintListItemText>
                       This call starts at:{" "}
                       <StartTimeText>{startTime}</StartTimeText>
-                    </BodyText>
+                    </HintListItemText>
                   </HintListItem>
                 )}
                 <HintListItem>
                   <Icon src={checkmark} alt="checkmark" />
-                  <BodyText>
+                  <HintListItemText>
                     Your camera and mic will be off by default for the entire
                     duration of the call.
-                  </BodyText>
+                  </HintListItemText>
                 </HintListItem>
                 <HintListItem>
                   <Icon src={checkmark} alt="checkmark" />
-                  <BodyText>
+                  <HintListItemText>
                     The call will have a chat next to it to communicate with the
                     presenter so you can ask questions about Daily.
-                  </BodyText>
+                  </HintListItemText>
                 </HintListItem>
                 <HintListItem>
                   <Icon src={checkmark} alt="checkmark" />
-                  <BodyText>
+                  <HintListItemText>
                     We encourage you to use this call to clarify any questions
                     you may have!
-                  </BodyText>
+                  </HintListItemText>
                 </HintListItem>
               </HintList>
             </SubContainer>
@@ -357,7 +358,7 @@ const WaitingRoom = styled.div`
 
 const StartTimeText = styled.span`
   color: ${theme.colors.green};
-  font-weight: 600;
+  font-family: ${theme.fontFamily.bold};
 `;
 
 const Form = styled.form`
@@ -388,6 +389,7 @@ const Input = styled.input`
   padding: 0.5rem;
   border-radius: 6px;
   border: 1px solid ${theme.colors.grey};
+  font-family: ${theme.fontFamily.regular};
 `;
 const SubmitButton = styled.input`
   padding: 0.4rem 1rem 0.5rem;
@@ -395,10 +397,11 @@ const SubmitButton = styled.input`
   background-color: ${theme.colors.turquoise};
   border: 1px solid ${theme.colors.turquoise};
   color: ${theme.colors.blueDark};
-  font-weight: 600;
   margin-top: 2rem;
   margin-left: auto;
   cursor: pointer;
+  font-family: ${theme.fontFamily.bold};
+  font-size: ${theme.fontSize.med};
 
   &:hover {
     border: 1px solid ${theme.colors.teal};

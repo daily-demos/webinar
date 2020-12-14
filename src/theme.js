@@ -32,6 +32,10 @@ const theme = {
     xlarge: "28px",
     xxlarge: "32px",
   },
+  fontFamily: {
+    regular: "Graphik Web, Helvetica, Arial, sans-serif",
+    bold: "Graphik Medium, Helvetica, Arial, sans-serif",
+  },
 };
 
 export default theme;

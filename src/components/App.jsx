@@ -55,13 +55,12 @@ const ImageContainer = styled.div`
 `;
 
 const BackgroundImg1 = styled(Image)`
-  left: 0;
-  transform: scaleX(-1);
-  top: 20px;
+  left: -35px;
+  top: 45px;
 `;
 const BackgroundImg2 = styled(Image)`
   right: 0;
-  top: 40px;
+  top: 20px;
 `;
 const BackgroundImg3 = styled(Image)`
   right: 0;
