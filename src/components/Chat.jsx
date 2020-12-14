@@ -18,12 +18,11 @@ const Chat = ({ callFrame, accountType }) => {
     from: null,
   };
   const [chatHistory, _setChatHistory] = useState([welcomeMessage]);
-  const [participants, _setParticipants] = useState(null);
+  const [username, setUsername] = useState("");
   const [adminSendToType, _setAdminSendToType] = useState("*");
   const [appMessageHandlerAdded, setAppMessageHandlerAdded] = useState(false);
   const chatHistoryRef = useRef(chatHistory);
   const adminSendToTypeRef = useRef(adminSendToType);
-  const participantsRef = useRef(participants);
   const inputRef = useRef(null);
   const forceScrollRef = useRef(null);
 
@@ -46,9 +45,11 @@ const Chat = ({ callFrame, accountType }) => {
   useEffect(() => {
     if (callFrame && !appMessageHandlerAdded) {
       callFrame.on("app-message", updateChatHistory);
-      callFrame.on("participant-joined", setParticipants);
-      callFrame.on("participant-left", setParticipants);
       setAppMessageHandlerAdded(true);
+    }
+    if (!username) {
+      const participants = callFrame.participants();
+      setUsername(participants?.local?.user_name || "");
     }
   }, [callFrame]);
 
@@ -57,13 +58,10 @@ const Chat = ({ callFrame, accountType }) => {
     chatHistoryRef.current = history;
     _setChatHistory(history);
   };
+
   const setAdminSendToType = (type) => {
     adminSendToTypeRef.current = type;
     _setAdminSendToType(type);
-  };
-  const setParticipants = (participants) => {
-    participantsRef.current = participants;
-    _setParticipants(participants);
   };
 
   const submitMessage = (e) => {
@@ -190,13 +188,11 @@ const Chat = ({ callFrame, accountType }) => {
     }
   };
 
-  function convertChatForCSV(arr) {
-    const array = [Object.keys(arr[0])].concat(arr);
+  function convertChatForCSV(chatHistory) {
+    const chatHistoryArr = [Object.keys(chatHistory[0])].concat(chatHistory);
 
-    return array
-      .map((it) => {
-        return Object.values(it).toString();
-      })
+    return chatHistoryArr
+      .map((item) => Object.values(item).toString())
       .join("\n");
   }
 
@@ -207,22 +203,21 @@ const Chat = ({ callFrame, accountType }) => {
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
     link.setAttribute("download", `webinar-chat_${new Date()}.csv`);
-    document.body.appendChild(link); // Required for FF
+    document.body.appendChild(link);
 
     link.click();
   };
-
   return (
     <FlexContainer>
-      <SubHeaderText>
-        {accountType === ADMIN
-          ? "You're hosting a call"
-          : "Have a question about Daily video APIs?"}
-      </SubHeaderText>
+      <SubHeaderText>{username ? `Hey ${username}!` : "Hey!"}</SubHeaderText>
       {accountType !== ADMIN ? (
-        <SubText>Let us know in the chat below!</SubText>
+        <SubText>
+          Have a question about Daily video APIs? Let us know in the chat below!
+        </SubText>
       ) : (
-        <BodyText>Broadcast messages and DMs are available.</BodyText>
+        <BodyText>
+          You're hosting a call. Broadcast messages and DMs are available.
+        </BodyText>
       )}
       {accountType === ADMIN && (
         <ExportButtonContainer>

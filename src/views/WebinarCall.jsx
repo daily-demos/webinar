@@ -161,7 +161,15 @@ const WebinarCall = () => {
       newCallFrame
         .setShowNamesMode("always")
         .on("joined-meeting", () => setCurrentView("call"))
-        .on("left-meeting", () => setCurrentView("left-call"))
+        .on("left-meeting", () => {
+          if (roomInfo?.accountType !== ADMIN) {
+            setCurrentView("left-call");
+          } else {
+            window.alert(
+              "Hey admin, don't forget to export the chat before closing this window if you want to save it."
+            );
+          }
+        })
         .join({ userName: roomInfo?.username })
         .then(() => {
           updateSize();
