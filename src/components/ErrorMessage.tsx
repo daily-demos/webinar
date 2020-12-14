@@ -2,7 +2,7 @@ import React from "react";
 import Anchor from "./Anchor";
 import BodyText from "./text/BodyText";
 import HeaderText from "./text/HeaderText";
-import { FlexContainer, RightPanel, Card } from "../components/Layout";
+import { FlexContainer, RightPanel, Card } from "./Layout";
 import {
   HintList,
   HintListItem,
@@ -11,11 +11,11 @@ import {
   InstructionText,
   FormHeader,
   HintListItemText,
-} from "../components/List";
+} from "./List";
 import xIcon from "../components/images/xIcon.svg";
 import theme from "../theme";
 
-const ErrorMessage = ({ isAdmin }) => {
+const ErrorMessage: React.FC = ({ isAdmin }) => {
   return (
     <FlexContainer>
       <SubContainer>

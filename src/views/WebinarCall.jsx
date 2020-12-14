@@ -36,7 +36,7 @@ const CALL_OPTIONS = {
   showFullscreenButton: true,
 };
 
-const WebinarCall = () => {
+const WebinarCall: React.FC = () => {
   const videoRef = useRef(null);
   const inputRef = useRef();
   const emailRef = useRef();

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import theme from "../theme";
 import spyIcon from "./images/user-secret-solid.svg";
 
-const ChatMessage = ({ chat, localParticipant }) => {
+const ChatMessage: React.FC = ({ chat, localParticipant }) => {
   // chat.type = broadcast | toAdmin | toMember | info | spy | error
   return (
     <Container

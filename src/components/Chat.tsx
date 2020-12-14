@@ -6,7 +6,7 @@ import BodyText from "./text/BodyText";
 import ChatMessage from "./ChatMessage";
 import { ADMIN } from "../constants";
 
-const Chat = ({ callFrame, accountType }) => {
+const Chat: React.FC = ({ callFrame, accountType }) => {
   const welcomeMessage = {
     message:
       accountType === ADMIN
