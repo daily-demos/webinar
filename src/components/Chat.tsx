@@ -217,7 +217,7 @@ const Chat: React.FC<Props> = ({ callFrame, accountType }) => {
   useEffect(scrollToBottom, [chatHistory]);
 
   const onTextAreaEnterPress = (e: React.KeyboardEvent) => {
-    if (e.keyCode == 13 && e.shiftKey == false) {
+    if (e.keyCode === 13 && e.shiftKey === false) {
       e.preventDefault();
       submitMessage(e);
     }
