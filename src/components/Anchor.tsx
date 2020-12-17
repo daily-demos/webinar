@@ -6,15 +6,14 @@ type Props = {
   href: string;
   underline?: boolean;
   color?: string;
-  children: React.ReactChildren;
 };
 
-const Anchor: React.FC = ({
+const Anchor: React.FC<Props> = ({
   children,
   href,
   underline = true,
   color,
-}: Props) => {
+}) => {
   return (
     <A
       underline={underline}

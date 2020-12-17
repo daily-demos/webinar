@@ -1,10 +1,15 @@
 import React from "react";
 import styled from "styled-components";
 import theme from "../theme";
+import { ChatInfo, MessageType } from "./Chat";
 import spyIcon from "./images/user-secret-solid.svg";
 
-const ChatMessage: React.FC = ({ chat, localParticipant }) => {
-  // chat.type = broadcast | toAdmin | toMember | info | spy | error
+type Props = {
+  chat: ChatInfo;
+  localParticipant: string;
+};
+
+const ChatMessage: React.FC<Props> = ({ chat, localParticipant }) => {
   return (
     <Container
       type={chat.type}
@@ -25,7 +30,10 @@ const FlexRow = styled.div`
   display: flex;
 `;
 
-const Container = styled.div`
+const Container = styled.div<{
+  type: MessageType;
+  isLocalParticipant: boolean;
+}>`
   background-color: ${(props) =>
     props.type === "info" || props.type === "error"
       ? `${theme.colors.white}`
@@ -63,7 +71,7 @@ const Icon = styled.img`
   margin-right: 0.2rem;
 `;
 
-const Message = styled.p`
+const Message = styled.p<{ type: MessageType }>`
   color: ${(props) =>
     props.type === "info"
       ? theme.colors.greyDark
