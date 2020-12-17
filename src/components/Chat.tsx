@@ -8,8 +8,8 @@ import { ADMIN } from "../constants";
 import { DailyCall, DailyEventObjectAppMessage } from "@daily-co/daily-js";
 
 type Props = {
-  callFrame: DailyCall;
-  accountType: "admin" | "participant";
+  callFrame: DailyCall | null;
+  accountType: "admin" | "participant" | undefined;
 };
 
 export type MessageType =
@@ -48,8 +48,8 @@ const Chat: React.FC<Props> = ({ callFrame, accountType }) => {
   );
   const chatHistoryRef = useRef(chatHistory);
   const adminSendToTypeRef = useRef(adminSendToType);
-  const inputRef = useRef(null);
-  const forceScrollRef = useRef(null);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const forceScrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const updateChatHistory = (e: DailyEventObjectAppMessage | undefined) => {
@@ -74,7 +74,7 @@ const Chat: React.FC<Props> = ({ callFrame, accountType }) => {
       callFrame.on("app-message", updateChatHistory);
       setAppMessageHandlerAdded(true);
     }
-    if (!username) {
+    if (!username && callFrame) {
       const participants = callFrame.participants();
       setUsername(participants?.local?.user_name || "");
     }
@@ -262,7 +262,9 @@ const Chat: React.FC<Props> = ({ callFrame, accountType }) => {
             <ChatMessage
               key={`chat-message-${i}`}
               chat={chat}
-              localParticipant={callFrame.participants()?.local?.user_id}
+              localParticipant={
+                callFrame ? callFrame.participants()?.local?.user_id : ""
+              }
             />
           ))}
         </ChatBox>
@@ -274,7 +276,6 @@ const Chat: React.FC<Props> = ({ callFrame, accountType }) => {
             <Input
               ref={inputRef}
               id="messageInput"
-              type="text"
               placeholder="Enter your message..."
               onKeyDown={onTextAreaEnterPress}
             />

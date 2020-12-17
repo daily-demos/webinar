@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useRef, useState, useEffect } from "react";
-import DailyIframe, { DailyCall } from "@daily-co/daily-js";
+import DailyIframe, { DailyCall, DailyCallOptions } from "@daily-co/daily-js";
 import styled from "styled-components";
 import Chat from "../components/Chat";
 import ErrorMessage from "../components/ErrorMessage";
@@ -22,7 +22,19 @@ import {
 import Anchor from "../components/Anchor";
 import { ADMIN } from "../constants";
 
-const CALL_OPTIONS = {
+type ParamTypes = {
+  roomName: string;
+};
+
+type RoomInfo = {
+  token?: string | null;
+  username?: string | null;
+  url?: string;
+  accountType?: "admin" | "participant";
+};
+
+const CALL_OPTIONS: DailyCallOptions = {
+  // @ts-ignore
   iframeStyle: {
     width: "100%",
     height: "100%",
@@ -37,20 +49,20 @@ const CALL_OPTIONS = {
 };
 
 const WebinarCall: React.FC = () => {
-  const videoRef = useRef(null);
-  const inputRef = useRef();
-  const emailRef = useRef();
-  const companyRef = useRef();
+  const videoRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const emailRef = useRef<HTMLInputElement | null>(null);
+  const companyRef = useRef<HTMLInputElement | null>(null);
 
   const [currentView, setCurrentView] = useState<string>("loading"); // loading | call | waiting | error | left-call
   const [callFrame, setCallFrame] = useState<DailyCall | null>(null);
   const [height, setHeight] = useState<number>(400);
   const [submitting, setSubmitting] = useState(false);
-  const [roomInfo, setRoomInfo] = useState(null); // {token?: string, accountType: 'participant' | 'admin', username: string, url: string }
-  const [startTime, setStartTime] = useState(null);
+  const [roomInfo, setRoomInfo] = useState<RoomInfo | null>(null); // {token?: string, accountType: 'participant' | 'admin', username: string, url: string }
+  const [startTime, setStartTime] = useState<string | null>(null);
 
   const baseUrl = process.env.REACT_APP_BASE_URL;
-  const { roomName } = useParams();
+  const { roomName } = useParams<ParamTypes>();
   const { search } = useLocation();
 
   useEffect(() => {
@@ -66,8 +78,6 @@ const WebinarCall: React.FC = () => {
           if (res.config?.nbf) {
             const timeUnformatted = new Date(res.config?.nbf * 1000);
             const time = new Intl.DateTimeFormat("en-US", {
-              dateStyle: "full",
-              timeStyle: "long",
               timeZone: "America/Los_Angeles",
             }).format(timeUnformatted);
             setStartTime(time);
@@ -104,9 +114,9 @@ const WebinarCall: React.FC = () => {
         });
       }
     }
-  }, [currentView, callFrame]);
+  }, [currentView, callFrame, baseUrl, roomInfo, roomName, search]);
 
-  const submitName = (e) => {
+  const submitName = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (inputRef?.current && emailRef?.current && companyRef?.current) {
       /* 
@@ -126,11 +136,13 @@ const WebinarCall: React.FC = () => {
       )
         .then(() => {
           console.log("setting room info");
-          setRoomInfo({
-            ...roomInfo,
-            username: inputRef.current.value?.trim(),
-          });
-          setSubmitting(false);
+          if (inputRef.current) {
+            setRoomInfo({
+              ...roomInfo,
+              username: inputRef.current.value?.trim(),
+            });
+            setSubmitting(false);
+          }
         })
         .catch((err) => {
           // todo handle error
@@ -171,10 +183,11 @@ const WebinarCall: React.FC = () => {
             );
           }
         })
+        // @ts-ignore
         .join({ userName: roomInfo?.username })
         .then(() => {
-          updateSize();
-          console.log("joined meeting");
+          setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
+          console.log("join meeting successful");
         })
         .catch((err) => {
           console.log(err);
@@ -194,21 +207,19 @@ const WebinarCall: React.FC = () => {
         callFrame.destroy();
       }
     };
-  }, [roomInfo, videoRef]);
-
-  let timeout = null;
-
-  // handles setting the iframe's height on resize to maintain aspect ratio
-  const updateSize = () => {
-    if (videoRef?.current) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
-      }, 100);
-    }
-  };
+  }, [roomInfo, videoRef, callFrame]);
 
   useLayoutEffect(() => {
+    let timeout: number;
+    // handles setting the iframe's height on resize to maintain aspect ratio
+    const updateSize = () => {
+      if (videoRef?.current) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
+        }, 100);
+      }
+    };
     window.addEventListener("resize", updateSize);
     updateSize();
     return () => window.removeEventListener("resize", updateSize);
@@ -283,7 +294,7 @@ const WebinarCall: React.FC = () => {
         <VideoContainer height={height}>
           <CallFrame ref={videoRef} hidden={currentView !== "call"} />
         </VideoContainer>
-        {currentView === "call" && roomInfo.username && (
+        {currentView === "call" && roomInfo && roomInfo.username && (
           <ChatContainer height={height}>
             <Chat callFrame={callFrame} accountType={roomInfo?.accountType} />
           </ChatContainer>
@@ -411,20 +422,20 @@ const SubmitButton = styled.input`
   }
 `;
 
-const VideoContainer = styled.div<{ height: number}>`
+const VideoContainer = styled.div<{ height: number }>`
   flex: 1.2;
   margin: 1rem;
   flex-basis: 400px;
   height: ${(props) => props.height}px;
 `;
 
-const ChatContainer = styled.div<{ height: number}>`
+const ChatContainer = styled.div<{ height: number }>`
   flex: 1;
   margin: 1rem;
   height: ${(props) => props.height}px;
 `;
 
-const CallFrame = styled.div<{ hidden: boolean}>`
+const CallFrame = styled.div<{ hidden: boolean }>`
   height: 100%;
   width: 100%;
   visibility: ${(props) => (props.hidden ? "hidden" : "visible")};

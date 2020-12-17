@@ -15,7 +15,11 @@ import {
 import xIcon from "../components/images/xIcon.svg";
 import theme from "../theme";
 
-const ErrorMessage: React.FC = ({ isAdmin }) => {
+type Props = {
+  isAdmin: RegExpMatchArray | null;
+};
+
+const ErrorMessage: React.FC<Props> = ({ isAdmin }) => {
   return (
     <FlexContainer>
       <SubContainer>
