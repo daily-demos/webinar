@@ -5,7 +5,7 @@ import Anchor from "./Anchor";
 import fbIcon from "./images/fb-icon.svg";
 import twitterIcon from "./images/twitter-icon.svg";
 
-const Footer = () => {
+const Footer: React.FC = () => {
   return (
     <Container>
       <LinksContainer>

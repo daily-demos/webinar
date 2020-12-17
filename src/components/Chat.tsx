@@ -5,9 +5,32 @@ import HeaderText from "./text/HeaderText";
 import BodyText from "./text/BodyText";
 import ChatMessage from "./ChatMessage";
 import { ADMIN } from "../constants";
+import { DailyCall, DailyEventObjectAppMessage } from "@daily-co/daily-js";
 
-const Chat = ({ callFrame, accountType }) => {
-  const welcomeMessage = {
+type Props = {
+  callFrame: DailyCall | null;
+  accountType: "admin" | "participant" | undefined;
+};
+
+export type MessageType =
+  | "broadcast"
+  | "toAdmin"
+  | "toMember"
+  | "info"
+  | "spy"
+  | "error";
+
+export type ChatInfo = {
+  id?: string;
+  message?: string | null;
+  type: MessageType;
+  username: string | null;
+  to: string | null;
+  from: string | null;
+};
+
+const Chat: React.FC<Props> = ({ callFrame, accountType }) => {
+  const welcomeMessage: ChatInfo = {
     message:
       accountType === ADMIN
         ? "Chat messages will display here."
@@ -17,60 +40,66 @@ const Chat = ({ callFrame, accountType }) => {
     to: null,
     from: null,
   };
-  const [chatHistory, _setChatHistory] = useState([welcomeMessage]);
-  const [username, setUsername] = useState("");
-  const [adminSendToType, _setAdminSendToType] = useState("*");
-  const [appMessageHandlerAdded, setAppMessageHandlerAdded] = useState(false);
+  const [chatHistory, _setChatHistory] = useState<ChatInfo[]>([welcomeMessage]);
+  const [username, setUsername] = useState<string | null>(null);
+  const [adminSendToType, _setAdminSendToType] = useState<string>("*");
+  const [appMessageHandlerAdded, setAppMessageHandlerAdded] = useState<boolean>(
+    false
+  );
   const chatHistoryRef = useRef(chatHistory);
   const adminSendToTypeRef = useRef(adminSendToType);
-  const inputRef = useRef(null);
-  const forceScrollRef = useRef(null);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const forceScrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const updateChatHistory = (e) => {
-      const participants = callFrame.participants();
-      const username = participants[e.fromId].user_name;
-      const { message, to, type, from } = e.data;
-      setChatHistory([
-        ...chatHistoryRef.current,
-        {
-          message,
-          username,
-          type,
-          to,
-          from,
-        },
-      ]);
+    const updateChatHistory = (e: DailyEventObjectAppMessage | undefined) => {
+      if (e) {
+        const participants = callFrame.participants();
+        const username = participants[e.fromId].user_name;
+        const { message, to, type, from } = e.data;
+        setChatHistory([
+          ...chatHistoryRef.current,
+          {
+            message,
+            username,
+            type,
+            to,
+            from,
+          },
+        ]);
+      }
     };
 
     if (callFrame && !appMessageHandlerAdded) {
       callFrame.on("app-message", updateChatHistory);
       setAppMessageHandlerAdded(true);
     }
-    if (!username) {
+    if (!username && callFrame) {
       const participants = callFrame.participants();
       setUsername(participants?.local?.user_name || "");
     }
   }, [callFrame, appMessageHandlerAdded, username]);
 
-  const setChatHistory = (history) => {
+  const setChatHistory = (history: ChatInfo[]) => {
     // use ref to chat history so state values in event handlers are current
     chatHistoryRef.current = history;
     _setChatHistory(history);
   };
 
-  const setAdminSendToType = (type) => {
+  const setAdminSendToType = (type: string) => {
     adminSendToTypeRef.current = type;
     _setAdminSendToType(type);
   };
 
-  const submitMessage = (e) => {
+  const submitMessage = (
+    e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent
+  ) => {
     e.preventDefault();
     if (callFrame && inputRef.current) {
-      let sendToList = [];
+      let sendToList: ChatInfo[] = [];
 
       const participants = callFrame.participants();
-
+      const from = participants?.local?.user_id;
       // if you're an admin you're either sending a direct message to one person or a broadcast message
       if (accountType === ADMIN && adminSendToType === "*") {
         // a broadcast message is sent once to everyone in the call (except the sender)
@@ -79,7 +108,8 @@ const Chat = ({ callFrame, accountType }) => {
             id: adminSendToType,
             username: "Everyone",
             type: "broadcast",
-            toText: "Everyone",
+            to: "Everyone",
+            from,
           },
         ];
       } else if (accountType === ADMIN && adminSendToType !== "*") {
@@ -89,7 +119,8 @@ const Chat = ({ callFrame, accountType }) => {
             id: adminSendToType,
             username: participants[adminSendToType].user_name,
             type: "toMember",
-            toText: participants[adminSendToType].user_name,
+            to: participants[adminSendToType].user_name,
+            from,
           },
         ];
         // we also cc the other admins on direct messages to participants so they can follow the convo and take over if needed
@@ -100,7 +131,8 @@ const Chat = ({ callFrame, accountType }) => {
               id: participants[id].session_id,
               username: participants[adminSendToType].user_name,
               type: "spy",
-              toText: participants[adminSendToType].user_name,
+              to: participants[adminSendToType].user_name,
+              from,
             });
           }
         });
@@ -113,13 +145,12 @@ const Chat = ({ callFrame, accountType }) => {
               id: participants[id].session_id,
               username: participants[id].user_name,
               type: "toAdmin",
-              toText: "Host(s)",
+              to: "Host(s)",
+              from,
             });
           }
         });
       }
-
-      const from = participants?.local?.user_id;
 
       // If a participant sends a message and there's not host, there's one for to receive it. Show an error message in the chat instead
       if (!sendToList.length) {
@@ -141,9 +172,9 @@ const Chat = ({ callFrame, accountType }) => {
         // send the message to others
         callFrame.sendAppMessage(
           {
-            message: inputRef.current.value,
+            message: inputRef.current && inputRef.current.value,
             from,
-            to: p.toText,
+            to: p.to,
             type: p.type,
             username: p.username,
           },
@@ -156,18 +187,22 @@ const Chat = ({ callFrame, accountType }) => {
       setChatHistory([
         ...chatHistoryRef.current,
         {
-          message: inputRef.current.value,
+          message: inputRef?.current?.value,
           username: participants?.local?.user_name || "Me",
           type: sendToList[0].type,
-          to: sendToList[0].toText,
+          to: sendToList[0].to,
           from,
         },
       ]);
     }
-    inputRef.current.value = "";
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
   };
 
-  const adminMessageSelectOnChange = (e) => {
+  const adminMessageSelectOnChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     setAdminSendToType(e.target.value);
   };
 
@@ -181,19 +216,16 @@ const Chat = ({ callFrame, accountType }) => {
 
   useEffect(scrollToBottom, [chatHistory]);
 
-  const onTextAreaEnterPress = (e) => {
+  const onTextAreaEnterPress = (e: React.KeyboardEvent) => {
     if (e.keyCode === 13 && e.shiftKey === false) {
       e.preventDefault();
       submitMessage(e);
     }
   };
 
-  function convertChatForCSV(chatHistory) {
-    const chatHistoryArr = [Object.keys(chatHistory[0])].concat(chatHistory);
-
-    return chatHistoryArr
-      .map((item) => Object.values(item).toString())
-      .join("\n");
+  function convertChatForCSV(chatHistory: ChatInfo[]): string {
+    // const chatHistoryArr = [Object.keys(chatHistory[0])].concat(chatHistory);
+    return chatHistory.map((item) => Object.values(item).toString()).join("\n");
   }
 
   const exportChat = () => {
@@ -230,7 +262,9 @@ const Chat = ({ callFrame, accountType }) => {
             <ChatMessage
               key={`chat-message-${i}`}
               chat={chat}
-              localParticipant={callFrame.participants()?.local?.user_id}
+              localParticipant={
+                callFrame ? callFrame.participants()?.local?.user_id : ""
+              }
             />
           ))}
         </ChatBox>
@@ -242,7 +276,6 @@ const Chat = ({ callFrame, accountType }) => {
             <Input
               ref={inputRef}
               id="messageInput"
-              type="text"
               placeholder="Enter your message..."
               onKeyDown={onTextAreaEnterPress}
             />

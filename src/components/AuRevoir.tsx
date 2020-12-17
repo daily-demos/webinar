@@ -6,7 +6,7 @@ import HeaderText from "./text/HeaderText";
 import theme from "../theme";
 import Anchor from "./Anchor";
 
-const AuRevoir = () => {
+const AuRevoir: React.FC = () => {
   return (
     <Container>
       <HeaderText>Thanks for joining us! 👋</HeaderText>

@@ -10,12 +10,11 @@ import {
 } from "../components/List";
 import { FlexContainer, RightPanel, Card } from "../components/Layout";
 import HeaderText from "../components/text/HeaderText";
-import BodyText from "../components/text/BodyText";
 import checkmark from "../components/images/checkmark.svg";
 import theme from "../theme";
 import Anchor from "../components/Anchor";
 
-const Home = () => {
+const Home: React.FC = () => {
   return (
     <FlexContainer>
       <SubContainer>

@@ -10,7 +10,7 @@ import decorativeSlash2 from "./images/slash2.svg";
 import decorativeSlash3 from "./images/slash3.svg";
 import Footer from "./Footer";
 
-function App() {
+const App: React.FC = () => {
   return (
     <Router>
       <Container>
@@ -34,7 +34,7 @@ function App() {
       </Container>
     </Router>
   );
-}
+};
 
 const Container = styled.div`
   background: ${theme.colors.white};
