@@ -26,23 +26,23 @@ const Chat = ({ callFrame, accountType }) => {
   const inputRef = useRef(null);
   const forceScrollRef = useRef(null);
 
-  const updateChatHistory = (e) => {
-    const participants = callFrame.participants();
-    const username = participants[e.fromId].user_name;
-    const { message, to, type, from } = e.data;
-    setChatHistory([
-      ...chatHistoryRef.current,
-      {
-        message,
-        username,
-        type,
-        to,
-        from,
-      },
-    ]);
-  };
-
   useEffect(() => {
+    const updateChatHistory = (e) => {
+      const participants = callFrame.participants();
+      const username = participants[e.fromId].user_name;
+      const { message, to, type, from } = e.data;
+      setChatHistory([
+        ...chatHistoryRef.current,
+        {
+          message,
+          username,
+          type,
+          to,
+          from,
+        },
+      ]);
+    };
+
     if (callFrame && !appMessageHandlerAdded) {
       callFrame.on("app-message", updateChatHistory);
       setAppMessageHandlerAdded(true);
@@ -51,7 +51,7 @@ const Chat = ({ callFrame, accountType }) => {
       const participants = callFrame.participants();
       setUsername(participants?.local?.user_name || "");
     }
-  }, [callFrame]);
+  }, [callFrame, appMessageHandlerAdded, username]);
 
   const setChatHistory = (history) => {
     // use ref to chat history so state values in event handlers are current
@@ -182,7 +182,7 @@ const Chat = ({ callFrame, accountType }) => {
   useEffect(scrollToBottom, [chatHistory]);
 
   const onTextAreaEnterPress = (e) => {
-    if (e.keyCode == 13 && e.shiftKey == false) {
+    if (e.keyCode === 13 && e.shiftKey === false) {
       e.preventDefault();
       submitMessage(e);
     }
@@ -259,6 +259,7 @@ const Chat = ({ callFrame, accountType }) => {
                         </option>
                       );
                     }
+                    return null;
                   })}
                 </Select>
               )}
