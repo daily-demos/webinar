@@ -93,7 +93,7 @@ const WebinarCall = () => {
               setCurrentView("error");
             }
           })
-          .catch((err) => console.log(err));
+          .catch((err) => console.error(err));
       } else {
         console.log("setting participant");
         setRoomInfo({
@@ -134,7 +134,7 @@ const WebinarCall = () => {
         })
         .catch((err) => {
           // todo handle error
-          console.log(err);
+          console.error(err);
           setSubmitting(false);
         });
     }
@@ -177,7 +177,7 @@ const WebinarCall = () => {
           console.log("joined meeting");
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
           if (
             !!err &&
             err === "This room is not available yet, please try later"
@@ -188,6 +188,7 @@ const WebinarCall = () => {
           }
         });
     }
+
     return () => {
       console.log("destroy");
       if (callFrame) {
