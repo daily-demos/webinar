@@ -291,7 +291,7 @@ const WebinarCall: React.FC = () => {
             </Form>
           </WaitingRoom>
         )}
-        <VideoContainer height={height}>
+        <VideoContainer height={height} hidden={currentView !== "call"}>
           <CallFrame ref={videoRef} hidden={currentView !== "call"} />
         </VideoContainer>
         {currentView === "call" && roomInfo && roomInfo.username && (
@@ -363,7 +363,6 @@ const Flex1 = styled.div`
 const WaitingRoom = styled.div`
   margin: 3rem 1rem 0;
   display: flex;
-  width: 100%;
 
   @media (max-width: 996px) {
     flex-direction: column;
@@ -425,11 +424,11 @@ const SubmitButton = styled.input`
   }
 `;
 
-const VideoContainer = styled.div<{ height: number }>`
+const VideoContainer = styled.div<{ height: number; hidden: boolean }>`
   flex: 1.2;
   margin: 1rem;
   flex-basis: 400px;
-  height: ${(props) => props.height}px;
+  height: ${(props) => (props.hidden ? "100" : props.height)}px;
 `;
 
 const ChatContainer = styled.div<{ height: number }>`

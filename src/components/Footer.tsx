@@ -87,6 +87,10 @@ const Container = styled.div`
 const LinksContainer = styled.div`
   display: flex;
   padding-bottom: 3rem;
+
+  @media (max-width: 500px) {
+    flex-direction: column;
+  }
 `;
 
 const Column = styled.div`

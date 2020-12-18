@@ -53,8 +53,8 @@ const ImageContainer = styled.div`
 `;
 
 const BackgroundImg1 = styled(Image)`
-  left: -35px;
-  top: 45px;
+  left: 0;
+  top: 100px;
 `;
 const BackgroundImg2 = styled(Image)`
   right: 0;
@@ -76,6 +76,10 @@ const Body = styled.div`
   flex-direction: column;
   min-height: 100vh;
   box-sizing: border-box;
+
+  @media (max-width: 500px) {
+    padding: 1rem;
+  }
 `;
 
 export default App;
