@@ -1,40 +1,74 @@
 import React from "react";
 import styled from "styled-components";
-import { Card } from "./Layout";
 import BodyText from "./text/BodyText";
 import HeaderText from "./text/HeaderText";
 import theme from "../theme";
 import Anchor from "./Anchor";
+import { FlexContainer, RightPanel, Card } from "./Layout";
+import {
+  HintList,
+  HintListItem,
+  Icon,
+  SubContainer,
+  InstructionText,
+  FormHeader,
+  HintListItemText,
+} from "./List";
+import checkmark from "../components/images/checkmark.svg";
 
 const AuRevoir: React.FC = () => {
   return (
-    <Container>
-      <HeaderText>Thanks for joining us! 👋</HeaderText>
-      <CardReducedMarginTop>
-        <BodyText>
-          For more information, please contact us at{" "}
-          <Anchor href="mailto:help@daily.co" color={theme.colors.orange}>
-            help@daily.co
-          </Anchor>
-          .
-        </BodyText>
-
-        <BodyText>
-          Sign up for a free account at{" "}
-          <Anchor href="https://dashboard.daily.co" color={theme.colors.orange}>
-            dashboard.daily.co
-          </Anchor>{" "}
-          and check out our{" "}
-          <Anchor
-            href="https://docs.daily.co/docs/reference-docs"
-            color={theme.colors.orange}
-          >
-            docs
-          </Anchor>{" "}
-          a more detailed explanation of our APIs.
-        </BodyText>
-      </CardReducedMarginTop>
-    </Container>
+    <FlexContainer>
+      <SubContainer>
+        <HeaderText>Thanks for joining us! 👋</HeaderText>
+        <HintList>
+          <HintListItem>
+            <Icon src={checkmark} alt="checkmark" />
+            <HintListItemText>
+              <Anchor
+                color={theme.colors.orange}
+                href="https://www.daily.co/contact?utm_source=webinar"
+              >
+                Contact our Daily team anytime!
+              </Anchor>{" "}
+              We're glad to help.
+            </HintListItemText>
+          </HintListItem>
+          <HintListItem>
+            <Icon src={checkmark} alt="checkmark" />
+            <HintListItemText>
+              <Anchor
+                color={theme.colors.orange}
+                href="https://dashboard.daily.co/signup?utm_source=webinar/"
+              >
+                Try the API free
+              </Anchor>{" "}
+              for yourself! No credit card required for our free tier.
+            </HintListItemText>
+          </HintListItem>
+          <HintListItem>
+            <Icon src={checkmark} alt="checkmark" />
+            <HintListItemText>
+              Check out{" "}
+              <Anchor
+                href="https://docs.daily.co/docs?utm_source=webinar"
+                color={theme.colors.orange}
+              >
+                Daily developer guide
+              </Anchor>{" "}
+              and{" "}
+              <Anchor
+                href="https://docs.daily.co/reference?utm_source=webinar"
+                color={theme.colors.orange}
+              >
+                reference docs
+              </Anchor>{" "}
+              to learn more.
+            </HintListItemText>
+          </HintListItem>
+        </HintList>
+      </SubContainer>
+    </FlexContainer>
   );
 };
 
