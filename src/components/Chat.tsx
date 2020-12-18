@@ -34,7 +34,7 @@ const Chat: React.FC<Props> = ({ callFrame, accountType }) => {
     message:
       accountType === ADMIN
         ? "Chat messages will display here."
-        : "Message us here during the webinar and we'll answer during the Q&A period! Only Daily admin can see your messages.",
+        : "Only the Daily team can see your message. We'll answer during the Q&A period.",
     type: "info",
     username: null,
     to: null,
@@ -53,7 +53,7 @@ const Chat: React.FC<Props> = ({ callFrame, accountType }) => {
 
   useEffect(() => {
     const updateChatHistory = (e: DailyEventObjectAppMessage | undefined) => {
-      if (e) {
+      if (e && callFrame) {
         const participants = callFrame.participants();
         const username = participants[e.fromId].user_name;
         const { message, to, type, from } = e.data;
@@ -244,7 +244,7 @@ const Chat: React.FC<Props> = ({ callFrame, accountType }) => {
       <SubHeaderText>{username ? `Hey ${username}!` : "Hey!"}</SubHeaderText>
       {accountType !== ADMIN ? (
         <SubText>
-          Have a question about Daily video APIs? Let us know in the chat below!
+          Have a question about the Daily API? Send a chat message below!
         </SubText>
       ) : (
         <BodyText>

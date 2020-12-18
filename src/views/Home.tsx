@@ -18,30 +18,28 @@ const Home: React.FC = () => {
   return (
     <FlexContainer>
       <SubContainer>
-        <HeaderText>Welcome to Daily!</HeaderText>
+        <HeaderText>Welcome!</HeaderText>
         <InstructionText>
-          We host regular webinars throughout the month to help answer any
-          questions about:
+          We host regular webinars to help answer questions about:
         </InstructionText>
         <HintList>
           <HintListItem>
             <Icon src={checkmark} alt="checkmark" />
             <HintListItemText>
-              The multiple ways you can quickly integrate Daily's video call
-              APIs into your app
+              Different ways to integrate video quickly with Daily APIs
             </HintListItemText>
           </HintListItem>
           <HintListItem>
             <Icon src={checkmark} alt="checkmark" />
             <HintListItemText>
-              How to use our dashboard to understand your call metrics, interact
-              with our APIs, and more!
+              Using your dashboard or /logs endpoint to get call logs and call
+              quality data
             </HintListItemText>
           </HintListItem>
           <HintListItem>
             <Icon src={checkmark} alt="checkmark" />
             <HintListItemText>
-              Any other topics you might be curious about
+              Anything you’d like to ask about!
             </HintListItemText>
           </HintListItem>
         </HintList>
@@ -49,10 +47,12 @@ const Home: React.FC = () => {
       <RightPanel>
         <Card>
           <FormHeader>
-            To sign up for one of our upcoming webinars, please contact our team
-            at{" "}
-            <Anchor href="mailto:help@daily.co" color={theme.colors.orange}>
-              help@daily.co
+            To learn about upcoming webinars,{" "}
+            <Anchor
+              href="https://www.daily.co/contact/support?utm_source=webinar"
+              color={theme.colors.orange}
+            >
+              contact us!
             </Anchor>
           </FormHeader>
         </Card>

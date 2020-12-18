@@ -236,7 +236,7 @@ const WebinarCall: React.FC = () => {
         {currentView === "waiting" && (
           <WaitingRoom>
             <SubContainer>
-              <HeaderText>Welcome to Daily!</HeaderText>
+              <HeaderText>Welcome!</HeaderText>
               <InstructionText>
                 Here are some things to know before we get started:
               </InstructionText>
@@ -253,15 +253,15 @@ const WebinarCall: React.FC = () => {
                 <HintListItem>
                   <Icon src={checkmark} alt="checkmark" />
                   <HintListItemText>
-                    Your camera and mic will be off by default for the entire
-                    duration of the call.
+                    Your camera and mic will be off during the entire call. (No
+                    one can see or hear you!)
                   </HintListItemText>
                 </HintListItem>
                 <HintListItem>
                   <Icon src={checkmark} alt="checkmark" />
                   <HintListItemText>
-                    The call will have a chat next to it to communicate with the
-                    presenter so you can ask questions about Daily.
+                    You can send chat messages to the Daily team during the call
+                    to ask questions
                   </HintListItemText>
                 </HintListItem>
                 <HintListItem>
@@ -303,18 +303,21 @@ const WebinarCall: React.FC = () => {
       {currentView === "call" && (
         <FlexRow>
           <HelpText>
-            If you're having any trouble connecting, message us in the chat,
-            check our{" "}
+            Having trouble connecting?{" "}
             <Anchor
               href="https://help.daily.co/en/articles/2303117-top-troubleshooting-5-tips-that-solve-99-of-issues"
               color={theme.colors.orange}
             >
-              help center article
+              Try these fast tips
             </Anchor>
-            , or email support directly{" "}
-            <Anchor href="mailto:help@daily.co" color={theme.colors.orange}>
-              help@daily.co
-            </Anchor>
+            , or{" "}
+            <Anchor
+              href="https://www.daily.co/contact/support?utm_source=webinar"
+              color={theme.colors.orange}
+            >
+              contact our support
+            </Anchor>{" "}
+            via chat or email.
           </HelpText>
           <Flex1>_</Flex1>
         </FlexRow>

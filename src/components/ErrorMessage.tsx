@@ -23,7 +23,7 @@ const ErrorMessage: React.FC<Props> = ({ isAdmin }) => {
   return (
     <FlexContainer>
       <SubContainer>
-        <HeaderText>Uh oh, this is embarrassing!</HeaderText>
+        <HeaderText>Uh oh! This is embarrassing!</HeaderText>
         <InstructionText>
           It looks like you're trying to join a room that isn't available. This
           can happen if:
@@ -40,20 +40,20 @@ const ErrorMessage: React.FC<Props> = ({ isAdmin }) => {
             <Icon src={xIcon} alt="x icon" />
             <HintListItemText>
               There was a problem connecting to the call. Please check your
-              internet connection or refresh the page to try again.
+              Internet connection or refresh the page
             </HintListItemText>
           </HintListItem>
           <HintListItem>
             <Icon src={xIcon} alt="x icon" />
             <HintListItemText>
-              Additional issues that may have occured. Please consult our{" "}
+              You're having other issues! Get fast troubleshooting tips{" "}
               <Anchor
                 href="https://help.daily.co/en/articles/2303117-top-troubleshooting-5-tips-that-solve-99-of-issues"
                 color={theme.colors.orange}
               >
-                help center article
-              </Anchor>{" "}
-              for more details.
+                here
+              </Anchor>
+              .
             </HintListItemText>
           </HintListItem>
         </HintList>
@@ -75,14 +75,17 @@ const ErrorMessage: React.FC<Props> = ({ isAdmin }) => {
       <RightPanel>
         <Card>
           <FormHeader>
-            For more help, please contact our support team at{" "}
-            <Anchor href="mailto:help@daily.co" color={theme.colors.orange}>
-              help@daily.co
-            </Anchor>
-            .
+            For more help,{" "}
+            <Anchor
+              href="https://www.daily.co/contact/support?utm_source=webinar"
+              color={theme.colors.orange}
+            >
+              contact our support
+            </Anchor>{" "}
+            via chat or email.
           </FormHeader>
           <FormHeader>
-            We ensure to respond quickly, especially during webinar times.
+            We respond quickly, especially during webinar times.
           </FormHeader>
         </Card>
       </RightPanel>
