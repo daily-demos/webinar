@@ -46,7 +46,7 @@ const ErrorMessage: React.FC<Props> = ({ isAdmin }) => {
           <HintListItem>
             <Icon src={xIcon} alt="x icon" />
             <HintListItemText>
-              You're having other issues! Get fast troubleshooting tips{" "}
+              Additional issues have occurred. Get fast troubleshooting tips{" "}
               <Anchor
                 href="https://help.daily.co/en/articles/2303117-top-troubleshooting-5-tips-that-solve-99-of-issues"
                 color={theme.colors.orange}

@@ -39,8 +39,6 @@ const App: React.FC = () => {
 const Container = styled.div`
   background: ${theme.colors.white};
   min-height: 100vh;
-  padding-top: 2rem;
-  padding-bottom: 2rem;
 `;
 
 const Image = styled.img`
@@ -71,8 +69,7 @@ const Body = styled.div`
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 3rem;
-  padding-right: 3rem;
+  padding: 2rem 3rem;
   height: 100%;
   position: relative;
   display: flex;
