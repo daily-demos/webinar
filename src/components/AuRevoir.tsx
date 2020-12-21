@@ -1,17 +1,13 @@
 import React from "react";
-import styled from "styled-components";
-import BodyText from "./text/BodyText";
 import HeaderText from "./text/HeaderText";
 import theme from "../theme";
 import Anchor from "./Anchor";
-import { FlexContainer, RightPanel, Card } from "./Layout";
+import { FlexContainer } from "./Layout";
 import {
   HintList,
   HintListItem,
   Icon,
   SubContainer,
-  InstructionText,
-  FormHeader,
   HintListItemText,
 } from "./List";
 import checkmark from "../components/images/checkmark.svg";
@@ -71,20 +67,5 @@ const AuRevoir: React.FC = () => {
     </FlexContainer>
   );
 };
-
-const Container = styled.div`
-  width: 100%;
-  margin-top: 3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-`;
-
-const CardReducedMarginTop = styled(Card)`
-  margin-top: 2rem;
-  max-width: 800px;
-  box-sizing: border-box;
-`;
 
 export default AuRevoir;
