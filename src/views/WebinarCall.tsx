@@ -159,6 +159,7 @@ const WebinarCall: React.FC = () => {
       setCurrentView("waiting");
       return;
     }
+    setCurrentView("loading");
 
     if (!callFrame) {
       // set room url; callFrame properties are otherwise already set above
@@ -182,6 +183,12 @@ const WebinarCall: React.FC = () => {
               "Hey admin, don't forget to export the chat before closing this window if you want to save it."
             );
           }
+        })
+        .on("error", (err) => {
+          if (currentView === "loading") {
+            setCurrentView("error");
+          }
+          console.log(err);
         })
         // @ts-ignore
         .join({ userName: roomInfo?.username })
