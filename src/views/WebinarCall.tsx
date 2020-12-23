@@ -46,6 +46,8 @@ const CALL_OPTIONS: DailyCallOptions = {
   },
   showLeaveButton: true,
   showFullscreenButton: true,
+  showLocalVideo: false,
+  showParticipantsBar: false,
 };
 
 const WebinarCall: React.FC = () => {
