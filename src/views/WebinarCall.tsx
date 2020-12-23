@@ -143,7 +143,7 @@ const WebinarCall: React.FC = () => {
 
       setSubmitting(true);
       fetch(
-        `https://docs.google.com/forms/u/0/d/e/1FAIpQLSddqD1Q5W4Fatf0Px38ysFrC3COgS-PqAfjIXf6qnCgKfzZKg/formResponse?entry.1667022758=${inputRef.current.value}&entry.2075101699=${emailRef.current.value}&entry.1964318055=${companyRef.current.value}&submit=Submit`,
+        `https://docs.google.com/forms/u/0/d/e/${process.env.REACT_APP_FORM_ID}/formResponse?entry.1667022758=${inputRef.current.value}&entry.2075101699=${emailRef.current.value}&entry.1964318055=${companyRef.current.value}&submit=Submit`,
         {
           method: "GET",
           mode: "no-cors",
