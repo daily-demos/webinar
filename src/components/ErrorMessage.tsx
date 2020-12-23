@@ -24,12 +24,13 @@ type Props = {
 };
 
 const ErrorMessage: React.FC<Props> = ({ isAdmin, error, goBack }) => {
+  console.log(error);
   return (
     <div>
       <FlexContainer>
         <SubContainer>
           <HeaderText>Uh oh! This is embarrassing!</HeaderText>
-          {error && <ErrorText>Error: {error}</ErrorText>}
+
           <InstructionText>
             It looks like you're trying to join a room that isn't available.
             This can happen if:
@@ -96,6 +97,7 @@ const ErrorMessage: React.FC<Props> = ({ isAdmin, error, goBack }) => {
           </Card>
         </RightPanel>
       </FlexContainer>
+      {error && <ErrorText>Error: {error}</ErrorText>}
       <IconContainer onClick={goBack}>
         <ArrowIcon src={rightArrow} alt=" " />
         <BodyText>Go back</BodyText>
@@ -106,6 +108,7 @@ const ErrorMessage: React.FC<Props> = ({ isAdmin, error, goBack }) => {
 
 const ErrorText = styled(InstructionText)`
   color: ${theme.colors.red};
+  margin: 0 1rem;
 `;
 
 const IconContainer = styled.div`
@@ -118,6 +121,7 @@ const IconContainer = styled.div`
 const ArrowIcon = styled.img`
   width: 16px;
   transform: rotate(180deg);
+  margin-right: 0.25rem;
 `;
 
 export default ErrorMessage;

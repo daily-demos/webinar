@@ -72,8 +72,9 @@ const WebinarCall: React.FC = () => {
       fetch(`https://daily-webinar.netlify.app/api/rooms/${roomName}`, {})
         .then((res) => res.json())
         .then((res) => {
-          if (res.error) {
-            checkAndSetError(res);
+          if (res.error && res.info) {
+            setError(res.info);
+            setCurrentView("error");
             return;
           }
           if (res.config?.nbf) {
@@ -100,6 +101,8 @@ const WebinarCall: React.FC = () => {
                 url: `${baseUrl}${roomName}?t=${token}`,
                 accountType: ADMIN,
               });
+            } else if (res.error && res.info) {
+              setError(res.info);
             } else {
               setCurrentView("error");
             }
@@ -216,6 +219,7 @@ const WebinarCall: React.FC = () => {
       console.log("destroy");
       if (callFrame) {
         callFrame.destroy();
+        setCallFrame(null);
       }
     };
   }, [roomInfo, videoRef, callFrame]);
