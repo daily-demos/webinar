@@ -46,8 +46,8 @@ const CALL_OPTIONS: DailyCallOptions = {
   },
   showLeaveButton: true,
   showFullscreenButton: true,
-  showLocalVideo: false,
-  showParticipantsBar: false,
+  // showLocalVideo: false,
+  // showParticipantsBar: false,
 };
 
 const WebinarCall: React.FC = () => {
@@ -227,7 +227,7 @@ const WebinarCall: React.FC = () => {
   }, [roomInfo, videoRef, callFrame]);
 
   useLayoutEffect(() => {
-    let timeout: number;
+    let timeout: any;
     // handles setting the iframe's height on resize to maintain aspect ratio
     const updateSize = () => {
       if (videoRef?.current) {
