@@ -193,15 +193,9 @@ const WebinarCall: React.FC = () => {
         .setShowNamesMode("always")
         .on("joined-meeting", () => setCurrentView("call"))
         .on("left-meeting", () => {
-          if (currentView !== "call") {
-            // let's assume if left meeting is triggered and their not in a call, it's an error
-            setCurrentView("error");
-            return;
-          }
-
-          if (roomInfo?.accountType !== ADMIN) {
+          if (roomInfo?.accountType !== ADMIN && !error) {
             setCurrentView("left-call");
-          } else {
+          } else if (roomInfo?.accountType === ADMIN) {
             // remind the admin to export chat-- it's not saved anywhere other than local state
             window.alert(
               "Hey admin, don't forget to export the chat before closing this window if you want to save it."
@@ -218,7 +212,6 @@ const WebinarCall: React.FC = () => {
         .catch((err) => checkAndSetError(err));
     }
     return () => {
-      console.log("destroy");
       if (callFrame) {
         callFrame.destroy();
         setCallFrame(null);
