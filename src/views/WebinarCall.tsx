@@ -56,6 +56,7 @@ const WebinarCall: React.FC = () => {
 
   const [currentView, setCurrentView] = useState<string>("loading"); // loading | call | waiting | error | left-call
   const [callFrame, setCallFrame] = useState<DailyCall | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [height, setHeight] = useState<number>(400);
   const [submitting, setSubmitting] = useState(false);
   const [roomInfo, setRoomInfo] = useState<RoomInfo | null>(null); // {token?: string, accountType: 'participant' | 'admin', username: string, url: string }
@@ -72,7 +73,7 @@ const WebinarCall: React.FC = () => {
         .then((res) => res.json())
         .then((res) => {
           if (res.error) {
-            setCurrentView("error");
+            checkAndSetError(res);
             return;
           }
           if (res.config?.nbf) {
@@ -83,7 +84,7 @@ const WebinarCall: React.FC = () => {
             setStartTime(time);
           }
         })
-        .catch((err) => setCurrentView("error"));
+        .catch((err) => checkAndSetError(err));
 
       if (search && search.match(/^[?t=*+]/)) {
         const token = search.replace("?t=", "");
@@ -103,7 +104,9 @@ const WebinarCall: React.FC = () => {
               setCurrentView("error");
             }
           })
-          .catch((err) => console.log(err));
+          .catch((err) => {
+            checkAndSetError(err);
+          });
       } else {
         console.log("setting participant");
         setRoomInfo({
@@ -115,6 +118,15 @@ const WebinarCall: React.FC = () => {
       }
     }
   }, [currentView, callFrame, baseUrl, roomInfo, roomName, search]);
+
+  const checkAndSetError = (res: any) => {
+    if (res && res.action === "error" && res.errorMsg) {
+      setError(res.errMsg);
+    } else {
+      setError(null);
+    }
+    console.error("error", res);
+  };
 
   const submitName = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -176,37 +188,29 @@ const WebinarCall: React.FC = () => {
         .setShowNamesMode("always")
         .on("joined-meeting", () => setCurrentView("call"))
         .on("left-meeting", () => {
+          if (currentView !== "call") {
+            // let's assume if left meeting is triggered and their not in a call, it's an error
+            setCurrentView("error");
+            return;
+          }
+
           if (roomInfo?.accountType !== ADMIN) {
             setCurrentView("left-call");
           } else {
+            // remind the admin to export chat-- it's not saved anywhere other than local state
             window.alert(
               "Hey admin, don't forget to export the chat before closing this window if you want to save it."
             );
           }
         })
-        .on("error", (err) => {
-          if (currentView === "loading") {
-            setCurrentView("error");
-          }
-          console.log(err);
-        })
+        .on("error", (err) => checkAndSetError(err))
         // @ts-ignore
         .join({ userName: roomInfo?.username })
         .then(() => {
           setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
           console.log("join meeting successful");
         })
-        .catch((err) => {
-          console.log(err);
-          if (
-            !!err &&
-            err === "This room is not available yet, please try later"
-          ) {
-            setCurrentView("waiting");
-          } else {
-            setCurrentView("error");
-          }
-        });
+        .catch((err) => checkAndSetError(err));
     }
     return () => {
       console.log("destroy");
@@ -238,7 +242,13 @@ const WebinarCall: React.FC = () => {
         {currentView === "loading" && <Loading />}
         {currentView === "left-call" && <AuRevoir />}
         {currentView === "error" && (
-          <ErrorMessage isAdmin={search.match(/^[?t=*+]/)} />
+          <ErrorMessage
+            goBack={() => {
+              setCurrentView("waiting");
+            }}
+            error={error}
+            isAdmin={search.match(/^[?t=*+]/)}
+          />
         )}
         {currentView === "waiting" && (
           <WaitingRoom>
