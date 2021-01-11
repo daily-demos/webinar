@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import theme from "../theme";
 import HeaderText from "./text/HeaderText";
@@ -51,6 +51,15 @@ const Chat: React.FC<Props> = ({ callFrame, accountType }) => {
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const forceScrollRef = useRef<HTMLDivElement | null>(null);
 
+  const setChatHistory = useCallback(
+    (history: ChatInfo[]) => {
+      // use ref to chat history so state values in event handlers are current
+      chatHistoryRef.current = history;
+      _setChatHistory(history);
+    },
+    [chatHistoryRef]
+  );
+
   useEffect(() => {
     const updateChatHistory = (e: DailyEventObjectAppMessage | undefined) => {
       if (e && callFrame) {
@@ -78,159 +87,158 @@ const Chat: React.FC<Props> = ({ callFrame, accountType }) => {
       const participants = callFrame.participants();
       setUsername(participants?.local?.user_name || "");
     }
-  }, [callFrame, appMessageHandlerAdded, username]);
+  }, [callFrame, appMessageHandlerAdded, username, setChatHistory]);
 
-  const setChatHistory = (history: ChatInfo[]) => {
-    // use ref to chat history so state values in event handlers are current
-    chatHistoryRef.current = history;
-    _setChatHistory(history);
-  };
+  const setAdminSendToType = useCallback(
+    (type: string) => {
+      adminSendToTypeRef.current = type;
+      _setAdminSendToType(type);
+    },
+    [adminSendToTypeRef]
+  );
 
-  const setAdminSendToType = (type: string) => {
-    adminSendToTypeRef.current = type;
-    _setAdminSendToType(type);
-  };
+  const submitMessage = useCallback(
+    (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent) => {
+      e.preventDefault();
+      if (callFrame && inputRef.current) {
+        let sendToList: ChatInfo[] = [];
 
-  const submitMessage = (
-    e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent
-  ) => {
-    e.preventDefault();
-    if (callFrame && inputRef.current) {
-      let sendToList: ChatInfo[] = [];
-
-      const participants = callFrame.participants();
-      const from = participants?.local?.user_id;
-      // if you're an admin you're either sending a direct message to one person or a broadcast message
-      if (accountType === ADMIN && adminSendToType === "*") {
-        // a broadcast message is sent once to everyone in the call (except the sender)
-        sendToList = [
-          {
-            id: adminSendToType,
-            username: "Everyone",
-            type: "broadcast",
-            to: "Everyone",
-            from,
-          },
-        ];
-      } else if (accountType === ADMIN && adminSendToType !== "*") {
-        // a direct message is sent once to the receiver
-        sendToList = [
-          {
-            id: adminSendToType,
-            username: participants[adminSendToType].user_name,
-            type: "toMember",
-            to: participants[adminSendToType].user_name,
-            from,
-          },
-        ];
-        // we also cc the other admins on direct messages to participants so they can follow the convo and take over if needed
-        const ids = Object.keys(participants);
-        ids.forEach((id) => {
-          if (participants[id]?.owner) {
-            sendToList.push({
-              id: participants[id].session_id,
+        const participants = callFrame.participants();
+        const from = participants?.local?.user_id;
+        // if you're an admin you're either sending a direct message to one person or a broadcast message
+        if (accountType === ADMIN && adminSendToType === "*") {
+          // a broadcast message is sent once to everyone in the call (except the sender)
+          sendToList = [
+            {
+              id: adminSendToType,
+              username: "Everyone",
+              type: "broadcast",
+              to: "Everyone",
+              from,
+            },
+          ];
+        } else if (accountType === ADMIN && adminSendToType !== "*") {
+          // a direct message is sent once to the receiver
+          sendToList = [
+            {
+              id: adminSendToType,
               username: participants[adminSendToType].user_name,
-              type: "spy",
+              type: "toMember",
               to: participants[adminSendToType].user_name,
               from,
-            });
-          }
-        });
-      } else {
-        // if you're a participant, your messages are sent to the host(s), which could vary in number
-        const ids = Object.keys(participants);
-        ids.forEach((id) => {
-          if (participants[id]?.owner) {
-            sendToList.push({
-              id: participants[id].session_id,
-              username: participants[id].user_name,
-              type: "toAdmin",
-              to: "Host(s)",
-              from,
-            });
-          }
-        });
-      }
+            },
+          ];
+          // we also cc the other admins on direct messages to participants so they can follow the convo and take over if needed
+          const ids = Object.keys(participants);
+          ids.forEach((id) => {
+            if (participants[id]?.owner) {
+              sendToList.push({
+                id: participants[id].session_id,
+                username: participants[adminSendToType].user_name,
+                type: "spy",
+                to: participants[adminSendToType].user_name,
+                from,
+              });
+            }
+          });
+        } else {
+          // if you're a participant, your messages are sent to the host(s), which could vary in number
+          const ids = Object.keys(participants);
+          ids.forEach((id) => {
+            if (participants[id]?.owner) {
+              sendToList.push({
+                id: participants[id].session_id,
+                username: participants[id].user_name,
+                type: "toAdmin",
+                to: "Host(s)",
+                from,
+              });
+            }
+          });
+        }
 
-      // If a participant sends a message and there's not host, there's one for to receive it. Show an error message in the chat instead
-      if (!sendToList.length) {
+        // If a participant sends a message and there's not host, there's one for to receive it. Show an error message in the chat instead
+        if (!sendToList.length) {
+          setChatHistory([
+            ...chatHistoryRef.current,
+            {
+              message:
+                "Your message could not be sent. To use the chat, you must join the call and have at least one admin present.",
+              username: participants?.local?.user_name || "Me",
+              type: "error",
+              to: null,
+              from,
+            },
+          ]);
+          return;
+        }
+
+        sendToList.forEach((p) => {
+          // send the message to others
+          callFrame.sendAppMessage(
+            {
+              message: inputRef.current && inputRef.current.value,
+              from,
+              to: p.to,
+              type: p.type,
+              username: p.username,
+            },
+            p.id
+          );
+        });
+
+        // add message to your local chat since messages don't get triggered when you're the sender
+        // only one message need to get added locally regardless of how many were sent out
         setChatHistory([
           ...chatHistoryRef.current,
           {
-            message:
-              "Your message could not be sent. To use the chat, you must join the call and have at least one admin present.",
+            message: inputRef?.current?.value,
             username: participants?.local?.user_name || "Me",
-            type: "error",
-            to: null,
+            type: sendToList[0].type,
+            to: sendToList[0].to,
             from,
           },
         ]);
-        return;
       }
+      if (inputRef.current) {
+        inputRef.current.value = "";
+      }
+    },
+    [accountType, adminSendToType, callFrame, setChatHistory]
+  );
 
-      sendToList.forEach((p) => {
-        // send the message to others
-        callFrame.sendAppMessage(
-          {
-            message: inputRef.current && inputRef.current.value,
-            from,
-            to: p.to,
-            type: p.type,
-            username: p.username,
-          },
-          p.id
-        );
-      });
+  const adminMessageSelectOnChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setAdminSendToType(e.target.value);
+    },
+    [setAdminSendToType]
+  );
 
-      // add message to your local chat since messages don't get triggered when you're the sender
-      // only one message need to get added locally regardless of how many were sent out
-      setChatHistory([
-        ...chatHistoryRef.current,
-        {
-          message: inputRef?.current?.value,
-          username: participants?.local?.user_name || "Me",
-          type: sendToList[0].type,
-          to: sendToList[0].to,
-          from,
-        },
-      ]);
-    }
-    if (inputRef.current) {
-      inputRef.current.value = "";
-    }
-  };
-
-  const adminMessageSelectOnChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    setAdminSendToType(e.target.value);
-  };
-
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     if (forceScrollRef?.current) {
       forceScrollRef.current.scrollTop =
         forceScrollRef.current.scrollHeight -
         forceScrollRef.current.clientHeight;
     }
-  };
+  }, [forceScrollRef]);
 
-  useEffect(scrollToBottom, [chatHistory]);
+  useEffect(scrollToBottom, [chatHistory, scrollToBottom]);
 
-  const onTextAreaEnterPress = (e: React.KeyboardEvent) => {
-    if (e.keyCode === 13 && e.shiftKey === false) {
-      e.preventDefault();
-      submitMessage(e);
-    }
-  };
+  const onTextAreaEnterPress = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.keyCode === 13 && e.shiftKey === false) {
+        e.preventDefault();
+        submitMessage(e);
+      }
+    },
+    [submitMessage]
+  );
 
-  function convertChatForCSV(chatHistory: ChatInfo[]): string {
-    // const chatHistoryArr = [Object.keys(chatHistory[0])].concat(chatHistory);
-    return chatHistory.map((item) => Object.values(item).toString()).join("\n");
-  }
-
-  const exportChat = () => {
-    const csvContent =
-      "data:text/csv;charset=utf-8," + convertChatForCSV(chatHistory);
+  const exportChat = useCallback(() => {
+    const historyStr = chatHistory
+      .map((item) => Object.values(item).toString())
+      .join("\n");
+    const csvContent = `data:text/csv;charset=utf-8,${historyStr}`;
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -238,7 +246,8 @@ const Chat: React.FC<Props> = ({ callFrame, accountType }) => {
     document.body.appendChild(link);
 
     link.click();
-  };
+  }, [chatHistory]);
+
   return (
     <FlexContainer>
       <SubHeaderText>{username ? `Hey ${username}!` : "Hey!"}</SubHeaderText>
@@ -273,7 +282,7 @@ const Chat: React.FC<Props> = ({ callFrame, accountType }) => {
             Message {accountType !== ADMIN ? "Daily admin" : ""}
           </Label>
           <ChatInputContainer>
-            <Input
+            <Textarea
               ref={inputRef}
               id="messageInput"
               placeholder="Enter your message..."
@@ -355,6 +364,7 @@ const ExportButton = styled.button`
   border-radius: 6px;
   border: 1px solid ${theme.colors.grey};
   font-family: ${theme.fontFamily.bold};
+  cursor: pointer;
 
   &:hover {
     border: 1px solid ${theme.colors.greyDark};
@@ -387,7 +397,7 @@ const Select = styled.select`
   border: none;
   margin-bottom: 0.5rem;
 `;
-const Input = styled.textarea`
+const Textarea = styled.textarea`
   width: 100%;
   box-sizing: border-box;
   line-height: 22px;
