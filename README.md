@@ -1,6 +1,6 @@
 # Daily webinar app
 
-To use:
+## Getting started
 
 Make sure you have a `.gitignore` file that includes `.env` and add a `.env` file with the following keys:
 
@@ -22,9 +22,15 @@ yarn start
 This will run the app in the development mode.
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-Features:
+## Features:
 
 - one:many presentation mode for the room admin
 - participants (non-admin) can message the admin directly
 - admin can respond to individual participants or message the entire group
 - lots of Daily links to help participants find what they need in our documentation
+
+---
+
+## Deployment
+
+Commits to main are automatically deployed to [https://discover.daily.co](https://discover.daily.co) via Netlify.
