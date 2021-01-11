@@ -7,7 +7,10 @@ Make sure you have a `.gitignore` file that includes `.env` and add a `.env` fil
 ```
 REACT_APP_BASE_URL=<-your Daily URL->
 DAILY_API_KEY=<-your Daily API key->
+REACT_APP_FORM_ID=<-Google form ID->
 ```
+
+To get these values, please contact another dev rel team member or you get access them in the Netlify account under "Environment variables" for the repo.
 
 Then run:
 
@@ -24,3 +27,4 @@ Features:
 - one:many presentation mode for the room admin
 - participants (non-admin) can message the admin directly
 - admin can respond to individual participants or message the entire group
+- lots of Daily links to help participants find what they need in our documentation
