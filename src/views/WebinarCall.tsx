@@ -1,4 +1,10 @@
-import React, { useLayoutEffect, useRef, useState, useEffect } from "react";
+import React, {
+  useLayoutEffect,
+  useRef,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import DailyIframe, { DailyCall, DailyCallOptions } from "@daily-co/daily-js";
 import styled from "styled-components";
 import Chat from "../components/Chat";
@@ -136,13 +142,6 @@ const WebinarCall: React.FC = () => {
   const submitName = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (inputRef?.current && emailRef?.current && companyRef?.current) {
-      /* 
-        Google form values
-        "entry.1667022758": inputRef.current.value,
-        "entry.2075101699": emailRef.current.value,
-        "entry.1964318055": companyRef.current.value,
-      */
-
       setSubmitting(true);
       fetch(
         `https://docs.google.com/forms/u/0/d/e/${process.env.REACT_APP_FORM_ID}/formResponse?entry.1667022758=${inputRef.current.value}&entry.2075101699=${emailRef.current.value}&entry.1964318055=${companyRef.current.value}&submit=Submit`,
@@ -152,8 +151,8 @@ const WebinarCall: React.FC = () => {
         }
       )
         .then(() => {
-          console.log("setting room info");
           if (inputRef.current) {
+            console.log("setting username");
             setRoomInfo({
               ...roomInfo,
               username: inputRef.current.value?.trim(),
@@ -169,8 +168,44 @@ const WebinarCall: React.FC = () => {
     }
   };
 
-  useEffect(() => {
+  const createAndJoinCall = useCallback(() => {
     if (!videoRef || !videoRef?.current || !roomInfo) return;
+
+    // set room url; callFrame properties are otherwise already set above
+    CALL_OPTIONS.url = roomInfo?.url;
+    const newCallFrame = DailyIframe.createFrame(
+      videoRef.current,
+      CALL_OPTIONS
+    );
+
+    setCallFrame(newCallFrame);
+
+    // join call with additional event listeners added
+    newCallFrame
+      .setShowNamesMode("always")
+      .on("joined-meeting", () => setCurrentView("call"))
+      .on("left-meeting", () => {
+        if (roomInfo?.accountType !== ADMIN && !error) {
+          setCurrentView("left-call");
+        } else if (roomInfo?.accountType === ADMIN) {
+          // remind the admin to export chat-- it's not saved anywhere other than local state
+          window.alert(
+            "Hey admin, don't forget to export the chat before closing this window if you want to save it."
+          );
+        }
+      })
+      .on("error", (err) => checkAndSetError(err))
+      // @ts-ignore
+      .join({ userName: roomInfo?.username })
+      .then(() => {
+        setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
+        console.log("join meeting successful");
+      })
+      .catch((err) => checkAndSetError(err));
+  }, [roomInfo, videoRef, error]);
+
+  useEffect(() => {
+    if (!roomInfo) return;
     // if you're not an admin, you can't join without filling out the sign in form
     if (!roomInfo?.username) {
       setCurrentView("waiting");
@@ -179,45 +214,9 @@ const WebinarCall: React.FC = () => {
     setCurrentView("loading");
 
     if (!callFrame) {
-      // set room url; callFrame properties are otherwise already set above
-      CALL_OPTIONS.url = roomInfo?.url;
-      const newCallFrame = DailyIframe.createFrame(
-        videoRef.current,
-        CALL_OPTIONS
-      );
-
-      setCallFrame(newCallFrame);
-
-      // join call with additional event listeners added
-      newCallFrame
-        .setShowNamesMode("always")
-        .on("joined-meeting", () => setCurrentView("call"))
-        .on("left-meeting", () => {
-          if (roomInfo?.accountType !== ADMIN && !error) {
-            setCurrentView("left-call");
-          } else if (roomInfo?.accountType === ADMIN) {
-            // remind the admin to export chat-- it's not saved anywhere other than local state
-            window.alert(
-              "Hey admin, don't forget to export the chat before closing this window if you want to save it."
-            );
-          }
-        })
-        .on("error", (err) => checkAndSetError(err))
-        // @ts-ignore
-        .join({ userName: roomInfo?.username })
-        .then(() => {
-          setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
-          console.log("join meeting successful");
-        })
-        .catch((err) => checkAndSetError(err));
+      createAndJoinCall();
     }
-    return () => {
-      if (callFrame) {
-        callFrame.destroy();
-        setCallFrame(null);
-      }
-    };
-  }, [roomInfo, videoRef, callFrame]);
+  }, [roomInfo, videoRef, callFrame, createAndJoinCall]);
 
   useLayoutEffect(() => {
     let timeout: any;
