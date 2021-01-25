@@ -12,7 +12,7 @@ import {
 } from "./List";
 import checkmark from "../components/images/checkmark.svg";
 
-const AuRevoir: React.FC = () => {
+const AuRevoir = () => {
   return (
     <FlexContainer>
       <SubContainer>

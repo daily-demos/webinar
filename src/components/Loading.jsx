@@ -3,7 +3,7 @@ import styled from "styled-components";
 import theme from "../theme";
 import HeaderText from "./text/HeaderText";
 
-const Loading: React.FC = () => {
+const Loading = () => {
   return (
     <Container>
       <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44">

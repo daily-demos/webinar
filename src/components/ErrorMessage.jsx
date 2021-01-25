@@ -17,13 +17,7 @@ import rightArrow from "../components/images/right-arrow.svg";
 import theme from "../theme";
 import styled from "styled-components";
 
-type Props = {
-  isAdmin: RegExpMatchArray | null;
-  error: string | null;
-  goBack: () => void;
-};
-
-const ErrorMessage: React.FC<Props> = ({ isAdmin, error, goBack }) => {
+const ErrorMessage = ({ isAdmin, error, goBack }) => {
   console.log(error);
   return (
     <div>

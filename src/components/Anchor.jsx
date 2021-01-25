@@ -2,21 +2,10 @@ import React from "react";
 import styled from "styled-components";
 import theme from "../theme";
 
-type Props = {
-  href: string;
-  underline?: boolean;
-  color?: string;
-};
-
-const Anchor: React.FC<Props> = ({
-  children,
-  href,
-  underline = true,
-  color,
-}) => {
+const Anchor = ({ children, href, underline = true, color }) => {
   return (
     <A
-      underline={underline}
+      underline={!!underline}
       href={href}
       target="_blank"
       rel="noreferrer nooppener"
@@ -27,7 +16,7 @@ const Anchor: React.FC<Props> = ({
   );
 };
 
-const A = styled.a<{ underline: boolean }>`
+const A = styled.a`
   text-decoration: none;
   color: ${(props) => props.color};
   &:hover {

@@ -10,7 +10,7 @@ import decorativeSlash2 from "./images/slash2.svg";
 import decorativeSlash3 from "./images/slash3.svg";
 import Footer from "./Footer";
 
-const App: React.FC = () => {
+const App = () => {
   return (
     <Router>
       <Container>

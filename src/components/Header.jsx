@@ -5,7 +5,7 @@ import theme from "../theme";
 import Anchor from "./Anchor";
 import logo from "./images/logo.svg";
 
-const Header: React.FC = () => {
+const Header = () => {
   return (
     <Container>
       <LogoContainer>

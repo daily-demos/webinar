@@ -14,7 +14,7 @@ import checkmark from "../components/images/checkmark.svg";
 import theme from "../theme";
 import Anchor from "../components/Anchor";
 
-const Home: React.FC = () => {
+const Home = () => {
   return (
     <FlexContainer>
       <SubContainer>

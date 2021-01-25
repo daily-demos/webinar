@@ -5,32 +5,9 @@ import HeaderText from "./text/HeaderText";
 import BodyText from "./text/BodyText";
 import ChatMessage from "./ChatMessage";
 import { ADMIN } from "../constants";
-import { DailyCall, DailyEventObjectAppMessage } from "@daily-co/daily-js";
 
-type Props = {
-  callFrame: DailyCall | null;
-  accountType: "admin" | "participant" | undefined;
-};
-
-export type MessageType =
-  | "broadcast"
-  | "toAdmin"
-  | "toMember"
-  | "info"
-  | "spy"
-  | "error";
-
-export type ChatInfo = {
-  id?: string;
-  message?: string | null;
-  type: MessageType;
-  username: string | null;
-  to: string | null;
-  from: string | null;
-};
-
-const Chat: React.FC<Props> = ({ callFrame, accountType }) => {
-  const welcomeMessage: ChatInfo = {
+const Chat = ({ callFrame, accountType }) => {
+  const welcomeMessage = {
     message:
       accountType === ADMIN
         ? "Chat messages will display here."
@@ -40,19 +17,17 @@ const Chat: React.FC<Props> = ({ callFrame, accountType }) => {
     to: null,
     from: null,
   };
-  const [chatHistory, _setChatHistory] = useState<ChatInfo[]>([welcomeMessage]);
-  const [username, setUsername] = useState<string | null>(null);
-  const [adminSendToType, _setAdminSendToType] = useState<string>("*");
-  const [appMessageHandlerAdded, setAppMessageHandlerAdded] = useState<boolean>(
-    false
-  );
+  const [chatHistory, _setChatHistory] = useState([welcomeMessage]);
+  const [username, setUsername] = useState(null);
+  const [adminSendToType, _setAdminSendToType] = useState("*");
+  const [appMessageHandlerAdded, setAppMessageHandlerAdded] = useState(false);
   const chatHistoryRef = useRef(chatHistory);
   const adminSendToTypeRef = useRef(adminSendToType);
-  const inputRef = useRef<HTMLTextAreaElement | null>(null);
-  const forceScrollRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef(null);
+  const forceScrollRef = useRef(null);
 
   const setChatHistory = useCallback(
-    (history: ChatInfo[]) => {
+    (history) => {
       // use ref to chat history so state values in event handlers are current
       chatHistoryRef.current = history;
       _setChatHistory(history);
@@ -61,7 +36,7 @@ const Chat: React.FC<Props> = ({ callFrame, accountType }) => {
   );
 
   useEffect(() => {
-    const updateChatHistory = (e: DailyEventObjectAppMessage | undefined) => {
+    const updateChatHistory = (e) => {
       if (e && callFrame) {
         const participants = callFrame.participants();
         const username = participants[e.fromId].user_name;
@@ -90,7 +65,7 @@ const Chat: React.FC<Props> = ({ callFrame, accountType }) => {
   }, [callFrame, appMessageHandlerAdded, username, setChatHistory]);
 
   const setAdminSendToType = useCallback(
-    (type: string) => {
+    (type) => {
       adminSendToTypeRef.current = type;
       _setAdminSendToType(type);
     },
@@ -98,10 +73,10 @@ const Chat: React.FC<Props> = ({ callFrame, accountType }) => {
   );
 
   const submitMessage = useCallback(
-    (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent) => {
+    (e) => {
       e.preventDefault();
       if (callFrame && inputRef.current) {
-        let sendToList: ChatInfo[] = [];
+        let sendToList = [];
 
         const participants = callFrame.participants();
         const from = participants?.local?.user_id;
@@ -208,7 +183,7 @@ const Chat: React.FC<Props> = ({ callFrame, accountType }) => {
   );
 
   const adminMessageSelectOnChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
+    (e) => {
       setAdminSendToType(e.target.value);
     },
     [setAdminSendToType]
@@ -225,7 +200,7 @@ const Chat: React.FC<Props> = ({ callFrame, accountType }) => {
   useEffect(scrollToBottom, [chatHistory, scrollToBottom]);
 
   const onTextAreaEnterPress = useCallback(
-    (e: React.KeyboardEvent) => {
+    (e) => {
       if (e.keyCode === 13 && e.shiftKey === false) {
         e.preventDefault();
         submitMessage(e);

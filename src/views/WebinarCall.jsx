@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import DailyIframe, { DailyCall, DailyCallOptions } from "@daily-co/daily-js";
+import DailyIframe from "@daily-co/daily-js";
 import styled from "styled-components";
 import Chat from "../components/Chat";
 import ErrorMessage from "../components/ErrorMessage";
@@ -28,18 +28,7 @@ import {
 import Anchor from "../components/Anchor";
 import { ADMIN } from "../constants";
 
-type ParamTypes = {
-  roomName: string;
-};
-
-type RoomInfo = {
-  token?: string | null;
-  username?: string | null;
-  url?: string;
-  accountType?: "admin" | "participant";
-};
-
-const CALL_OPTIONS: DailyCallOptions = {
+const CALL_OPTIONS = {
   // @ts-ignore
   iframeStyle: {
     width: "100%",
@@ -56,22 +45,22 @@ const CALL_OPTIONS: DailyCallOptions = {
   // showParticipantsBar: false,
 };
 
-const WebinarCall: React.FC = () => {
-  const videoRef = useRef<HTMLDivElement | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const emailRef = useRef<HTMLInputElement | null>(null);
-  const companyRef = useRef<HTMLInputElement | null>(null);
+const WebinarCall = () => {
+  const videoRef = useRef(null);
+  const inputRef = useRef(null);
+  const emailRef = useRef(null);
+  const companyRef = useRef(null);
 
-  const [currentView, setCurrentView] = useState<string>("loading"); // loading | call | waiting | error | left-call
-  const [callFrame, setCallFrame] = useState<DailyCall | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [height, setHeight] = useState<number>(400);
+  const [currentView, setCurrentView] = useState("loading"); // loading | call | waiting | error | left-call
+  const [callFrame, setCallFrame] = useState(null);
+  const [error, setError] = useState(null);
+  const [height, setHeight] = useState(400);
   const [submitting, setSubmitting] = useState(false);
-  const [roomInfo, setRoomInfo] = useState<RoomInfo | null>(null); // {token?: string, accountType: 'participant' | 'admin', username: string, url: string }
-  const [startTime, setStartTime] = useState<string | null>(null);
+  const [roomInfo, setRoomInfo] = useState(null); // {token?: string, accountType: 'participant' | 'admin', username: string, url: string }
+  const [startTime, setStartTime] = useState(null);
 
   const baseUrl = process.env.REACT_APP_BASE_URL;
-  const { roomName } = useParams<ParamTypes>();
+  const { roomName } = useParams();
   const { search } = useLocation();
 
   useEffect(() => {
@@ -139,7 +128,7 @@ const WebinarCall: React.FC = () => {
     console.error("error", res);
   };
 
-  const submitName = (e: React.FormEvent<HTMLFormElement>) => {
+  const submitName = (e) => {
     e.preventDefault();
     if (inputRef?.current && emailRef?.current && companyRef?.current) {
       setSubmitting(true);
@@ -439,20 +428,20 @@ const SubmitButton = styled.input`
   }
 `;
 
-const VideoContainer = styled.div<{ height: number; hidden: boolean }>`
+const VideoContainer = styled.div`
   flex: 1.2;
   margin: 1rem;
   flex-basis: 400px;
   height: ${(props) => (props.hidden ? "100" : props.height)}px;
 `;
 
-const ChatContainer = styled.div<{ height: number }>`
+const ChatContainer = styled.div`
   flex: 1;
   margin: 1rem;
   height: ${(props) => props.height}px;
 `;
 
-const CallFrame = styled.div<{ hidden: boolean }>`
+const CallFrame = styled.div`
   height: 100%;
   width: 100%;
   visibility: ${(props) => (props.hidden ? "hidden" : "visible")};
