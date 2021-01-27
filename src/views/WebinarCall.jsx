@@ -119,7 +119,7 @@ const WebinarCall = () => {
     }
   }, [currentView, callFrame, baseUrl, roomInfo, roomName, search]);
 
-  const checkAndSetError = (res: any) => {
+  const checkAndSetError = (res) => {
     if (res && res.action === "error" && res.errorMsg) {
       setError(res.errMsg);
     } else {
@@ -208,7 +208,7 @@ const WebinarCall = () => {
   }, [roomInfo, videoRef, callFrame, createAndJoinCall]);
 
   useLayoutEffect(() => {
-    let timeout: any;
+    let timeout;
     // handles setting the iframe's height on resize to maintain aspect ratio
     const updateSize = () => {
       if (videoRef?.current) {
