@@ -29,7 +29,6 @@ import Anchor from "../components/Anchor";
 import { ADMIN } from "../constants";
 
 const CALL_OPTIONS = {
-  // @ts-ignore
   iframeStyle: {
     width: "100%",
     height: "100%",
@@ -184,7 +183,6 @@ const WebinarCall = () => {
         }
       })
       .on("error", (err) => checkAndSetError(err))
-      // @ts-ignore
       .join({ userName: roomInfo?.username })
       .then(() => {
         setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
