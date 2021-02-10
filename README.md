@@ -33,4 +33,4 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 ## Deployment
 
-Commits to main are automatically deployed to [https://discover.daily.co](https://discover.daily.co) via Netlify.
+Commits to main are automatically deployed to [https://webinar-demo.netlify.app](https://webinar-demo.netlify.app) via Netlify.

@@ -41,8 +41,8 @@ const CALL_OPTIONS = {
   },
   showLeaveButton: true,
   showFullscreenButton: true,
-  // showLocalVideo: false,
-  // showParticipantsBar: false,
+  showLocalVideo: false,
+  showParticipantsBar: false,
 };
 
 const WebinarCall = () => {
