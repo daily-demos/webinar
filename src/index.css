@@ -1,13 +1,25 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@font-face {
+  font-family: "Graphik Regular";
+  src: url("./fonts/Graphik-Regular-Web.eot");
+  src: url("./fonts/Graphik-Regular-Web.eot?#iefix") format("embedded-opentype"),
+    url("./fonts/Graphik-Regular-Web.woff2") format("woff2"),
+    url("./fonts/Graphik-Regular-Web.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-stretch: normal;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+@font-face {
+  font-family: "Graphik Medium";
+  src: url("./fonts/Graphik-Medium-Web.eot");
+  src: url("./fonts/Graphik-Medium-Web.eot?#iefix") format("embedded-opentype"),
+    url("./fonts/Graphik-Medium-Web.woff2") format("woff2"),
+    url("./fonts/Graphik-Medium-Web.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-stretch: normal;
+}
+
+body {
+  font-family: "Graphik Regular", Helvetica, Arial, sans-serif;
 }
