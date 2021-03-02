@@ -29,3 +29,13 @@ use [http://localhost:3000/[room-name]](http://localhost:3000/[room-name]) to go
 - participants (non-admin) can message the admin directly
 - admin can respond to individual participants or message the entire group
 - lots of Daily links to help participants find what they need in our documentation
+
+## Host vs attendee
+
+To be a host, [create a meeting token for the room](https://docs.daily.co/reference#create-meeting-token) and join with the token appended to the URL.
+Example:
+`http://localhost:3000/[room-name]?t=[token]`
+
+To be an attendee, go to the same URL but don't include the token.
+Example:
+`http://localhost:3000/[room-name]`
