@@ -164,10 +164,6 @@ const Chat = ({ callFrame, accountType }) => {
 
         // add message to your local chat since messages don't get triggered when you're the sender
         // only one message need to get added locally regardless of how many were sent out
-        callFrame.setUserName(inputRef?.current?.value, {
-          thisMeetingOnly: true,
-        });
-
         setChatHistory([
           ...chatHistoryRef.current,
           {
