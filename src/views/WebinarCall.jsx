@@ -59,6 +59,57 @@ const WebinarCall = () => {
   const { search } = useLocation();
 
   useEffect(() => {
+    if (!videoRef?.current || !roomInfo?.url || callFrame) return;
+    // set room url; callFrame properties are otherwise already set above
+    CALL_OPTIONS.url = roomInfo?.url;
+    CALL_OPTIONS.showLocalVideo =
+      roomInfo?.accountType === ADMIN ? true : false;
+    const newCallFrame = DailyIframe.createFrame(
+      videoRef.current,
+      CALL_OPTIONS
+    );
+
+    setCallFrame(newCallFrame);
+    const joinedMeeting = () => {
+      if (currentView !== "call") {
+        setCurrentView("call");
+        setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
+      }
+    };
+    const participantUpdated = (e) => {
+      if (!["call", "left-call"].includes(currentView)) {
+        setCurrentView("call");
+        setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
+      }
+    };
+    const leftMeeting = () => {
+      if (roomInfo?.accountType !== ADMIN && !error) {
+        setCurrentView("left-call");
+      } else if (roomInfo?.accountType === ADMIN) {
+        // remind the admin to export chat-- it's not saved anywhere other than local state
+        window.alert(
+          "Hey admin, don't forget to export the chat before closing this window if you want to save it."
+        );
+      }
+    };
+    // @ts-ignore
+    const handleError = (err) => checkAndSetError(err);
+
+    newCallFrame
+      .on("joined-meeting", joinedMeeting)
+      .on("left-meeting", leftMeeting)
+      .on("participant-updated", (e) => participantUpdated(e))
+      .on("error", handleError);
+
+    return () => {
+      newCallFrame
+        .off("joined-meeting", joinedMeeting)
+        // .off("left-meeting", leftMeeting)
+        .off("error", handleError);
+    };
+  }, [roomInfo, videoRef, callFrame, error, currentView]);
+
+  useEffect(() => {
     if (roomInfo) return;
     if (currentView === "loading" && !callFrame) {
       // validate the room from the URL
@@ -80,7 +131,7 @@ const WebinarCall = () => {
         .catch((err) => checkAndSetError(err));
     }
 
-    if (search && search.match(/^[?t=*+]/)) {
+    if (search && search.match(/^[?t=*+]/) && !error) {
       const token = search.replace("?t=", "");
 
       // validate the token from the URL if supplied
@@ -110,7 +161,7 @@ const WebinarCall = () => {
         accountType: "participant",
       });
     }
-  }, [currentView, baseUrl, roomName, search, roomInfo?.accountType]);
+  }, [currentView, baseUrl, roomName, search, roomInfo, error, callFrame]);
 
   const checkAndSetError = (res) => {
     if (res && res.action === "error" && res.errorMsg) {
@@ -130,42 +181,23 @@ const WebinarCall = () => {
     });
   };
 
-  const createAndJoinCall = useCallback(() => {
-    if (!videoRef || !videoRef?.current || !roomInfo) return;
-
-    // set room url; callFrame properties are otherwise already set above
-    CALL_OPTIONS.url = roomInfo?.url;
-    const newCallFrame = DailyIframe.createFrame(
-      videoRef.current,
-      CALL_OPTIONS
-    );
-
-    setCallFrame(newCallFrame);
-
-    // join call with additional event listeners added
-    newCallFrame
-      .setShowNamesMode("always")
-      .on("joined-meeting", () => setCurrentView("call"))
-      .on("left-meeting", () => {
-        if (roomInfo?.accountType !== ADMIN && !error) {
-          setCurrentView("left-call");
-        } else if (roomInfo?.accountType === ADMIN) {
-          // remind the admin to export chat-- it's not saved anywhere other than local state
-          window.alert(
-            "Hey admin, don't forget to export the chat before closing this window if you want to save it."
-          );
-        }
-      })
-      .on("error", (err) => checkAndSetError(err))
+  const joinCall = useCallback(() => {
+    if (!videoRef?.current || !roomInfo || !callFrame) return;
+    callFrame
       .join({ userName: roomInfo?.username })
       .then(() => {
         setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
+        setCurrentView("call");
         console.log("join meeting successful");
       })
       .catch((err) => checkAndSetError(err));
-  }, [roomInfo, videoRef, error]);
+  }, [roomInfo, videoRef, callFrame]);
 
   useEffect(() => {
+    const state = callFrame?.meetingState();
+    if (state === "joined-meeting") {
+      setCurrentView("call");
+    }
     if (!roomInfo) return;
     // if you're not an admin, you can't join without filling out the sign in form
     if (!roomInfo?.username) {
@@ -173,11 +205,10 @@ const WebinarCall = () => {
       return;
     }
     setCurrentView("loading");
-
-    if (!callFrame) {
-      createAndJoinCall();
+    if (callFrame) {
+      joinCall();
     }
-  }, [roomInfo, videoRef, callFrame, createAndJoinCall]);
+  }, [roomInfo, videoRef, callFrame, joinCall]);
 
   useLayoutEffect(() => {
     let timeout;
