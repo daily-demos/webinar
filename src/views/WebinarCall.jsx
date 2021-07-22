@@ -424,6 +424,7 @@ const VideoContainer = styled.div`
   flex: 1.2;
   margin: 1rem;
   flex-basis: 400px;
+  background-color: white;
   height: ${(props) => (props.hidden ? "100" : props.height)}px;
 `;
 
