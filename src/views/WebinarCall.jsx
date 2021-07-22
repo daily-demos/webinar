@@ -1,10 +1,4 @@
-import React, {
-  useLayoutEffect,
-  useRef,
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import DailyIframe from "@daily-co/daily-js";
 import styled from "styled-components";
 import Chat from "../components/Chat";
@@ -104,7 +98,7 @@ const WebinarCall = () => {
     return () => {
       newCallFrame
         .off("joined-meeting", joinedMeeting)
-        // .off("left-meeting", leftMeeting)
+        .off("left-meeting", leftMeeting)
         .off("error", handleError);
     };
   }, [roomInfo, videoRef, callFrame, error, currentView]);
@@ -113,9 +107,10 @@ const WebinarCall = () => {
     if (roomInfo) return;
     if (currentView === "loading" && !callFrame) {
       // validate the room from the URL
-      fetch(`https://webinar-demo.netlify.app//api/rooms/${roomName}`, {})
+      fetch(`${process.env.REACT_APP_API_URL}/api/rooms/${roomName}`, {})
         .then((res) => res.json())
         .then((res) => {
+          console.log("meeee", res);
           if (res.error && res.info) {
             setError(res.info);
             return;
@@ -135,7 +130,7 @@ const WebinarCall = () => {
       const token = search.replace("?t=", "");
 
       // validate the token from the URL if supplied
-      fetch(`https://webinar-demo.netlify.app//api/meeting-tokens/${token}`)
+      fetch(`${process.env.REACT_APP_API_URL}/api/meeting-tokens/${token}`)
         .then((res) => res.json())
         .then((res) => {
           if (res.is_owner && res.room_name === roomName) {
@@ -210,21 +205,26 @@ const WebinarCall = () => {
     }
   }, [roomInfo, videoRef, callFrame, joinCall]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     let timeout;
-    // handles setting the iframe's height on resize to maintain aspect ratio
+
+    // handles setting the iframe's height on window resize to maintain aspect ratio
     const updateSize = () => {
-      if (videoRef?.current) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-          setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
-        }, 100);
-      }
+      if (!videoRef?.current) return;
+
+      clearTimeout(timeout);
+
+      timeout = setTimeout(() => {
+        setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
+      }, 100);
     };
-    window.addEventListener("resize", updateSize);
+
     updateSize();
+
+    window.addEventListener("resize", updateSize);
     return () => window.removeEventListener("resize", updateSize);
-  }, [callFrame]);
+  }, []);
+
   return (
     <FlexContainerColumn>
       <FlexContainer>

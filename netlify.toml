@@ -1,5 +1,5 @@
 [template.environment]
-  DAILY_API_KEY = "Replace with API key"
+  REACT_APP_DAILY_API_KEY = "Replace with API key"
 
 [[redirects]]
   # Proxies the Daily /rooms endpoint, POST will create a room and a GET will return a list 
@@ -11,14 +11,14 @@
   to = "https://api.daily.co/v1/rooms/:name"
   status = 200
   force = true
-  headers = {Authorization = "Bearer DAILY_API_KEY_PLACEHOLDER"}
+  headers = {Authorization = "Bearer REACT_APP_DAILY_API_KEY_PLACEHOLDER"}
 
 [[redirects]]
   from = "/api/meeting-tokens/:token"
   to = "https://api.daily.co/v1/meeting-tokens/:token"
   status = 200
   force = true
-  headers = {Authorization = "Bearer DAILY_API_KEY_PLACEHOLDER"}  
+  headers = {Authorization = "Bearer REACT_APP_DAILY_API_KEY_PLACEHOLDER"}  
 
 # The following redirect is intended for use with most SPAs that handle routing internally.
 [[redirects]]
