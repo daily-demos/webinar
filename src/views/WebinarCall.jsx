@@ -107,10 +107,9 @@ const WebinarCall = () => {
     if (roomInfo) return;
     if (currentView === "loading" && !callFrame) {
       // validate the room from the URL
-      fetch(`${process.env.REACT_APP_API_URL}/api/rooms/${roomName}`, {})
+      fetch(`${process.env.REACT_APP_API_URL}/api/rooms/${roomName}`)
         .then((res) => res.json())
         .then((res) => {
-          console.log("meeee", res);
           if (res.error && res.info) {
             setError(res.info);
             return;
