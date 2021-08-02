@@ -129,8 +129,6 @@ const WebinarCall = () => {
       })
         .then((res) => res.json())
         .then((res) => {
-          console.log("hi");
-          console.log(res);
           if (res.error && res.info) {
             setError(res.info);
             return;
@@ -146,7 +144,6 @@ const WebinarCall = () => {
         .catch((err) => checkAndSetError(err));
     }
 
-    console.log(API_URL);
     if (search && search.match(/^[?t=*+]/) && !error) {
       const token = search.replace("?t=", "");
       // validate the token from the URL if supplied
@@ -162,8 +159,6 @@ const WebinarCall = () => {
       })
         .then((res) => res.json())
         .then((res) => {
-          console.log("token");
-          console.log(res);
           if (res.is_owner && res.room_name === roomName) {
             // add admin setting
             setRoomInfo({
