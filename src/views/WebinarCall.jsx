@@ -33,9 +33,19 @@ const CALL_OPTIONS = {
   },
   showLeaveButton: true,
   showFullscreenButton: true,
-  showLocalVideo: false,
+  // showLocalVideo: true,
   showParticipantsBar: false,
 };
+
+/**
+ * Use for local testing
+ */
+const API_URL = "https://api.daily.co/v1/";
+
+/**
+ * Uncomment and use if deployed to Netlify (see README for instructions)
+ */
+// const API_URL = `${process.env.REACT_APP_API_URL}/api`;
 
 const WebinarCall = () => {
   const videoRef = useRef(null);
@@ -48,7 +58,7 @@ const WebinarCall = () => {
   const [roomInfo, setRoomInfo] = useState(null); // {token?: string, accountType: 'participant' | 'admin', username: string, url: string }
   const [startTime, setStartTime] = useState(null);
 
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const baseUrl = process.env.REACT_APP_DAILY_BASE_URL;
   const { roomName } = useParams();
   const { search } = useLocation();
 
@@ -107,9 +117,20 @@ const WebinarCall = () => {
     if (roomInfo) return;
     if (currentView === "loading" && !callFrame) {
       // validate the room from the URL
-      fetch(`${process.env.REACT_APP_API_URL}/api/rooms/${roomName}`)
+      fetch(`${API_URL}/rooms/${roomName}`, {
+        method: "GET",
+        /**
+         * Remove these headers for the deployed to Netlify version
+         */
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${process.env.REACT_APP_DAILY_API_KEY}`,
+        },
+      })
         .then((res) => res.json())
         .then((res) => {
+          console.log("hi");
+          console.log(res);
           if (res.error && res.info) {
             setError(res.info);
             return;
@@ -125,13 +146,24 @@ const WebinarCall = () => {
         .catch((err) => checkAndSetError(err));
     }
 
+    console.log(API_URL);
     if (search && search.match(/^[?t=*+]/) && !error) {
       const token = search.replace("?t=", "");
-
       // validate the token from the URL if supplied
-      fetch(`${process.env.REACT_APP_API_URL}/api/meeting-tokens/${token}`)
+      fetch(`${API_URL}/meeting-tokens/${token}`, {
+        method: "GET",
+        /**
+         * Remove these headers for the deployed to Netlify version
+         */
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${process.env.REACT_APP_DAILY_API_KEY}`,
+        },
+      })
         .then((res) => res.json())
         .then((res) => {
+          console.log("token");
+          console.log(res);
           if (res.is_owner && res.room_name === roomName) {
             // add admin setting
             setRoomInfo({
