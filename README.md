@@ -8,6 +8,27 @@ Daily's webinar app example using [Daily Prebuilt](https://www.daily.co/prebuilt
 
 [Sign up for a Daily account](https://dashboard.daily.co/signup). You will need your Daily API key, which can be found on the [Developers](https://dashboard.daily.co/developers) page.
 
+### Create a Daily room
+
+Your Daily room is where the webinar will be hosted. Create a Daily room through the Daily [dashboard](https://dashboard.daily.co/rooms/create) or Daily's [REST API](https://docs.daily.co/reference#create-room).
+
+### Room properties
+
+There are two main room properties to be aware of when creating a Daily room for your webinar:
+
+```
+properties: {
+    enable_chat: false,
+    owner_only_broadcast: true
+}
+```
+
+Since the webinar app has a custom chat, the Daily Prebuilt's default chat functionality should be turned off. Additionally, to ensure only the meeting owners can turn on their cameras/microphones for the webinar experience, set the `owner_only_broadcast` property to `true`.
+
+There are several other optional properties depending on the webinar experience you're building. Additional information on [room properties](https://docs.daily.co/reference#create-room) are included in Daily's docs.
+
+---
+
 ## Running this demo locally
 
 To run this demo locally, add an `.env` file with the following variables:
@@ -27,24 +48,9 @@ yarn start
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 <img src="./webinar2.png" style="max-width:700px;" alt="In-call webinar app screenshot">
 
-To join a webinar room, [create a Daily room](https://dashboard.daily.co/rooms/create) and go to `http://localhost:3000/[room-name]` with `[room-name]` updated with the room name you just created.
+To join a webinar room, go to `http://localhost:3000/[room-name]` where `[room-name]` is changed to the name of the room you just created.
 
 To join as a webinar admin, go to `http://localhost:3000/[room-name]?t=[daily-token]`, using a [Daily meeting token](https://docs.daily.co/reference#create-meeting-token) that has the property `is_owner` set to `true`.
-
-### Room properties
-
-There are two main room properties to be aware of when creating a Daily room for your webinar:
-
-```
-properties: {
-    enable_chat: false,
-    owner_only_broadcast: true
-}
-```
-
-Since the webinar app has a custom chat, the Daily Prebuilt's default chat functionality should be turned off. Additionally, to ensure only the meeting owners can turn on their cameras/microphones for the webinar experience, set the `owner_only_broadcast` property to `true`.
-
-There are several other optional properties depending on the webinar experience you're building. Additional information on [room properties](https://docs.daily.co/reference#create-room) are included in Daily's docs.
 
 ---
 
