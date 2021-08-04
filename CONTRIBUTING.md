@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for looking into contributing to`daily-demos`! We want these projects to help people experiment with Daily more quickly. We especially welcome any contributions that help us make existing demos easier to understand, improve demos' instructions and descriptions, and we're especially excited about any new demos that highlight unique ways to use the [Daily API](https://docs.daily.co/reference).
+Thank you for looking into contributing to `daily-demos`! We want these projects to help people experiment with Daily more quickly. We especially welcome any contributions that help us make existing demos easier to understand, improve demos' instructions and descriptions, and we're especially excited about any new demos that highlight unique ways to use the [Daily API](https://docs.daily.co/reference).
 
 **Before contributing:**
 
@@ -14,7 +14,7 @@ Thank you for looking into contributing to`daily-demos`! We want these projects 
 
 ## Before contributing
 
-### Run party-line locally
+### Run demo locally
 
 Please follow the instructions in `README.md`.
 
