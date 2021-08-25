@@ -113,3 +113,16 @@ Once the app is redeployed, you can visit your Netlify domain to see the deploye
 - participants (non-admin) can message the admin directly
 - admin can respond to individual participants or message the entire group
 - lots of Daily links to help participants find what they need in our documentation
+
+---
+
+## Related blog posts/tutorials
+
+Learn more about this demo on the [Daily blog](https://www.daily.co/blog/tag/webinar/).
+
+- [Introduction to the webinar series and demo specs](https://www.daily.co/blog/webinartc-building-a-webinar-app-with-react-and-daily-prebuilt-ui/)
+- [Adding Daily Prebuilt to our webinar demo](https://www.daily.co/blog/webinartc-build-your-own-webinar-app/)
+- [Distinguish between webinar admins and attendees in your webinar app](https://www.daily.co/blog/create-admins-in-react-apps-with-daily-meeting-tokens/)
+- [Create a custom chat input for your webinar app](https://www.daily.co/blog/build-a-react-input-with-sendappmessage/)
+- [Understanding Daily room settings for broadcast (webinar) calls](https://www.daily.co/blog/daily-prebuilt-broadcast-call-deep-dive/)
+- [Build a React form to generate Daily meeting tokens for webinar admins](https://www.daily.co/blog/build-a-react-form-to-generate-daily-meeting-tokens/)
