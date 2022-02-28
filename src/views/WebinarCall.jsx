@@ -1,26 +1,23 @@
-import React, { useRef, useState, useEffect, useCallback } from "react";
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 import DailyIframe from "@daily-co/daily-js";
 import styled from "styled-components";
+import { useParams, useLocation } from "react-router-dom";
 import Chat from "../components/Chat";
 import AuRevoir from "../components/AuRevoir";
 import Loading from "../components/Loading";
-import HeaderText from "../components/text/HeaderText";
-import BodyText from "../components/text/BodyText";
-import { useParams, useLocation } from "react-router-dom";
-import checkmark from "../components/images/checkmark.svg";
+import { InstructionText } from "../components/List";
+import InCallSupportMessage from "../components/InCallSupportMessage";
+import InCallWaitingRoom from "../components/InCallWaitingRoom";
 import theme from "../theme";
-import {
-  Icon,
-  HintList,
-  HintListItem,
-  SubContainer,
-  InstructionText,
-  FormHeader,
-  HintListItemText,
-} from "../components/List";
-import Anchor from "../components/Anchor";
 import { ADMIN } from "../constants";
 
+// Call options passed to daily-js when callframe is created
 const CALL_OPTIONS = {
   iframeStyle: {
     width: "100%",
@@ -38,7 +35,7 @@ const CALL_OPTIONS = {
 };
 
 /**
- * Use for local testing
+ * Use for local testing (replace with line 48 if deployed on Netlify)
  */
 const API_URL = "https://api.daily.co/v1/";
 
@@ -49,7 +46,6 @@ const API_URL = "https://api.daily.co/v1/";
 
 const WebinarCall = () => {
   const videoRef = useRef(null);
-  const inputRef = useRef(null);
 
   const [currentView, setCurrentView] = useState("loading"); // loading | call | waiting | error | left-call
   const [callFrame, setCallFrame] = useState(null);
@@ -62,18 +58,25 @@ const WebinarCall = () => {
   const { roomName } = useParams();
   const { search } = useLocation();
 
+  const updateCallOptions = (roomInfo) => {
+    CALL_OPTIONS.url = roomInfo?.url;
+    // show local video is the person joining is an admin
+    CALL_OPTIONS.showLocalVideo = roomInfo?.accountType === ADMIN;
+  };
+
   useEffect(() => {
     if (!videoRef?.current || !roomInfo?.url || callFrame) return;
     // set room url; callFrame properties are otherwise already set above
-    CALL_OPTIONS.url = roomInfo?.url;
-    CALL_OPTIONS.showLocalVideo =
-      roomInfo?.accountType === ADMIN ? true : false;
+
+    updateCallOptions(roomInfo);
+
     const newCallFrame = DailyIframe.createFrame(
       videoRef.current,
       CALL_OPTIONS
     );
 
     setCallFrame(newCallFrame);
+
     const joinedMeeting = () => {
       if (currentView !== "call") {
         setCurrentView("call");
@@ -89,26 +92,28 @@ const WebinarCall = () => {
     const leftMeeting = () => {
       if (roomInfo?.accountType !== ADMIN && !error) {
         setCurrentView("left-call");
-      } else if (roomInfo?.accountType === ADMIN) {
-        // remind the admin to export chat-- it's not saved anywhere other than local state
+      }
+
+      // remind the admin to export chat-- it's not saved anywhere other than local state
+      if (roomInfo?.accountType === ADMIN) {
         window.alert(
           "Hey admin, don't forget to export the chat before closing this window if you want to save it."
         );
       }
     };
-    // @ts-ignore
     const handleError = (err) => checkAndSetError(err);
 
     newCallFrame
       .on("joined-meeting", joinedMeeting)
       .on("left-meeting", leftMeeting)
-      .on("participant-updated", (e) => participantUpdated(e))
+      .on("participant-updated", participantUpdated)
       .on("error", handleError);
 
     return () => {
       newCallFrame
         .off("joined-meeting", joinedMeeting)
         .off("left-meeting", leftMeeting)
+        .off("participant-updated", participantUpdated)
         .off("error", handleError);
     };
   }, [roomInfo, videoRef, callFrame, error, currentView]);
@@ -193,15 +198,6 @@ const WebinarCall = () => {
     console.error("error", res);
   };
 
-  const submitName = (e) => {
-    e.preventDefault();
-    if (!inputRef?.current) return;
-    setRoomInfo({
-      ...roomInfo,
-      username: inputRef.current.value?.trim(),
-    });
-  };
-
   const joinCall = useCallback(() => {
     if (!videoRef?.current || !roomInfo || !callFrame) return;
     callFrame
@@ -251,97 +247,48 @@ const WebinarCall = () => {
     return () => window.removeEventListener("resize", updateSize);
   }, []);
 
+  const renderCurrentViewUI = useMemo(() => {
+    switch (currentView) {
+      case "loading":
+        return <Loading />;
+      case "left-call":
+        return <AuRevoir />;
+      case "waiting":
+        return (
+          <InCallWaitingRoom
+            startTime={startTime}
+            roomInfo={roomInfo}
+            setRoomInfo={setRoomInfo}
+            error={error}
+          />
+        );
+      case "call":
+        return (
+          <Chat
+            callFrame={callFrame}
+            accountType={roomInfo?.accountType}
+            height={height}
+          />
+        );
+      default:
+        return null;
+    }
+  }, [currentView, startTime, roomInfo, height, callFrame, error]);
+
   return (
     <FlexContainerColumn>
       <FlexContainer>
-        {currentView === "loading" && <Loading />}
-        {currentView === "left-call" && <AuRevoir />}
+        {/* Additional UI depending on current state of call */}
+        {renderCurrentViewUI}
+
         {error && <ErrorText>Error: {error}</ErrorText>}
-        {currentView === "waiting" && (
-          <WaitingRoom>
-            <SubContainer>
-              <HeaderText>Welcome!</HeaderText>
-              <InstructionText>
-                Here are some things to know before we get started:
-              </InstructionText>
-              <HintList>
-                {startTime && (
-                  <HintListItem>
-                    <Icon src={checkmark} alt="checkmark" />
-                    <HintListItemText>
-                      This call starts at:{" "}
-                      <StartTimeText>{startTime}</StartTimeText>
-                    </HintListItemText>
-                  </HintListItem>
-                )}
-                <HintListItem>
-                  <Icon src={checkmark} alt="checkmark" />
-                  <HintListItemText>
-                    Your camera and mic will be off during the entire call. (No
-                    one can see or hear you!)
-                  </HintListItemText>
-                </HintListItem>
-                <HintListItem>
-                  <Icon src={checkmark} alt="checkmark" />
-                  <HintListItemText>
-                    You can send chat messages to the Daily team during the call
-                    to ask questions
-                  </HintListItemText>
-                </HintListItem>
-                <HintListItem>
-                  <Icon src={checkmark} alt="checkmark" />
-                  <HintListItemText>
-                    We encourage you to use this call to clarify any questions
-                    you may have!
-                  </HintListItemText>
-                </HintListItem>
-              </HintList>
-            </SubContainer>
-            <Form onSubmit={submitName}>
-              <FormHeader>
-                Before joining, please introduce yourself:
-              </FormHeader>
-              <Label htmlFor="username">Your name</Label>
-              <Input ref={inputRef} id="username" type="text" required />
-              <SubmitButton
-                type="submit"
-                value="Join our call"
-                disabled={error}
-              />
-            </Form>
-          </WaitingRoom>
-        )}
+
+        {/* Daily video call iframe */}
         <VideoContainer height={height} hidden={currentView !== "call"}>
           <CallFrame ref={videoRef} hidden={currentView !== "call"} />
         </VideoContainer>
-        {currentView === "call" && roomInfo && roomInfo.username && (
-          <ChatContainer height={height}>
-            <Chat callFrame={callFrame} accountType={roomInfo?.accountType} />
-          </ChatContainer>
-        )}
       </FlexContainer>
-      {currentView === "call" && (
-        <FlexRow>
-          <HelpText>
-            Having trouble connecting?{" "}
-            <Anchor
-              href="https://help.daily.co/en/articles/2303117-top-troubleshooting-5-tips-that-solve-99-of-issues"
-              color={theme.colors.orange}
-            >
-              Try these fast tips
-            </Anchor>
-            , or{" "}
-            <Anchor
-              href="https://www.daily.co/contact/support?utm_source=webinar"
-              color={theme.colors.orange}
-            >
-              contact our support
-            </Anchor>{" "}
-            via chat or email.
-          </HelpText>
-          <Flex1>_</Flex1>
-        </FlexRow>
-      )}
+      {currentView === "call" && <InCallSupportMessage />}
     </FlexContainerColumn>
   );
 };
@@ -361,92 +308,10 @@ const FlexContainerColumn = styled.div`
     flex-direction: column-reverse;
   }
 `;
-const FlexRow = styled.div`
-  display: flex;
-  flex-direction: row;
-
-  @media (max-width: 996px) {
-    flex-direction: column;
-  }
-`;
 const ErrorText = styled(InstructionText)`
   color: ${theme.colors.red};
   margin: 0 1rem;
 `;
-const HelpText = styled(BodyText)`
-  flex: 1.7;
-  margin: 1rem;
-`;
-const Flex1 = styled.div`
-  flex: 1;
-  font-size: 0;
-  color: transparent;
-`;
-
-const WaitingRoom = styled.div`
-  margin: 3rem 1rem 0;
-  display: flex;
-
-  @media (max-width: 996px) {
-    flex-direction: column;
-  }
-`;
-
-const StartTimeText = styled.span`
-  color: ${theme.colors.green};
-  font-family: ${theme.fontFamily.bold};
-`;
-
-const Form = styled.form`
-  margin-top: 4rem;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  margin-left: 3rem;
-  background-color: ${theme.colors.white};
-  border-radius: 6px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.06),
-    0 4px 8px rgba(0, 0, 0, 0.06), 0 8px 16px rgba(0, 0, 0, 0.06),
-    0 16px 32px rgba(0, 0, 0, 0.06);
-  padding: 1.5rem;
-
-  @media (max-width: 996px) {
-    margin-left: 0rem;
-  }
-`;
-
-const Label = styled.label`
-  font-size: ${theme.fontSize.base};
-  color: ${theme.colors.greyDark};
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
-`;
-const Input = styled.input`
-  padding: 0.5rem;
-  border-radius: 6px;
-  border: 1px solid ${theme.colors.grey};
-  font-family: ${theme.fontFamily.regular};
-`;
-const SubmitButton = styled.input`
-  padding: 0.4rem 1rem 0.5rem;
-  border-radius: 6px;
-  background-color: ${theme.colors.turquoise};
-  border: 1px solid ${theme.colors.turquoise};
-  color: ${theme.colors.blueDark};
-  margin-top: 2rem;
-  margin-left: auto;
-  cursor: pointer;
-  font-family: ${theme.fontFamily.bold};
-  font-size: ${theme.fontSize.base};
-
-  &:hover {
-    border: 1px solid ${theme.colors.teal};
-  }
-  &:disabled {
-    opacity: 0.5;
-  }
-`;
-
 const VideoContainer = styled.div`
   flex: 1.2;
   margin: 1rem;
@@ -454,13 +319,6 @@ const VideoContainer = styled.div`
   background-color: white;
   height: ${(props) => (props.hidden ? "100" : props.height)}px;
 `;
-
-const ChatContainer = styled.div`
-  flex: 1;
-  margin: 1rem;
-  height: ${(props) => props.height}px;
-`;
-
 const CallFrame = styled.div`
   height: 100%;
   width: 100%;
