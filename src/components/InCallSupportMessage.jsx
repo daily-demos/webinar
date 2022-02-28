@@ -3,7 +3,7 @@ import BodyText from "../components/text/BodyText";
 import styled from "styled-components";
 import theme from "../theme";
 
-const InCallSupportMessage = () => {
+const InCallSupportMessage = () => (
   <FlexRow>
     <HelpText>
       Having trouble connecting?{" "}
@@ -23,8 +23,8 @@ const InCallSupportMessage = () => {
       via chat or email.
     </HelpText>
     <Flex1>_</Flex1>
-  </FlexRow>;
-};
+  </FlexRow>
+);
 
 const FlexRow = styled.div`
   display: flex;

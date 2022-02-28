@@ -224,81 +224,88 @@ const Chat = ({ callFrame, accountType }) => {
   }, [chatHistory]);
 
   return (
-    <FlexContainer>
-      <SubHeaderText>{username ? `Hey ${username}!` : "Hey!"}</SubHeaderText>
-      {accountType !== ADMIN ? (
-        <SubText>
-          Have a question about the Daily API? Send a chat message below!
-        </SubText>
-      ) : (
-        <BodyText>
-          You're hosting a call. Broadcast messages and DMs are available.
-        </BodyText>
-      )}
-      {accountType === ADMIN && (
-        <ExportButtonContainer>
-          <ExportButton onClick={exportChat}>Export Chat</ExportButton>
-        </ExportButtonContainer>
-      )}
-      <Container>
-        <ChatBox ref={forceScrollRef}>
-          {chatHistory.map((chat, i) => (
-            <ChatMessage
-              key={`chat-message-${i}`}
-              chat={chat}
-              localParticipant={
-                callFrame ? callFrame.participants()?.local?.user_id : ""
-              }
-            />
-          ))}
-        </ChatBox>
-        <Form onSubmit={submitMessage}>
-          <Label htmlFor="messageInput">
-            Message {accountType !== ADMIN ? "Daily admin" : ""}
-          </Label>
-          <ChatInputContainer>
-            <Textarea
-              ref={inputRef}
-              id="messageInput"
-              placeholder="Enter your message..."
-              onKeyDown={onTextAreaEnterPress}
-            />
-            <ButtonContainer>
-              {accountType === ADMIN && callFrame?.participants() && (
-                <Select onChange={adminMessageSelectOnChange}>
-                  <option value="*">Everyone</option>
-                  {Object.values(callFrame.participants()).map((p, i) => {
-                    if (!p.owner) {
-                      // only show participants for direct messages
-                      return (
-                        <option key={`participant-${i}`} value={p.session_id}>
-                          {p.user_name}
-                        </option>
-                      );
-                    }
-                    return null;
-                  })}
-                </Select>
-              )}
-
-              <SubmitButton
-                value={`Send ${
-                  accountType !== ADMIN
-                    ? "to host"
-                    : adminSendToType === "*"
-                    ? "broadcast"
-                    : "DM"
-                }`}
-                type="submit"
+    <ChatContainer>
+      <FlexContainer>
+        <SubHeaderText>{username ? `Hey ${username}!` : "Hey!"}</SubHeaderText>
+        {accountType !== ADMIN ? (
+          <SubText>
+            Have a question about the Daily API? Send a chat message below!
+          </SubText>
+        ) : (
+          <BodyText>
+            You're hosting a call. Broadcast messages and DMs are available.
+          </BodyText>
+        )}
+        {accountType === ADMIN && (
+          <ExportButtonContainer>
+            <ExportButton onClick={exportChat}>Export Chat</ExportButton>
+          </ExportButtonContainer>
+        )}
+        <Container>
+          <ChatBox ref={forceScrollRef}>
+            {chatHistory.map((chat, i) => (
+              <ChatMessage
+                key={`chat-message-${i}`}
+                chat={chat}
+                localParticipant={
+                  callFrame ? callFrame.participants()?.local?.user_id : ""
+                }
               />
-            </ButtonContainer>
-          </ChatInputContainer>
-        </Form>
-      </Container>
-    </FlexContainer>
+            ))}
+          </ChatBox>
+          <Form onSubmit={submitMessage}>
+            <Label htmlFor="messageInput">
+              Message {accountType !== ADMIN ? "Daily admin" : ""}
+            </Label>
+            <ChatInputContainer>
+              <Textarea
+                ref={inputRef}
+                id="messageInput"
+                placeholder="Enter your message..."
+                onKeyDown={onTextAreaEnterPress}
+              />
+              <ButtonContainer>
+                {accountType === ADMIN && callFrame?.participants() && (
+                  <Select onChange={adminMessageSelectOnChange}>
+                    <option value="*">Everyone</option>
+                    {Object.values(callFrame.participants()).map((p, i) => {
+                      if (!p.owner) {
+                        // only show participants for direct messages
+                        return (
+                          <option key={`participant-${i}`} value={p.session_id}>
+                            {p.user_name}
+                          </option>
+                        );
+                      }
+                      return null;
+                    })}
+                  </Select>
+                )}
+
+                <SubmitButton
+                  value={`Send ${
+                    accountType !== ADMIN
+                      ? "to host"
+                      : adminSendToType === "*"
+                      ? "broadcast"
+                      : "DM"
+                  }`}
+                  type="submit"
+                />
+              </ButtonContainer>
+            </ChatInputContainer>
+          </Form>
+        </Container>
+      </FlexContainer>
+    </ChatContainer>
   );
 };
 
+const ChatContainer = styled.div`
+  flex: 1;
+  margin: 1rem;
+  height: ${(props) => props.height}px;
+`;
 const FlexContainer = styled.div`
   display: flex;
   flex-direction: column;

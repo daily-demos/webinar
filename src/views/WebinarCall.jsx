@@ -9,13 +9,14 @@ import DailyIframe from "@daily-co/daily-js";
 import styled from "styled-components";
 import { useParams, useLocation } from "react-router-dom";
 import Chat from "../components/Chat";
-import AuRevoir from "../components/AuRevoir";
+import LeftCall from "../components/LeftCall";
 import Loading from "../components/Loading";
 import { InstructionText } from "../components/List";
 import InCallSupportMessage from "../components/InCallSupportMessage";
 import InCallWaitingRoom from "../components/InCallWaitingRoom";
 import theme from "../theme";
 import { ADMIN } from "../constants";
+import { fetchDailyRoom, fetchDailyToken } from "../api";
 
 // Call options passed to daily-js when callframe is created
 const CALL_OPTIONS = {
@@ -34,16 +35,6 @@ const CALL_OPTIONS = {
   showParticipantsBar: false,
 };
 
-/**
- * Use for local testing (replace with line 48 if deployed on Netlify)
- */
-const API_URL = "https://api.daily.co/v1/";
-
-/**
- * Uncomment and use if deployed to Netlify (see README for instructions)
- */
-// const API_URL = `${process.env.REACT_APP_API_URL}/api`;
-
 const WebinarCall = () => {
   const videoRef = useRef(null);
 
@@ -54,9 +45,10 @@ const WebinarCall = () => {
   const [roomInfo, setRoomInfo] = useState(null); // {token?: string, accountType: 'participant' | 'admin', username: string, url: string }
   const [startTime, setStartTime] = useState(null);
 
-  const baseUrl = process.env.REACT_APP_DAILY_BASE_URL;
   const { roomName } = useParams();
   const { search } = useLocation();
+
+  const baseUrl = process.env.REACT_APP_DAILY_BASE_URL;
 
   const updateCallOptions = (roomInfo) => {
     CALL_OPTIONS.url = roomInfo?.url;
@@ -65,9 +57,10 @@ const WebinarCall = () => {
   };
 
   useEffect(() => {
+    // As soon as there is a room URL available, create the Daily callframe
     if (!videoRef?.current || !roomInfo?.url || callFrame) return;
-    // set room url; callFrame properties are otherwise already set above
 
+    // Add room-specific call options, like room URL, to default/existing settings
     updateCallOptions(roomInfo);
 
     const newCallFrame = DailyIframe.createFrame(
@@ -75,14 +68,7 @@ const WebinarCall = () => {
       CALL_OPTIONS
     );
 
-    setCallFrame(newCallFrame);
-
-    const joinedMeeting = () => {
-      if (currentView !== "call") {
-        setCurrentView("call");
-        setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
-      }
-    };
+    // DAILY EVENT CALLBACKS
     const participantUpdated = (e) => {
       if (!["call", "left-call"].includes(currentView)) {
         setCurrentView("call");
@@ -92,6 +78,7 @@ const WebinarCall = () => {
     const leftMeeting = () => {
       if (roomInfo?.accountType !== ADMIN && !error) {
         setCurrentView("left-call");
+        callFrame.destroy();
       }
 
       // remind the admin to export chat-- it's not saved anywhere other than local state
@@ -101,164 +88,157 @@ const WebinarCall = () => {
         );
       }
     };
-    const handleError = (err) => checkAndSetError(err);
+    const handleError = (err) => {
+      if (err && err.action === "error" && err.errorMsg) {
+        setError(err.errMsg);
+      } else {
+        setError(null);
+      }
+      console.error("error", err);
+    };
 
     newCallFrame
-      .on("joined-meeting", joinedMeeting)
       .on("left-meeting", leftMeeting)
       .on("participant-updated", participantUpdated)
       .on("error", handleError);
 
+    setCallFrame(newCallFrame);
+
     return () => {
       newCallFrame
-        .off("joined-meeting", joinedMeeting)
         .off("left-meeting", leftMeeting)
         .off("participant-updated", participantUpdated)
         .off("error", handleError);
     };
   }, [roomInfo, videoRef, callFrame, error, currentView]);
 
-  useEffect(() => {
-    if (roomInfo) return;
-    if (currentView === "loading" && !callFrame) {
-      // validate the room from the URL
-      fetch(`${API_URL}/rooms/${roomName}`, {
-        method: "GET",
-        /**
-         * Remove these headers for the deployed to Netlify version
-         */
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${process.env.REACT_APP_DAILY_API_KEY}`,
-        },
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          if (res.error && res.info) {
-            setError(res.info);
-            return;
-          }
-          if (res.config?.nbf) {
-            const timeUnformatted = new Date(res.config?.nbf * 1000);
-            const time = new Intl.DateTimeFormat("en-US", {
-              timeZone: "America/Los_Angeles",
-            }).format(timeUnformatted);
-            setStartTime(time);
-          }
-        })
-        .catch((err) => checkAndSetError(err));
-    }
+  const validateDailyRoomProvided = useCallback(async () => {
+    // Validate the room exists (room name provided in URL)
+    const dailyRoom = await fetchDailyRoom(roomName);
 
-    if (search && search.match(/^[?t=*+]/) && !error) {
-      const token = search.replace("?t=", "");
-      // validate the token from the URL if supplied
-      fetch(`${API_URL}/meeting-tokens/${token}`, {
-        method: "GET",
-        /**
-         * Remove these headers for the deployed to Netlify version
-         */
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${process.env.REACT_APP_DAILY_API_KEY}`,
-        },
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          if (res.is_owner && res.room_name === roomName) {
-            // add admin setting
-            setRoomInfo({
-              token,
-              username: res.user_name,
-              url: `${baseUrl}${roomName}?t=${token}`,
-              accountType: ADMIN,
-            });
-            return;
-          }
-          setError(res.info || "Something went wrong!");
-        })
-        .catch((err) => {
-          checkAndSetError(err);
-        });
+    // show error if anything went funky
+    if (dailyRoom.error && dailyRoom.info) {
+      setError(dailyRoom.info);
+      return;
+    }
+    // if there's a "not-before-time" on the room, set it in local state
+    if (dailyRoom?.config?.nbf) {
+      const timeUnformatted = new Date(dailyRoom.config?.nbf * 1000);
+      const time = new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/Los_Angeles",
+      }).format(timeUnformatted);
+      setStartTime(time);
+    }
+  }, [roomName]);
+
+  const validateTokenProvided = useCallback(async () => {
+    const token = search.replace("?t=", "");
+    // validate the token from the URL if supplied
+    const tokenInfo = await fetchDailyToken(token);
+    if (tokenInfo.is_owner && tokenInfo.room_name === roomName) {
+      // add admin setting
+      setRoomInfo({
+        token,
+        username: tokenInfo.user_name,
+        url: `${baseUrl}${roomName}`,
+        accountType: ADMIN,
+      });
+      // show in-call view if it's a valid token
+      setCurrentView("call");
+    }
+  }, [baseUrl, roomName, search]);
+
+  useEffect(() => {
+    // don't request room info if it's already set
+    if (roomInfo || callFrame) return;
+
+    /*
+     First, validate the room via Daily's REST API.
+     Wait until validating an optional token query param
+     below before setting room info.
+     */
+    const validateRoom = async () => await validateDailyRoomProvided(roomName);
+    validateRoom();
+
+    // Next, check for a token in query params and validate it
+    const hasProvidedToken = search && search.match(/^[?t=*+]/);
+
+    // A token being provided means they're trying to join as an admin
+    if (hasProvidedToken) {
+      // validate token and update room info if valid
+      validateTokenProvided();
     } else {
+      // just update room info for regular participants
       setRoomInfo({
         token: null,
         username: null,
         url: `${baseUrl}${roomName}`,
         accountType: "participant",
       });
-    }
-  }, [currentView, baseUrl, roomName, search, roomInfo, error, callFrame]);
-
-  const checkAndSetError = (res) => {
-    if (res && res.action === "error" && res.errorMsg) {
-      setError(res.errMsg);
-    } else {
-      setError(null);
-    }
-    console.error("error", res);
-  };
-
-  const joinCall = useCallback(() => {
-    if (!videoRef?.current || !roomInfo || !callFrame) return;
-    callFrame
-      .join({ userName: roomInfo?.username })
-      .then(() => {
-        setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
-        setCurrentView("call");
-        console.log("join meeting successful");
-      })
-      .catch((err) => checkAndSetError(err));
-  }, [roomInfo, videoRef, callFrame]);
-
-  useEffect(() => {
-    const state = callFrame?.meetingState();
-    if (state === "joined-meeting") {
-      setCurrentView("call");
-    }
-    if (!roomInfo) return;
-    // if you're not an admin, you can't join without filling out the sign in form
-    if (!roomInfo?.username) {
+      // show waiting room view with name form
       setCurrentView("waiting");
-      return;
     }
-    setCurrentView("loading");
-    if (callFrame) {
-      joinCall();
-    }
-  }, [roomInfo, videoRef, callFrame, joinCall]);
+  }, [
+    baseUrl,
+    roomName,
+    search,
+    roomInfo,
+    callFrame,
+    validateDailyRoomProvided,
+    validateTokenProvided,
+  ]);
 
-  useEffect(() => {
+  // handles setting the iframe's height on window resize to maintain aspect ratio
+  const updateSize = useCallback(() => {
     let timeout;
+    if (!videoRef?.current) return;
 
-    // handles setting the iframe's height on window resize to maintain aspect ratio
-    const updateSize = () => {
-      if (!videoRef?.current) return;
+    clearTimeout(timeout);
 
-      clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
+    }, 100);
+  }, [videoRef]);
 
-      timeout = setTimeout(() => {
-        setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
-      }, 100);
-    };
+  const joinCall = useCallback(async () => {
+    if (!callFrame) return;
+    try {
+      setCurrentView("call");
+      // update the callframe height to get the right aspect ratio
+      updateSize();
+      await callFrame.join({ userName: roomInfo.username });
+    } catch (err) {
+      console.error(err);
+    }
+  }, [roomInfo?.username, callFrame, updateSize]);
 
-    updateSize();
-
+  // handle window resizes to manage aspect ratio of daily iframe
+  useEffect(() => {
     window.addEventListener("resize", updateSize);
     return () => window.removeEventListener("resize", updateSize);
-  }, []);
+  }, [updateSize]);
 
   const renderCurrentViewUI = useMemo(() => {
+    const handleSubmitNameForm = (username) => {
+      // add local user's name to roomInfo
+      // it needs to be set for the chat widget to work :)
+      setRoomInfo({
+        ...roomInfo,
+        username,
+      });
+
+      joinCall();
+    };
     switch (currentView) {
       case "loading":
         return <Loading />;
       case "left-call":
-        return <AuRevoir />;
+        return <LeftCall />;
       case "waiting":
         return (
           <InCallWaitingRoom
             startTime={startTime}
-            roomInfo={roomInfo}
-            setRoomInfo={setRoomInfo}
+            joinCall={handleSubmitNameForm}
             error={error}
           />
         );
@@ -273,20 +253,20 @@ const WebinarCall = () => {
       default:
         return null;
     }
-  }, [currentView, startTime, roomInfo, height, callFrame, error]);
+  }, [currentView, startTime, roomInfo, height, callFrame, error, joinCall]);
 
   return (
     <FlexContainerColumn>
       <FlexContainer>
-        {/* Additional UI depending on current state of call */}
-        {renderCurrentViewUI}
-
-        {error && <ErrorText>Error: {error}</ErrorText>}
-
         {/* Daily video call iframe */}
         <VideoContainer height={height} hidden={currentView !== "call"}>
           <CallFrame ref={videoRef} hidden={currentView !== "call"} />
         </VideoContainer>
+
+        {/* Additional UI depending on current state of call */}
+        {renderCurrentViewUI}
+
+        {error && <ErrorText>Error: {error}</ErrorText>}
       </FlexContainer>
       {currentView === "call" && <InCallSupportMessage />}
     </FlexContainerColumn>

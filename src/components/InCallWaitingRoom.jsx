@@ -13,17 +13,17 @@ import {
 } from "../components/List";
 import theme from "../theme";
 
-const InCallWaitingRoom = ({ startTime, setRoomInfo, roomInfo, error }) => {
+const InCallWaitingRoom = ({ startTime, error, joinCall }) => {
   const inputRef = useRef(null);
 
-  const submitName = (e) => {
+  const handleSubmitNameForm = (e) => {
     e.preventDefault();
     if (!inputRef?.current) return;
-    setRoomInfo({
-      ...roomInfo,
-      username: inputRef.current.value?.trim(),
-    });
+
+    const username = inputRef.current.value?.trim();
+    joinCall(username);
   };
+
   return (
     <Container>
       <SubContainer>
@@ -63,7 +63,7 @@ const InCallWaitingRoom = ({ startTime, setRoomInfo, roomInfo, error }) => {
           </HintListItem>
         </HintList>
       </SubContainer>
-      <Form onSubmit={submitName}>
+      <Form onSubmit={handleSubmitNameForm}>
         <FormHeader>Before joining, please introduce yourself:</FormHeader>
         <Label htmlFor="username">Your name</Label>
         <Input ref={inputRef} id="username" type="text" required />

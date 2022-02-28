@@ -12,7 +12,7 @@ import {
 } from "./List";
 import checkmark from "../components/images/checkmark.svg";
 
-const AuRevoir = () => {
+const LeftCall = () => {
   return (
     <FlexContainer>
       <SubContainer>
@@ -68,4 +68,4 @@ const AuRevoir = () => {
   );
 };
 
-export default AuRevoir;
+export default LeftCall;
