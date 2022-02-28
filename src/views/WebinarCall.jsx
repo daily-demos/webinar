@@ -56,14 +56,14 @@ const WebinarCall = () => {
     CALL_OPTIONS.showLocalVideo = roomInfo?.accountType === ADMIN;
   };
 
-  useEffect(() => {
+  const createCallFrame = useCallback(async () => {
     // As soon as there is a room URL available, create the Daily callframe
     if (!videoRef?.current || !roomInfo?.url || callFrame) return;
 
     // Add room-specific call options, like room URL, to default/existing settings
     updateCallOptions(roomInfo);
 
-    const newCallFrame = DailyIframe.createFrame(
+    const newCallFrame = await DailyIframe.createFrame(
       videoRef.current,
       CALL_OPTIONS
     );
@@ -112,6 +112,31 @@ const WebinarCall = () => {
     };
   }, [roomInfo, videoRef, callFrame, error, currentView]);
 
+  // handles setting the iframe's height on window resize to maintain aspect ratio
+  const updateSize = useCallback(() => {
+    let timeout;
+    if (!videoRef?.current) return;
+
+    clearTimeout(timeout);
+
+    timeout = setTimeout(() => {
+      setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
+    }, 100);
+  }, [videoRef]);
+
+  const createAndJoinCall = useCallback(async () => {
+    console.log("heree", roomInfo);
+    await createCallFrame();
+    setCurrentView("call");
+    // update the callframe height to get the right aspect ratio
+    updateSize();
+    try {
+      await callFrame.join({ userName: roomInfo.username });
+    } catch (err) {
+      console.error(err);
+    }
+  }, [roomInfo, callFrame, updateSize, createCallFrame]);
+
   const validateDailyRoomProvided = useCallback(async () => {
     // Validate the room exists (room name provided in URL)
     const dailyRoom = await fetchDailyRoom(roomName);
@@ -133,8 +158,10 @@ const WebinarCall = () => {
 
   const validateTokenProvided = useCallback(async () => {
     const token = search.replace("?t=", "");
+
     // validate the token from the URL if supplied
     const tokenInfo = await fetchDailyToken(token);
+
     if (tokenInfo.is_owner && tokenInfo.room_name === roomName) {
       // add admin setting
       setRoomInfo({
@@ -143,14 +170,19 @@ const WebinarCall = () => {
         url: `${baseUrl}${roomName}`,
         accountType: ADMIN,
       });
-      // show in-call view if it's a valid token
-      setCurrentView("call");
+      return true;
+    } else {
+      const errorMsg =
+        "The token you're trying to use appears invalid. Please make sure the is_owner value is true and the room_name field is set.";
+      setError(errorMsg);
+      setCurrentView("waiting");
+      return false;
     }
   }, [baseUrl, roomName, search]);
 
   useEffect(() => {
     // don't request room info if it's already set
-    if (roomInfo || callFrame) return;
+    if (roomInfo) return;
 
     /*
      First, validate the room via Daily's REST API.
@@ -166,7 +198,11 @@ const WebinarCall = () => {
     // A token being provided means they're trying to join as an admin
     if (hasProvidedToken) {
       // validate token and update room info if valid
-      validateTokenProvided();
+      const isValid = validateTokenProvided();
+      console.log(roomInfo);
+      if (isValid) {
+        createAndJoinCall();
+      }
     } else {
       // just update room info for regular participants
       setRoomInfo({
@@ -186,31 +222,8 @@ const WebinarCall = () => {
     callFrame,
     validateDailyRoomProvided,
     validateTokenProvided,
+    createAndJoinCall,
   ]);
-
-  // handles setting the iframe's height on window resize to maintain aspect ratio
-  const updateSize = useCallback(() => {
-    let timeout;
-    if (!videoRef?.current) return;
-
-    clearTimeout(timeout);
-
-    timeout = setTimeout(() => {
-      setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
-    }, 100);
-  }, [videoRef]);
-
-  const joinCall = useCallback(async () => {
-    if (!callFrame) return;
-    try {
-      setCurrentView("call");
-      // update the callframe height to get the right aspect ratio
-      updateSize();
-      await callFrame.join({ userName: roomInfo.username });
-    } catch (err) {
-      console.error(err);
-    }
-  }, [roomInfo?.username, callFrame, updateSize]);
 
   // handle window resizes to manage aspect ratio of daily iframe
   useEffect(() => {
@@ -227,7 +240,7 @@ const WebinarCall = () => {
         username,
       });
 
-      joinCall();
+      createAndJoinCall();
     };
     switch (currentView) {
       case "loading":
@@ -253,7 +266,15 @@ const WebinarCall = () => {
       default:
         return null;
     }
-  }, [currentView, startTime, roomInfo, height, callFrame, error, joinCall]);
+  }, [
+    currentView,
+    startTime,
+    roomInfo,
+    height,
+    callFrame,
+    error,
+    createAndJoinCall,
+  ]);
 
   return (
     <FlexContainerColumn>
