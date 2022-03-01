@@ -180,6 +180,14 @@ const WebinarCall = () => {
     }
   }, [baseUrl, roomName, search]);
 
+  /**
+   * VALIDATING THE URL PROVIDED
+   * 1. the room name is provided as part of the URL path and needs
+   * to be validated as an existing Daily room that can be joined.
+   * 2. an optional token ("t") query param can be used with a Daily
+   * meeting token. There are used by webinar admins and also need to be
+   * validated before the participant can join as a host.
+   */
   useEffect(() => {
     // don't request room info if it's already set
     if (roomInfo) return;
@@ -187,10 +195,10 @@ const WebinarCall = () => {
     /*
      First, validate the room via Daily's REST API.
      Wait until validating an optional token query param
-     below before setting room info.
+     below before setting room info. This helps avoid flashes of
+     content.
      */
-    const validateRoom = async () => await validateDailyRoomProvided(roomName);
-    validateRoom();
+    validateDailyRoomProvided(roomName);
 
     // Next, check for a token in query params and validate it
     const hasProvidedToken = search && search.match(/^[?t=*+]/);
@@ -198,11 +206,7 @@ const WebinarCall = () => {
     // A token being provided means they're trying to join as an admin
     if (hasProvidedToken) {
       // validate token and update room info if valid
-      const isValid = validateTokenProvided();
-      console.log(roomInfo);
-      if (isValid) {
-        createAndJoinCall();
-      }
+      validateTokenProvided();
     } else {
       // just update room info for regular participants
       setRoomInfo({
@@ -222,7 +226,6 @@ const WebinarCall = () => {
     callFrame,
     validateDailyRoomProvided,
     validateTokenProvided,
-    createAndJoinCall,
   ]);
 
   // handle window resizes to manage aspect ratio of daily iframe
@@ -231,6 +234,25 @@ const WebinarCall = () => {
     return () => window.removeEventListener("resize", updateSize);
   }, [updateSize]);
 
+  /**
+   * JOINING THE ROOM - ADMIN/HOST
+   * Ff there's a token provided in the URL, we assume the
+   * user is trying to join as an admin. The token gets validated
+   * and (if valid) set in the room info. Therefore, we can auto-
+   * create and join the room if there's a token in roomInfo
+   */
+  useEffect(() => {
+    if (roomInfo?.token) {
+      createAndJoinCall();
+    }
+  }, [roomInfo?.token, createAndJoinCall]);
+  /**
+   * JOINING THE ROOM - ATTENDEE
+   * If there's a token provided in the URL, the waiting room
+   * view will show (i.e. the join form). When the form is submitted,
+   * we know they're trying to join the call, so we can create and join
+   * the call in handleSubmitNameForm below.
+   */
   const renderCurrentViewUI = useMemo(() => {
     const handleSubmitNameForm = (username) => {
       // add local user's name to roomInfo
