@@ -54,63 +54,8 @@ const WebinarCall = () => {
     CALL_OPTIONS.url = roomInfo?.url;
     // show local video is the person joining is an admin
     CALL_OPTIONS.showLocalVideo = roomInfo?.accountType === ADMIN;
+    CALL_OPTIONS.userName = roomInfo?.username;
   };
-
-  const createCallFrame = useCallback(async () => {
-    // As soon as there is a room URL available, create the Daily callframe
-    if (!videoRef?.current || !roomInfo?.url || callFrame) return;
-
-    // Add room-specific call options, like room URL, to default/existing settings
-    updateCallOptions(roomInfo);
-
-    const newCallFrame = await DailyIframe.createFrame(
-      videoRef.current,
-      CALL_OPTIONS
-    );
-
-    // DAILY EVENT CALLBACKS
-    const participantUpdated = (e) => {
-      if (!["call", "left-call"].includes(currentView)) {
-        setCurrentView("call");
-        setHeight((videoRef?.current?.clientWidth || 500) * 0.75);
-      }
-    };
-    const leftMeeting = () => {
-      if (roomInfo?.accountType !== ADMIN && !error) {
-        setCurrentView("left-call");
-        callFrame.destroy();
-      }
-
-      // remind the admin to export chat-- it's not saved anywhere other than local state
-      if (roomInfo?.accountType === ADMIN) {
-        window.alert(
-          "Hey admin, don't forget to export the chat before closing this window if you want to save it."
-        );
-      }
-    };
-    const handleError = (err) => {
-      if (err && err.action === "error" && err.errorMsg) {
-        setError(err.errMsg);
-      } else {
-        setError(null);
-      }
-      console.error("error", err);
-    };
-
-    newCallFrame
-      .on("left-meeting", leftMeeting)
-      .on("participant-updated", participantUpdated)
-      .on("error", handleError);
-
-    setCallFrame(newCallFrame);
-
-    return () => {
-      newCallFrame
-        .off("left-meeting", leftMeeting)
-        .off("participant-updated", participantUpdated)
-        .off("error", handleError);
-    };
-  }, [roomInfo, videoRef, callFrame, error, currentView]);
 
   // handles setting the iframe's height on window resize to maintain aspect ratio
   const updateSize = useCallback(() => {
@@ -124,18 +69,53 @@ const WebinarCall = () => {
     }, 100);
   }, [videoRef]);
 
-  const createAndJoinCall = useCallback(async () => {
-    console.log("heree", roomInfo);
-    await createCallFrame();
+  const handleError = useCallback((err) => {
+    if (err && err.action === "error" && err.errorMsg) {
+      setError(err.errMsg);
+    }
+    console.error("error", err);
+  }, []);
+
+  const leftMeeting = useCallback(() => {
+    // end call for attendees
+    if (roomInfo?.accountType !== ADMIN) {
+      setCurrentView("left-call");
+      callFrame.destroy();
+    }
+    // remind the admin to export chat-- it's not saved anywhere other than local state
+    else {
+      window.alert(
+        "Hey admin, don't forget to export the chat before closing this window if you want to save it."
+      );
+    }
+  }, [roomInfo?.accountType, callFrame]);
+
+  const createAndJoinCallFrame = useCallback(async () => {
+    // As soon as there is a room URL available, create the Daily callframe
+    if (!roomInfo || callFrame) return;
+    console.log(callFrame);
+    // Add room-specific call options, like room URL, to default/existing settings
+    updateCallOptions(roomInfo);
+
+    const newCallFrame = await DailyIframe.createFrame(
+      videoRef.current,
+      CALL_OPTIONS
+    );
+
+    setCallFrame(newCallFrame);
     setCurrentView("call");
     // update the callframe height to get the right aspect ratio
     updateSize();
+    newCallFrame.on("left-meeting", leftMeeting).on("error", handleError);
     try {
-      await callFrame.join({ userName: roomInfo.username });
+      await newCallFrame.join();
     } catch (err) {
       console.error(err);
     }
-  }, [roomInfo, callFrame, updateSize, createCallFrame]);
+
+    return () =>
+      newCallFrame.off("left-meeting", leftMeeting).off("error", handleError);
+  }, [roomInfo, videoRef, callFrame, updateSize, handleError, leftMeeting]);
 
   const validateDailyRoomProvided = useCallback(async () => {
     // Validate the room exists (room name provided in URL)
@@ -235,35 +215,26 @@ const WebinarCall = () => {
   }, [updateSize]);
 
   /**
-   * JOINING THE ROOM - ADMIN/HOST
-   * Ff there's a token provided in the URL, we assume the
-   * user is trying to join as an admin. The token gets validated
-   * and (if valid) set in the room info. Therefore, we can auto-
-   * create and join the room if there's a token in roomInfo
+   * JOINING THE ROOM - ADMIN AND ATTENDEE
+   * 1. Admins: the username is set after the token is validated,
+   * so if there's a username, we can start the call.
+   * 2. Attendees: the username is set when the join form is submitted
+   * and the room has already been validated, so we can start
+   * the call.
    */
   useEffect(() => {
-    if (roomInfo?.token) {
-      createAndJoinCall();
-    }
-  }, [roomInfo?.token, createAndJoinCall]);
-  /**
-   * JOINING THE ROOM - ATTENDEE
-   * If there's a token provided in the URL, the waiting room
-   * view will show (i.e. the join form). When the form is submitted,
-   * we know they're trying to join the call, so we can create and join
-   * the call in handleSubmitNameForm below.
-   */
+    if (!roomInfo?.username || callFrame) return;
+    createAndJoinCallFrame();
+  }, [roomInfo?.username, createAndJoinCallFrame, callFrame]);
+
   const renderCurrentViewUI = useMemo(() => {
-    const handleSubmitNameForm = (username) => {
-      // add local user's name to roomInfo
-      // it needs to be set for the chat widget to work :)
+    const addUsernameToRoomInfo = (username) => {
       setRoomInfo({
         ...roomInfo,
         username,
       });
-
-      createAndJoinCall();
     };
+
     switch (currentView) {
       case "loading":
         return <Loading />;
@@ -273,7 +244,7 @@ const WebinarCall = () => {
         return (
           <InCallWaitingRoom
             startTime={startTime}
-            joinCall={handleSubmitNameForm}
+            joinCall={addUsernameToRoomInfo}
             error={error}
           />
         );
@@ -288,15 +259,7 @@ const WebinarCall = () => {
       default:
         return null;
     }
-  }, [
-    currentView,
-    startTime,
-    roomInfo,
-    height,
-    callFrame,
-    error,
-    createAndJoinCall,
-  ]);
+  }, [currentView, startTime, roomInfo, height, callFrame, error]);
 
   return (
     <FlexContainerColumn>
