@@ -44,6 +44,7 @@ const WebinarCall = () => {
   const [height, setHeight] = useState(400);
   const [roomInfo, setRoomInfo] = useState(null); // {token?: string, accountType: 'participant' | 'admin', username: string, url: string }
   const [startTime, setStartTime] = useState(null);
+  const [joined, setJoined] = useState(false);
 
   const { roomName } = useParams();
   const { search } = useLocation();
@@ -51,10 +52,13 @@ const WebinarCall = () => {
   const baseUrl = process.env.REACT_APP_DAILY_BASE_URL;
 
   const updateCallOptions = (roomInfo) => {
-    CALL_OPTIONS.url = roomInfo?.url;
+    CALL_OPTIONS.url = roomInfo.url;
     // show local video is the person joining is an admin
-    CALL_OPTIONS.showLocalVideo = roomInfo?.accountType === ADMIN;
-    CALL_OPTIONS.userName = roomInfo?.username;
+    CALL_OPTIONS.showLocalVideo = roomInfo.accountType === ADMIN;
+    CALL_OPTIONS.userName = roomInfo.username;
+    if (roomInfo.token) {
+      CALL_OPTIONS.token = roomInfo.token;
+    }
   };
 
   // handles setting the iframe's height on window resize to maintain aspect ratio
@@ -80,6 +84,7 @@ const WebinarCall = () => {
     // end call for attendees
     if (roomInfo?.accountType !== ADMIN) {
       setCurrentView("left-call");
+      setJoined(false);
       callFrame.destroy();
     }
     // remind the admin to export chat-- it's not saved anywhere other than local state
@@ -90,10 +95,12 @@ const WebinarCall = () => {
     }
   }, [roomInfo?.accountType, callFrame]);
 
+  const handleJoined = () => setJoined(true);
+
   const createAndJoinCallFrame = useCallback(async () => {
     // As soon as there is a room URL available, create the Daily callframe
     if (!roomInfo || callFrame) return;
-    console.log(callFrame);
+
     // Add room-specific call options, like room URL, to default/existing settings
     updateCallOptions(roomInfo);
 
@@ -104,17 +111,27 @@ const WebinarCall = () => {
 
     setCallFrame(newCallFrame);
     setCurrentView("call");
-    // update the callframe height to get the right aspect ratio
-    updateSize();
-    newCallFrame.on("left-meeting", leftMeeting).on("error", handleError);
+
+    // Add Daily event handlers
+    newCallFrame
+      .on("left-meeting", leftMeeting)
+      .on("error", handleError)
+      .on("joined-meeting", handleJoined);
+
     try {
       await newCallFrame.join();
+      // update the callframe height to get the right aspect ratio
+      updateSize();
     } catch (err) {
       console.error(err);
     }
 
     return () =>
-      newCallFrame.off("left-meeting", leftMeeting).off("error", handleError);
+      // Remove Daily event handlers
+      newCallFrame
+        .off("left-meeting", leftMeeting)
+        .off("error", handleError)
+        .off("joined-meeting", handleJoined);
   }, [roomInfo, videoRef, callFrame, updateSize, handleError, leftMeeting]);
 
   const validateDailyRoomProvided = useCallback(async () => {
@@ -227,6 +244,10 @@ const WebinarCall = () => {
     createAndJoinCallFrame();
   }, [roomInfo?.username, createAndJoinCallFrame, callFrame]);
 
+  /**
+   * Render some conditional UI depending on where the participant is
+   * in the user flow
+   */
   const renderCurrentViewUI = useMemo(() => {
     const addUsernameToRoomInfo = (username) => {
       setRoomInfo({
@@ -248,32 +269,36 @@ const WebinarCall = () => {
             error={error}
           />
         );
-      case "call":
-        return (
-          <Chat
-            callFrame={callFrame}
-            accountType={roomInfo?.accountType}
-            height={height}
-          />
-        );
       default:
         return null;
     }
-  }, [currentView, startTime, roomInfo, height, callFrame, error]);
+  }, [currentView, startTime, roomInfo, error]);
 
   return (
     <FlexContainerColumn>
       <FlexContainer>
         {/* Daily video call iframe */}
         <VideoContainer height={height} hidden={currentView !== "call"}>
-          <CallFrame ref={videoRef} hidden={currentView !== "call"} />
+          <CallFrame ref={videoRef} />
         </VideoContainer>
 
         {/* Additional UI depending on current state of call */}
         {renderCurrentViewUI}
 
+        {/* Only show chat when call is officially joined (in case pre-join UI is enabled) */}
+        {joined && (
+          <Chat
+            callFrame={callFrame}
+            accountType={roomInfo.accountType}
+            height={height}
+            username={roomInfo.username}
+          />
+        )}
+
+        {/* Show any error messages we're aware of */}
         {error && <ErrorText>Error: {error}</ErrorText>}
       </FlexContainer>
+      {/* Extra message with Daily custom support info */}
       {currentView === "call" && <InCallSupportMessage />}
     </FlexContainerColumn>
   );
@@ -308,7 +333,6 @@ const VideoContainer = styled.div`
 const CallFrame = styled.div`
   height: 100%;
   width: 100%;
-  visibility: ${(props) => (props.hidden ? "hidden" : "visible")};
 `;
 
 export default WebinarCall;

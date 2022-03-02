@@ -6,7 +6,7 @@ import BodyText from "./text/BodyText";
 import ChatMessage from "./ChatMessage";
 import { ADMIN } from "../constants";
 
-const Chat = ({ callFrame, accountType }) => {
+const Chat = ({ callFrame, accountType, username }) => {
   const welcomeMessage = {
     message:
       accountType === ADMIN
@@ -18,9 +18,7 @@ const Chat = ({ callFrame, accountType }) => {
     from: null,
   };
   const [chatHistory, _setChatHistory] = useState([welcomeMessage]);
-  const [username, setUsername] = useState(null);
   const [adminSendToType, _setAdminSendToType] = useState("*");
-  const [appMessageHandlerAdded, setAppMessageHandlerAdded] = useState(false);
   const chatHistoryRef = useRef(chatHistory);
   const adminSendToTypeRef = useRef(adminSendToType);
   const inputRef = useRef(null);
@@ -35,34 +33,32 @@ const Chat = ({ callFrame, accountType }) => {
     [chatHistoryRef]
   );
 
+  /**
+   * DAILY APP-MESSAGE EVENT
+   * Add callback for any app messages received
+   */
   useEffect(() => {
+    if (!callFrame) return;
     const updateChatHistory = (e) => {
-      if (e && callFrame) {
-        const participants = callFrame.participants();
-        const username = participants[e.fromId].user_name;
-        const { message, to, type, from } = e.data;
-        setChatHistory([
-          ...chatHistoryRef.current,
-          {
-            message,
-            username,
-            type,
-            to,
-            from,
-          },
-        ]);
-      }
+      const participants = callFrame.participants();
+      const username = participants[e.fromId].user_name;
+      const { message, to, type, from } = e.data;
+      setChatHistory([
+        ...chatHistoryRef.current,
+        {
+          message,
+          username,
+          type,
+          to,
+          from,
+        },
+      ]);
     };
 
-    if (callFrame && !appMessageHandlerAdded) {
-      callFrame.on("app-message", updateChatHistory);
-      setAppMessageHandlerAdded(true);
-    }
-    if (!username && callFrame) {
-      const participants = callFrame.participants();
-      setUsername(participants?.local?.user_name || "");
-    }
-  }, [callFrame, appMessageHandlerAdded, username, setChatHistory]);
+    callFrame.on("app-message", updateChatHistory);
+
+    return () => callFrame.off("app-message", updateChatHistory);
+  }, [callFrame, setChatHistory]);
 
   const setAdminSendToType = useCallback(
     (type) => {
@@ -74,14 +70,16 @@ const Chat = ({ callFrame, accountType }) => {
 
   const submitMessage = useCallback(
     (e) => {
+      if (!callFrame) return;
       e.preventDefault();
-      if (callFrame && inputRef.current) {
-        let sendToList = [];
+      let sendToList = [];
 
-        const participants = callFrame.participants();
-        const from = participants?.local?.user_id;
-        // if you're an admin you're either sending a direct message to one person or a broadcast message
-        if (accountType === ADMIN && adminSendToType === "*") {
+      const participants = callFrame.participants();
+      const from = participants?.local?.user_id;
+      // if you're an admin you're either sending a direct message to one person or a broadcast message
+
+      if (accountType === ADMIN) {
+        if (adminSendToType === "*") {
           // a broadcast message is sent once to everyone in the call (except the sender)
           sendToList = [
             {
@@ -92,8 +90,8 @@ const Chat = ({ callFrame, accountType }) => {
               from,
             },
           ];
-        } else if (accountType === ADMIN && adminSendToType !== "*") {
-          // a direct message is sent once to the receiver
+        } else {
+          // if it's not a broadcast message, it's a direct message to an attendee
           sendToList = [
             {
               id: adminSendToType,
@@ -116,70 +114,81 @@ const Chat = ({ callFrame, accountType }) => {
               });
             }
           });
-        } else {
-          // if you're a participant, your messages are sent to the host(s), which could vary in number
-          const ids = Object.keys(participants);
-          ids.forEach((id) => {
-            if (participants[id]?.owner) {
-              sendToList.push({
-                id: participants[id].session_id,
-                username: participants[id].user_name,
-                type: "toAdmin",
-                to: "Host(s)",
-                from,
-              });
-            }
-          });
         }
-
-        // If a participant sends a message and there's not host, there's one for to receive it. Show an error message in the chat instead
-        if (!sendToList.length) {
-          setChatHistory([
-            ...chatHistoryRef.current,
-            {
-              message:
-                "Your message could not be sent. To use the chat, you must join the call and have at least one admin present.",
-              username: participants?.local?.user_name || "Me",
-              type: "error",
-              to: null,
+      }
+      // otherwise, you're an attendee trying to message a host
+      else {
+        // attendees' messages are sent to the host(s), which could be 1 or more participants
+        const ids = Object.keys(participants);
+        ids.forEach((id) => {
+          if (participants[id]?.owner) {
+            sendToList.push({
+              id: participants[id].session_id,
+              username: participants[id].user_name,
+              type: "toAdmin",
+              to: "Host(s)",
               from,
-            },
-          ]);
-          return;
-        }
-
-        sendToList.forEach((p) => {
-          // send the message to others
-          callFrame.sendAppMessage(
-            {
-              message: inputRef.current && inputRef.current.value,
-              from,
-              to: p.to,
-              type: p.type,
-              username: p.username,
-            },
-            p.id
-          );
+            });
+          }
         });
+      }
 
-        // add message to your local chat since messages don't get triggered when you're the sender
-        // only one message need to get added locally regardless of how many were sent out
+      // If a participant sends a message and there's not host, there's no one to receive it. :(
+      // Show an error message in the chat instead
+      if (!sendToList.length) {
         setChatHistory([
           ...chatHistoryRef.current,
           {
-            message: inputRef?.current?.value,
+            message:
+              "Your message could not be sent. To use the chat, you must join the call and have at least one admin present.",
             username: participants?.local?.user_name || "Me",
-            type: sendToList[0].type,
-            to: sendToList[0].to,
+            type: "error",
+            to: null,
             from,
           },
         ]);
+        return;
       }
+
+      /**
+       * Iterate through the list of people who need to receive the message
+       * and send with Daily's sendAppMessage method
+       */
+      sendToList.forEach((p) => {
+        callFrame.sendAppMessage(
+          {
+            message: inputRef.current && inputRef.current.value,
+            from,
+            to: p.to,
+            type: p.type,
+            username: p.username,
+          },
+          p.id
+        );
+      });
+
+      /**
+       * Add the message to your local chat too to keep your chat history up-to-date.
+       * (app-messages are not received by the sender so you need to update your own chat.)
+       */
+      //
+      setChatHistory([
+        ...chatHistoryRef.current,
+        {
+          message: inputRef?.current?.value,
+          username,
+          type: sendToList[0].type,
+          to: sendToList[0].to,
+          from,
+        },
+      ]);
+
+      // Reset the chat input value after sending
       if (inputRef.current) {
         inputRef.current.value = "";
       }
     },
-    [accountType, adminSendToType, callFrame, setChatHistory]
+    [accountType, adminSendToType, callFrame, setChatHistory, username]
   );
 
   const adminMessageSelectOnChange = useCallback(

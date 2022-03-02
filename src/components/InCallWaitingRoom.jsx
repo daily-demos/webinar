@@ -21,7 +21,6 @@ const InCallWaitingRoom = ({ startTime, error, joinCall }) => {
     if (!inputRef?.current) return;
 
     const username = inputRef.current.value?.trim();
-    console.log(username);
     joinCall(username);
   };
 
