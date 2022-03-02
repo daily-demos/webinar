@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import theme from "../theme";
 import WebinarCall from "../views/WebinarCall";
 import Home from "../views/Home";
@@ -12,27 +12,21 @@ import Footer from "./Footer";
 
 const App = () => {
   return (
-    <Router>
-      <Container>
-        <ImageContainer>
-          <BackgroundImg1 src={decorativeSlash1} alt=" " />
-          <BackgroundImg2 src={decorativeSlash2} alt=" " />
-          <BackgroundImg3 src={decorativeSlash3} alt=" " />
-        </ImageContainer>
-        <Body>
-          <Header />
-          <Switch>
-            <Route path="/:roomName">
-              <WebinarCall />
-            </Route>
-            <Route path="/">
-              <Home />
-            </Route>
-          </Switch>
-          <Footer />
-        </Body>
-      </Container>
-    </Router>
+    <Container>
+      <ImageContainer>
+        <BackgroundImg1 src={decorativeSlash1} alt=" " />
+        <BackgroundImg2 src={decorativeSlash2} alt=" " />
+        <BackgroundImg3 src={decorativeSlash3} alt=" " />
+      </ImageContainer>
+      <Body>
+        <Header />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/:roomName" element={<WebinarCall />} />
+        </Routes>
+        <Footer />
+      </Body>
+    </Container>
   );
 };
 

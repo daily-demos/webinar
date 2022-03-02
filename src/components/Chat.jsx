@@ -140,7 +140,7 @@ const Chat = ({ callFrame, accountType, username }) => {
           ...chatHistoryRef.current,
           {
             message:
-              "Your message could not be sent. To use the chat, you must join the call and have at least one admin present.",
+              "At least one admin must be present before the chat can be used.",
             username: participants?.local?.user_name || "Me",
             type: "error",
             to: null,

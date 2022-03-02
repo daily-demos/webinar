@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import DailyIframe from "@daily-co/daily-js";
 import styled from "styled-components";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useSearchParams } from "react-router-dom";
 import Chat from "../components/Chat";
 import LeftCall from "../components/LeftCall";
 import Loading from "../components/Loading";
@@ -48,8 +48,11 @@ const WebinarCall = () => {
 
   const { roomName } = useParams();
   const { search } = useLocation();
+  const [searchParams] = useSearchParams();
 
   const baseUrl = process.env.REACT_APP_DAILY_BASE_URL;
+  // add trailing slash if not included
+  const formattedBaseUrl = baseUrl.replace(/\/?$/, "/");
 
   const updateCallOptions = (roomInfo) => {
     CALL_OPTIONS.url = roomInfo.url;
@@ -154,7 +157,7 @@ const WebinarCall = () => {
   }, [roomName]);
 
   const validateTokenProvided = useCallback(async () => {
-    const token = search.replace("?t=", "");
+    const token = searchParams.get("t");
 
     // validate the token from the URL if supplied
     const tokenInfo = await fetchDailyToken(token);
@@ -164,7 +167,7 @@ const WebinarCall = () => {
       setRoomInfo({
         token,
         username: tokenInfo.user_name,
-        url: `${baseUrl}${roomName}`,
+        url: `${formattedBaseUrl}${roomName}`,
         accountType: ADMIN,
       });
       return true;
@@ -175,7 +178,7 @@ const WebinarCall = () => {
       setCurrentView("waiting");
       return false;
     }
-  }, [baseUrl, roomName, search]);
+  }, [formattedBaseUrl, roomName, search, searchParams]);
 
   /**
    * VALIDATING THE URL PROVIDED
@@ -209,14 +212,14 @@ const WebinarCall = () => {
       setRoomInfo({
         token: null,
         username: null,
-        url: `${baseUrl}${roomName}`,
+        url: `${formattedBaseUrl}${roomName}`,
         accountType: "participant",
       });
       // show waiting room view with name form
       setCurrentView("waiting");
     }
   }, [
-    baseUrl,
+    formattedBaseUrl,
     roomName,
     search,
     roomInfo,
