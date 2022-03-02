@@ -1,7 +1,7 @@
 /**
  * Use for local testing (replace with commented out version below if deployed on Netlify)
  */
-const API_URL = "https://api.daily.co/v1/";
+const API_URL = "https://api.daily.co/v1";
 
 /**
  * Uncomment and use if deployed to Netlify (see README for instructions)

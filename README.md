@@ -10,7 +10,7 @@ Daily's webinar app example using [Daily Prebuilt](https://www.daily.co/prebuilt
 
 ### Create a Daily room
 
-Your Daily room is where the webinar will be hosted. Create a Daily room through the Daily [dashboard](https://dashboard.daily.co/rooms/create) or Daily's [REST API](https://docs.daily.co/reference#create-room).
+Your Daily room is where the webinar will be hosted. You will need to create a Daily room with the specific properties outlined below.
 
 ### Room properties
 
@@ -18,14 +18,63 @@ There are two main room properties to be aware of when creating a Daily room for
 
 ```
 properties: {
-    enable_chat: false,
-    owner_only_broadcast: true
+    "enable_chat": false,
+    "owner_only_broadcast": true
 }
 ```
 
-Since the webinar app has a custom chat, the Daily Prebuilt's default chat functionality should be turned off. Additionally, to ensure only the meeting owners can turn on their cameras/microphones for the webinar experience, set the `owner_only_broadcast` property to `true`.
+You can create a new room via the [Dashboard](https://dashboard.daily.co/rooms/create) or the [Daily REST API](https://docs.daily.co/reference/rest-api/rooms/create-room).
+
+To create a room via a cURL command, update and use the following command (don't forget to set your API key):
+
+```bash
+curl --request POST \
+ --url https://api.staging.daily.co/v1/rooms \
+ --header 'Authorization: Bearer <YOUR-DAILY-API-KEY>' \
+ --header 'Content-Type: application/json' \
+ --data '{"properties":{"enable_chat":false,"owner_only_broadcast":true},"name":"ROOM_NAME"}'
+```
+
+Let's review why these properties are important:
+
+Since the webinar app has a custom chat, the Daily Prebuilt's default chat functionality should be turned off. Otherwise, you'd have two chat widgets available to participants at the same time.
+
+Additionally, to ensure only the meeting owners can turn on their cameras/microphones for the webinar experience, set the `owner_only_broadcast` property to `true`. If this setting is not used, anyone could turn on their devices and chat will not be available. (One admin must be present for chat to work.)
 
 There are several other optional properties depending on the webinar experience you're building. Additional information on [room properties](https://docs.daily.co/reference#create-room) are included in Daily's docs.
+
+---
+
+### Admins vs. attendees
+
+There are two types of call participants in this webinar app:
+
+- Admins
+- Attendees
+
+To join as an admin, you will need a [Daily meeting token](https://docs.daily.co/reference/rest-api/meeting-tokens/create-meeting-token) with the following values:
+
+```
+properties: {
+    "is_owner": true,
+    "room_name": "ROOM_NAME",
+    "user_name": "USER_NAME"
+}
+```
+
+To create a meeting token via a cURL command, update and use the following command (don't forget to set your API key and the specific values you'd like to use):
+
+```bash
+curl --request POST \
+ --url https://api.daily.co/v1/meeting-tokens \
+ --header 'Authorization: Bearer <YOUR-DAILY-API-KEY>' \
+ --header 'Content-Type: application/json' \
+ --data '{"properties":{"is_owner":"true","user_name":"USER_NAME","room_name":"ROOM_NAME"}}'
+```
+
+Steps to join as an admin with your token are outlined below.
+
+Attendees do not need a token to join. Further instructions for running the app and joining as an attendee are included below.
 
 ---
 
@@ -34,11 +83,13 @@ There are several other optional properties depending on the webinar experience 
 To run this demo locally, add an `.env` file with the following variables:
 
 ```
-REACT_APP_BASE_URL=<-your Daily URL, e.g. https://demo-example.daily.co->
+REACT_APP_DAILY_BASE_URL=<-your Daily URL, e.g. https://demo-example.daily.co/->
 REACT_APP_DAILY_API_KEY=<-your Daily API key->
 ```
 
-In a terminal window, run the following commands:
+_Note: there is a `.env.sample` file that can be renamed with the variable names already included._
+
+Next, in a terminal window, run the following commands:
 
 ```
 yarn
@@ -47,10 +98,11 @@ yarn start
 
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 <img src="./webinar2.png" style="max-width:700px;" alt="In-call webinar app screenshot">
+_In-call attendee view_
 
-To join a webinar room, go to `http://localhost:3000/[room-name]` where `[room-name]` is changed to the name of the room you just created.
+To join a webinar room as an attendee, go to `http://localhost:3000/[room-name]` where `[room-name]` is changed to the name of the room you just created.
 
-To join as a webinar admin, go to `http://localhost:3000/[room-name]?t=[daily-token]`, using a [Daily meeting token](https://docs.daily.co/reference#create-meeting-token) that has the property `is_owner` set to `true`.
+To join as a webinar admin, go to `http://localhost:3000/[room-name]?t=[daily-token]`, using the [Daily meeting token](https://docs.daily.co/reference#create-meeting-token) you just created in place of `[daily-token]`.
 
 ---
 
@@ -89,7 +141,7 @@ There are a couple Daily API endpoints used in this repo to validate Daily meeti
 Once deployed, You will need to set three environment variables in Netlify's console under `Site Settings > Build & deploy`:
 
 ```
-REACT_APP_BASE_URL=<-your Daily URL->
+REACT_APP_DAILY_BASE_URL=<-your Daily URL->
 REACT_APP_DAILY_API_KEY=<-your Daily API key->
 REACT_APP_NETLIFY_URL=<Netlify-URL-available-after-deploying>
 ```
