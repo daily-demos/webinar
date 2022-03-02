@@ -39,9 +39,9 @@ Let's review why these properties are important:
 
 Since the webinar app has a custom chat, the Daily Prebuilt's default chat functionality should be turned off. Otherwise, you'd have two chat widgets available to participants at the same time.
 
-Additionally, to ensure only the meeting owners can turn on their cameras/microphones for the webinar experience, set the `owner_only_broadcast` property to `true`. If this setting is not used, anyone could turn on their devices and chat will not be available. (One admin must be present for chat to work.)
+Additionally, to ensure only the meeting owners can turn on their cameras/microphones for the webinar experience, set the `owner_only_broadcast` property to `true`. If this setting is not used, anyone could turn on their devices and the custom chat will not work as expected. (One admin must be present for the chat to work.)
 
-There are several other optional properties depending on the webinar experience you're building. Additional information on [room properties](https://docs.daily.co/reference#create-room) are included in Daily's docs.
+There are several other optional properties depending on the webinar experience you're building. Additional information on [room properties](https://docs.daily.co/reference#create-room) is available in the Daily docs.
 
 ---
 
