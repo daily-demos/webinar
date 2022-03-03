@@ -34,28 +34,28 @@ const InCallWaitingRoom = ({ startTime, error, joinCall }) => {
         <HintList>
           {startTime && (
             <HintListItem>
-              <Icon src={checkmark} alt="checkmark" />
+              <Icon src={checkmark} />
               <HintListItemText>
                 This call starts at: <StartTimeText>{startTime}</StartTimeText>
               </HintListItemText>
             </HintListItem>
           )}
           <HintListItem>
-            <Icon src={checkmark} alt="checkmark" />
+            <Icon src={checkmark} />
             <HintListItemText>
               Your camera and mic will be off during the entire call. (No one
               can see or hear you!)
             </HintListItemText>
           </HintListItem>
           <HintListItem>
-            <Icon src={checkmark} alt="checkmark" />
+            <Icon src={checkmark} />
             <HintListItemText>
               You can send chat messages to the Daily team during the call to
               ask questions
             </HintListItemText>
           </HintListItem>
           <HintListItem>
-            <Icon src={checkmark} alt="checkmark" />
+            <Icon src={checkmark} />
             <HintListItemText>
               We encourage you to use this call to clarify any questions you may
               have!

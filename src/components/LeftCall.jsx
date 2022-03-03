@@ -19,7 +19,7 @@ const LeftCall = () => {
         <HeaderText>Thanks for joining us! 👋</HeaderText>
         <HintList>
           <HintListItem>
-            <Icon src={checkmark} alt="checkmark" />
+            <Icon src={checkmark} />
             <HintListItemText>
               <Anchor
                 color={theme.colors.orange}
@@ -31,7 +31,7 @@ const LeftCall = () => {
             </HintListItemText>
           </HintListItem>
           <HintListItem>
-            <Icon src={checkmark} alt="checkmark" />
+            <Icon src={checkmark} />
             <HintListItemText>
               <Anchor
                 color={theme.colors.orange}
@@ -43,7 +43,7 @@ const LeftCall = () => {
             </HintListItemText>
           </HintListItem>
           <HintListItem>
-            <Icon src={checkmark} alt="checkmark" />
+            <Icon src={checkmark} />
             <HintListItemText>
               Check out{" "}
               <Anchor
