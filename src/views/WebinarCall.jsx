@@ -178,7 +178,7 @@ const WebinarCall = () => {
       setCurrentView("waiting");
       return false;
     }
-  }, [formattedBaseUrl, roomName, search, searchParams]);
+  }, [formattedBaseUrl, roomName, searchParams]);
 
   /**
    * VALIDATING THE URL PROVIDED
