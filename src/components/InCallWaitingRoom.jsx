@@ -19,8 +19,9 @@ const InCallWaitingRoom = ({ startTime, error, joinCall }) => {
   const handleSubmitNameForm = (e) => {
     e.preventDefault();
     if (!inputRef?.current) return;
-
     const username = inputRef.current.value?.trim();
+    if (!username) return;
+
     joinCall(username);
   };
 
