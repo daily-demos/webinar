@@ -12,14 +12,14 @@ import {
 } from "./List";
 import checkmark from "../components/images/checkmark.svg";
 
-const AuRevoir = () => {
+const LeftCall = () => {
   return (
     <FlexContainer>
       <SubContainer>
         <HeaderText>Thanks for joining us! 👋</HeaderText>
         <HintList>
           <HintListItem>
-            <Icon src={checkmark} alt="checkmark" />
+            <Icon src={checkmark} />
             <HintListItemText>
               <Anchor
                 color={theme.colors.orange}
@@ -31,7 +31,7 @@ const AuRevoir = () => {
             </HintListItemText>
           </HintListItem>
           <HintListItem>
-            <Icon src={checkmark} alt="checkmark" />
+            <Icon src={checkmark} />
             <HintListItemText>
               <Anchor
                 color={theme.colors.orange}
@@ -43,7 +43,7 @@ const AuRevoir = () => {
             </HintListItemText>
           </HintListItem>
           <HintListItem>
-            <Icon src={checkmark} alt="checkmark" />
+            <Icon src={checkmark} />
             <HintListItemText>
               Check out{" "}
               <Anchor
@@ -68,4 +68,4 @@ const AuRevoir = () => {
   );
 };
 
-export default AuRevoir;
+export default LeftCall;

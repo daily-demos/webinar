@@ -24,20 +24,20 @@ const Home = () => {
         </InstructionText>
         <HintList>
           <HintListItem>
-            <Icon src={checkmark} alt="checkmark" />
+            <Icon src={checkmark} />
             <HintListItemText>
               Different ways to integrate video quickly with Daily APIs
             </HintListItemText>
           </HintListItem>
           <HintListItem>
-            <Icon src={checkmark} alt="checkmark" />
+            <Icon src={checkmark} />
             <HintListItemText>
               Using your dashboard or /logs endpoint to get call logs and call
               quality data
             </HintListItemText>
           </HintListItem>
           <HintListItem>
-            <Icon src={checkmark} alt="checkmark" />
+            <Icon src={checkmark} />
             <HintListItemText>
               Anything you’d like to ask about!
             </HintListItemText>
