@@ -29,7 +29,7 @@ To create a room via a cURL command, update and use the following command (don't
 
 ```bash
 curl --request POST \
- --url https://api.staging.daily.co/v1/rooms \
+ --url https://api.daily.co/v1/rooms \
  --header 'Authorization: Bearer <YOUR-DAILY-API-KEY>' \
  --header 'Content-Type: application/json' \
  --data '{"properties":{"enable_chat":false,"owner_only_broadcast":true},"name":"ROOM_NAME"}'
