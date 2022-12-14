@@ -15,7 +15,7 @@ import { InstructionText } from "../components/List";
 import InCallSupportMessage from "../components/InCallSupportMessage";
 import InCallWaitingRoom from "../components/InCallWaitingRoom";
 import theme from "../theme";
-import { ADMIN } from "../constants";
+import { ACCOUNT_TYPE } from "../constants";
 import { fetchDailyRoom, fetchDailyToken } from "../api";
 
 // Call options passed to daily-js when callframe is created
@@ -57,7 +57,7 @@ const WebinarCall = () => {
   const updateCallOptions = (roomInfo) => {
     CALL_OPTIONS.url = roomInfo.url;
     // show local video is the person joining is an admin
-    CALL_OPTIONS.showLocalVideo = roomInfo.accountType === ADMIN;
+    CALL_OPTIONS.showLocalVideo = roomInfo.accountType === ACCOUNT_TYPE.ADMIN;
     CALL_OPTIONS.userName = roomInfo.username;
     if (roomInfo.token) {
       CALL_OPTIONS.token = roomInfo.token;
@@ -85,7 +85,7 @@ const WebinarCall = () => {
 
   const leftMeeting = useCallback(() => {
     // end call for attendees
-    if (roomInfo?.accountType !== ADMIN) {
+    if (roomInfo?.accountType !== ACCOUNT_TYPE.ADMIN) {
       setCurrentView("left-call");
       setJoined(false);
       callFrame.destroy();
@@ -168,7 +168,7 @@ const WebinarCall = () => {
         token,
         username: tokenInfo.user_name,
         url: `${formattedBaseUrl}${roomName}`,
-        accountType: ADMIN,
+        accountType: ACCOUNT_TYPE.ADMIN,
       });
       return true;
     } else {
@@ -213,7 +213,7 @@ const WebinarCall = () => {
         token: null,
         username: null,
         url: `${formattedBaseUrl}${roomName}`,
-        accountType: "participant",
+        accountType: ACCOUNT_TYPE.PARTICIPANT,
       });
       // show waiting room view with name form
       setCurrentView("waiting");

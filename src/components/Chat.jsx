@@ -4,12 +4,12 @@ import theme from "../theme";
 import HeaderText from "./text/HeaderText";
 import BodyText from "./text/BodyText";
 import ChatMessage from "./ChatMessage";
-import { ADMIN } from "../constants";
+import { ACCOUNT_TYPE } from "../constants";
 
 const Chat = ({ callFrame, accountType, username }) => {
   const welcomeMessage = {
     message:
-      accountType === ADMIN
+      accountType === ACCOUNT_TYPE.ADMIN
         ? "Chat messages will display here."
         : "Only the Daily team can see your message. We'll answer during the Q&A period.",
     type: "info",
@@ -78,7 +78,7 @@ const Chat = ({ callFrame, accountType, username }) => {
       const from = participants?.local?.user_id;
       // if you're an admin you're either sending a direct message to one person or a broadcast message
 
-      if (accountType === ADMIN) {
+      if (accountType === ACCOUNT_TYPE.ADMIN) {
         if (adminSendToType === "*") {
           // a broadcast message is sent once to everyone in the call (except the sender)
           sendToList = [
@@ -236,7 +236,7 @@ const Chat = ({ callFrame, accountType, username }) => {
     <ChatContainer>
       <FlexContainer>
         <SubHeaderText>{username ? `Hey ${username}!` : "Hey!"}</SubHeaderText>
-        {accountType !== ADMIN ? (
+        {accountType !== ACCOUNT_TYPE.ADMIN ? (
           <SubText>
             Have a question about the Daily API? Send a chat message below!
           </SubText>
@@ -245,7 +245,7 @@ const Chat = ({ callFrame, accountType, username }) => {
             You're hosting a call. Broadcast messages and DMs are available.
           </BodyText>
         )}
-        {accountType === ADMIN && (
+        {accountType === ACCOUNT_TYPE.ADMIN && (
           <ExportButtonContainer>
             <ExportButton onClick={exportChat}>Export Chat</ExportButton>
           </ExportButtonContainer>
@@ -264,7 +264,7 @@ const Chat = ({ callFrame, accountType, username }) => {
           </ChatBox>
           <Form onSubmit={submitMessage}>
             <Label htmlFor="messageInput">
-              Message {accountType !== ADMIN ? "Daily admin" : ""}
+              Message {accountType !== ACCOUNT_TYPE.ADMIN ? "Daily admin" : ""}
             </Label>
             <ChatInputContainer>
               <Textarea
@@ -274,26 +274,30 @@ const Chat = ({ callFrame, accountType, username }) => {
                 onKeyDown={onTextAreaEnterPress}
               />
               <ButtonContainer>
-                {accountType === ADMIN && callFrame?.participants() && (
-                  <Select onChange={adminMessageSelectOnChange}>
-                    <option value="*">Everyone</option>
-                    {Object.values(callFrame.participants()).map((p, i) => {
-                      if (!p.owner) {
-                        // only show participants for direct messages
-                        return (
-                          <option key={`participant-${i}`} value={p.session_id}>
-                            {p.user_name}
-                          </option>
-                        );
-                      }
-                      return null;
-                    })}
-                  </Select>
-                )}
+                {accountType === ACCOUNT_TYPE.ADMIN &&
+                  callFrame?.participants() && (
+                    <Select onChange={adminMessageSelectOnChange}>
+                      <option value="*">Everyone</option>
+                      {Object.values(callFrame.participants()).map((p, i) => {
+                        if (!p.owner) {
+                          // only show participants for direct messages
+                          return (
+                            <option
+                              key={`participant-${i}`}
+                              value={p.session_id}
+                            >
+                              {p.user_name}
+                            </option>
+                          );
+                        }
+                        return null;
+                      })}
+                    </Select>
+                  )}
 
                 <SubmitButton
                   value={`Send ${
-                    accountType !== ADMIN
+                    accountType !== ACCOUNT_TYPE.ADMIN
                       ? "to host"
                       : adminSendToType === "*"
                       ? "broadcast"
