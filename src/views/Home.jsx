@@ -25,9 +25,9 @@ const Home = () => {
           to learn more.
         </BodyText>
         <BodyText>
-          In the meantime, you can test the attendee view by adding a room name
-          at the end of the URL. For example,{" "}
-          <Anchor href="/webinar">{window.location.origin}/webinar</Anchor>.
+          In the meantime, you can test the attendee view by going the{" "}
+          <Anchor href="/webinar">{window.location.origin}webinar</Anchor> room
+          we prepared.
         </BodyText>
       </SubContainer>
       <RightPanel>
