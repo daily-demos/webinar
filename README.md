@@ -113,7 +113,7 @@ We've included a button below to deploy to Netlify with one click:
 
 [![Deploy with Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/daily-demos/webinar)
 
-For this demo to work remotely, you will need to update the Netlify settings.
+For this demo to work remotely, you will need to update your Netlify settings.
 
 ### Updating Netlify settings
 
