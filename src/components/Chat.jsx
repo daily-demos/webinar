@@ -101,7 +101,7 @@ const Chat = ({ callFrame, accountType, username }) => {
               from,
             },
           ];
-          // we also cc the other admins on direct messages to participants so they can follow the convo and take over if needed
+          // we also cc the other admins on direct messages to attendees so they can follow the convo and take over if needed
           const ids = Object.keys(participants);
           ids.forEach((id) => {
             if (participants[id]?.owner) {
@@ -133,7 +133,7 @@ const Chat = ({ callFrame, accountType, username }) => {
         });
       }
 
-      // If a participant sends a message and there's not host, there's no one to receive it. :(
+      // If a attendee sends a message and there's not host, there's no one to receive it. :(
       // Show an error message in the chat instead
       if (!sendToList.length) {
         setChatHistory([
@@ -236,7 +236,7 @@ const Chat = ({ callFrame, accountType, username }) => {
     <ChatContainer>
       <FlexContainer>
         <SubHeaderText>{username ? `Hey ${username}!` : "Hey!"}</SubHeaderText>
-        {accountType !== ACCOUNT_TYPE.ADMIN ? (
+        {accountType === ACCOUNT_TYPE.ATTENDEE ? (
           <SubText>
             Have a question about the Daily API? Send a chat message below!
           </SubText>
@@ -264,7 +264,8 @@ const Chat = ({ callFrame, accountType, username }) => {
           </ChatBox>
           <Form onSubmit={submitMessage}>
             <Label htmlFor="messageInput">
-              Message {accountType !== ACCOUNT_TYPE.ADMIN ? "Daily admin" : ""}
+              Message{" "}
+              {accountType === ACCOUNT_TYPE.ATTENDEE ? "Daily admin" : ""}
             </Label>
             <ChatInputContainer>
               <Textarea
@@ -280,7 +281,7 @@ const Chat = ({ callFrame, accountType, username }) => {
                       <option value="*">Everyone</option>
                       {Object.values(callFrame.participants()).map((p, i) => {
                         if (!p.owner) {
-                          // only show participants for direct messages
+                          // only show attendees for direct messages
                           return (
                             <option
                               key={`participant-${i}`}
@@ -297,7 +298,7 @@ const Chat = ({ callFrame, accountType, username }) => {
 
                 <SubmitButton
                   value={`Send ${
-                    accountType !== ACCOUNT_TYPE.ADMIN
+                    accountType === ACCOUNT_TYPE.ATTENDEE
                       ? "to host"
                       : adminSendToType === "*"
                       ? "broadcast"

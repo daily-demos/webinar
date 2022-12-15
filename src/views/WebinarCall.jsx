@@ -42,7 +42,7 @@ const WebinarCall = () => {
   const [callFrame, setCallFrame] = useState(null);
   const [error, setError] = useState(null);
   const [height, setHeight] = useState(400);
-  const [roomInfo, setRoomInfo] = useState(null); // {token?: string, accountType: 'participant' | 'admin', username: string, url: string }
+  const [roomInfo, setRoomInfo] = useState(null); // {token?: string, accountType: 'attendee' | 'admin', username: string, url: string }
   const [startTime, setStartTime] = useState(null);
   const [joined, setJoined] = useState(false);
 
@@ -85,7 +85,7 @@ const WebinarCall = () => {
 
   const leftMeeting = useCallback(() => {
     // end call for attendees
-    if (roomInfo?.accountType !== ACCOUNT_TYPE.ADMIN) {
+    if (roomInfo?.accountType === ACCOUNT_TYPE.ATTENDEE) {
       setCurrentView("left-call");
       setJoined(false);
       callFrame.destroy();
@@ -208,12 +208,12 @@ const WebinarCall = () => {
       // validate token and update room info if valid
       validateTokenProvided();
     } else {
-      // just update room info for regular participants
+      // just update room info for attendees
       setRoomInfo({
         token: null,
         username: null,
         url: `${formattedBaseUrl}${roomName}`,
-        accountType: ACCOUNT_TYPE.PARTICIPANT,
+        accountType: ACCOUNT_TYPE.ATTENDEE,
       });
       // show waiting room view with name form
       setCurrentView("waiting");
