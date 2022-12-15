@@ -12,7 +12,7 @@ const Home = () => {
       <SubContainer>
         <HeaderText>Welcome!</HeaderText>
         <InstructionText>
-          Thank you for checkout out our webinar demo.
+          Thank you for checking out our webinar demo.
         </InstructionText>
         <BodyText>
           This demo uses both an "admin" view and an "attendee" view. In order
