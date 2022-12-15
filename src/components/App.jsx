@@ -8,7 +8,6 @@ import Header from "./Header";
 import decorativeSlash1 from "./images/slash1.svg";
 import decorativeSlash2 from "./images/slash2.svg";
 import decorativeSlash3 from "./images/slash3.svg";
-import Footer from "./Footer";
 
 const App = () => {
   return (
@@ -24,7 +23,6 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/:roomName" element={<WebinarCall />} />
         </Routes>
-        <Footer />
       </Body>
     </Container>
   );

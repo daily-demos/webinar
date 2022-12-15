@@ -85,6 +85,7 @@ To run this demo locally, add an `.env` file with the following variables:
 ```
 REACT_APP_DAILY_BASE_URL=<-your Daily URL, e.g. https://demo-example.daily.co/->
 REACT_APP_DAILY_API_KEY=<-your Daily API key->
+REACT_APP_ROOM_ENDPOINT=local
 ```
 
 _Note: there is a `.env.sample` file that can be renamed with the variable names already included._
@@ -112,27 +113,9 @@ We've included a button below to deploy to Netlify with one click:
 
 [![Deploy with Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/daily-demos/webinar)
 
-For this demo to work remotely, you will need to follow the following additional steps.
+For this demo to work remotely, you will need to update your Netlify settings.
 
-### 1. Updating your API URL
-
-The deployed version of this app will need to using a different API URL than what is used locally, which is set in `WebinarCall.jsx`. To make this change, comment out the first local `API_URL` variable. You will instead use the second option already included below it.
-
-```javascript
-/**
- * Use for local testing
- */
-// const API_URL = "https://api.daily.co/v1/"; // This should be commented out or removed
-
-/**
- * Uncomment and use if deployed to Netlify (see README for instructions)
- */
-const API_URL = `${process.env.REACT_APP_API_URL}/api`; // <- use this API_URL instead
-```
-
-You can also remove the headers included in the two fetch requests in `WebinarCall.jsx`, as the requests do not need to be authenticated by the client-side code once deployed to Netlify.
-
-### 2. Updating Netlify settings
+### Updating Netlify settings
 
 There are a couple Daily API endpoints used in this repo to validate Daily meeting tokens and rooms. We have set up a `netlify.toml` file to handle [Netlify redirects](https://docs.netlify.com/configure-builds/file-based-configuration/#redirects) to simplify interacting with these endpoints. This allows the Daily endpoints to be used without using them (and your API key) directly in this client-side code.
 

@@ -15,7 +15,7 @@ import { InstructionText } from "../components/List";
 import InCallSupportMessage from "../components/InCallSupportMessage";
 import InCallWaitingRoom from "../components/InCallWaitingRoom";
 import theme from "../theme";
-import { ADMIN } from "../constants";
+import { ACCOUNT_TYPE } from "../constants";
 import { fetchDailyRoom, fetchDailyToken } from "../api";
 
 // Call options passed to daily-js when callframe is created
@@ -42,7 +42,7 @@ const WebinarCall = () => {
   const [callFrame, setCallFrame] = useState(null);
   const [error, setError] = useState(null);
   const [height, setHeight] = useState(400);
-  const [roomInfo, setRoomInfo] = useState(null); // {token?: string, accountType: 'participant' | 'admin', username: string, url: string }
+  const [roomInfo, setRoomInfo] = useState(null); // {token?: string, accountType: 'attendee' | 'admin', username: string, url: string }
   const [startTime, setStartTime] = useState(null);
   const [joined, setJoined] = useState(false);
 
@@ -57,7 +57,7 @@ const WebinarCall = () => {
   const updateCallOptions = (roomInfo) => {
     CALL_OPTIONS.url = roomInfo.url;
     // show local video is the person joining is an admin
-    CALL_OPTIONS.showLocalVideo = roomInfo.accountType === ADMIN;
+    CALL_OPTIONS.showLocalVideo = roomInfo.accountType === ACCOUNT_TYPE.ADMIN;
     CALL_OPTIONS.userName = roomInfo.username;
     if (roomInfo.token) {
       CALL_OPTIONS.token = roomInfo.token;
@@ -85,7 +85,7 @@ const WebinarCall = () => {
 
   const leftMeeting = useCallback(() => {
     // end call for attendees
-    if (roomInfo?.accountType !== ADMIN) {
+    if (roomInfo?.accountType === ACCOUNT_TYPE.ATTENDEE) {
       setCurrentView("left-call");
       setJoined(false);
       callFrame.destroy();
@@ -168,7 +168,7 @@ const WebinarCall = () => {
         token,
         username: tokenInfo.user_name,
         url: `${formattedBaseUrl}${roomName}`,
-        accountType: ADMIN,
+        accountType: ACCOUNT_TYPE.ADMIN,
       });
       return true;
     } else {
@@ -208,12 +208,12 @@ const WebinarCall = () => {
       // validate token and update room info if valid
       validateTokenProvided();
     } else {
-      // just update room info for regular participants
+      // just update room info for attendees
       setRoomInfo({
         token: null,
         username: null,
         url: `${formattedBaseUrl}${roomName}`,
-        accountType: "participant",
+        accountType: ACCOUNT_TYPE.ATTENDEE,
       });
       // show waiting room view with name form
       setCurrentView("waiting");

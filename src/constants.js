@@ -1,1 +1,4 @@
-export const ADMIN = "admin";
+export const ACCOUNT_TYPE = {
+  ADMIN: "admin",
+  ATTENDEE: "attendee",
+};
