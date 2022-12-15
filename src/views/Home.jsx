@@ -33,7 +33,7 @@ const Home = () => {
       <RightPanel>
         <Card>
           <FormHeader>
-            To learn about how to use the admin view, or how to run this
+            To learn about how to use the admin view, or how to run this demo
             locally, check out our{" "}
             <Anchor
               href="https://github.com/daily-demos/webinar"
